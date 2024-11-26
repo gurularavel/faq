@@ -1,0 +1,59 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+  }
+  
+  body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, dl, dt, dd {
+    margin: 0;
+    padding: 0;
+  }
+  
+  ul, ol {
+    list-style: none;
+    padding-left: 0; 
+  }
+  
+  blockquote, q {
+    quotes: none;
+  }
+  
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  input, button, textarea, select {
+    font-family: inherit;
+    font-size: inherit;
+    border: none;
+    background: none;
+    outline: none;
+  }
+  
+  body {
+    font-size: 16px;
+    line-height: 1.5;
+    background-color: #fff;
+    color: #333;
+  }
+  
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  th, td {
+    padding: 0;
+    text-align: left;
+  }
+  
+  hr {
+    border: none;
+    height: 1px;
+    background-color: #ccc;
+  }
+  
