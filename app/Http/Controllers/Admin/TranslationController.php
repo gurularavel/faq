@@ -13,7 +13,7 @@ use App\Services\LangService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use RuntimeException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class TranslationController extends Controller
 {
@@ -121,7 +121,7 @@ class TranslationController extends Controller
             foreach ($translations_data as $translation) {
                 if ($translation['group'] !== $group) {
                     DB::rollBack();
-                    throw new RuntimeException(
+                    throw new BadRequestHttpException(
                         LangService::instance()
                             ->setDefault('Wrong translation group!')
                             ->getLang('wrong_translation_group')
@@ -130,7 +130,7 @@ class TranslationController extends Controller
 
                 if ($translation['key'] !== $key) {
                     DB::rollBack();
-                    throw new RuntimeException(
+                    throw new BadRequestHttpException(
                         LangService::instance()
                             ->setDefault('Wrong key word!')
                             ->getLang('wrong_translation_key_word')

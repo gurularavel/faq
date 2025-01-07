@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use RuntimeException;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class FileUpload
 {
@@ -18,7 +18,7 @@ class FileUpload
                 return '';
             } catch (FileDoesNotExist|FileIsTooBig $exception) {
                 if ($return_error) {
-                    throw new RuntimeException($exception->getMessage());
+                    throw new BadRequestHttpException($exception->getMessage());
                 }
 
                 LoggerService::instance()
@@ -45,7 +45,7 @@ class FileUpload
                 return '';
             } catch (FileDoesNotExist|FileIsTooBig $exception) {
                 if ($return_error) {
-                    throw new RuntimeException($exception->getMessage());
+                    throw new BadRequestHttpException($exception->getMessage());
                 }
 
                 LoggerService::instance()
