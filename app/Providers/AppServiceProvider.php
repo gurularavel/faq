@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\LoggerService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        if (config('logger.sql_debug')) {
+            DB::listen(static function ($query) {
+                LoggerService::instance()->log($query->sql, $query->bindings);
+            });
+        }
     }
 }
