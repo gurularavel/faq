@@ -6,7 +6,24 @@ use App\Models\Admin;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use OpenApi\Annotations as OA;
 use Spatie\Permission\Models\Role;
+
+/**
+ * @OA\Schema(
+ *     schema="AdminUpdateRequest",
+ *     type="object",
+ *     title="Admin Update Request",
+ *     description="Request body for updating an existing admin",
+ *     required={"username", "email", "roles"},
+ *     @OA\Property(property="username", type="string", maxLength=100, example="admin"),
+ *     @OA\Property(property="email", type="string", format="email", maxLength=150, example="admin@example.com"),
+ *     @OA\Property(property="password", type="string", format="password", example="P@ssw0rd!"),
+ *     @OA\Property(property="roles", type="array", @OA\Items(type="integer", example=1)),
+ *     @OA\Property(property="name", type="string", maxLength=255, example="John"),
+ *     @OA\Property(property="surname", type="string", maxLength=255, example="Doe")
+ * )
+ */
 
 class AdminUpdateRequest extends FormRequest
 {

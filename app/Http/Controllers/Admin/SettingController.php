@@ -17,14 +17,31 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use OpenApi\Annotations as OA;
 
 class SettingController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @param GeneralListRequest $request
-     * @return AnonymousResourceCollection
+     * @OA\Get(
+     *     path="/api/control/settings/load",
+     *     summary="Display a listing of the resource",
+     *          tags={"Settings"},
+     *      security={
+     *          {"ApiToken": {}},
+     *          {"SanctumBearerToken": {}}
+     *      },
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="integer", minimum=5, maximum=100)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/SettingsResource"))
+     *     )
+     * )
      */
     public function index(GeneralListRequest $request): AnonymousResourceCollection
     {
@@ -40,6 +57,22 @@ class SettingController extends Controller
         return SettingsResource::collection($items);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/control/settings/list",
+     *     summary="List all settings",
+     *          tags={"Settings"},
+     *      security={
+     *          {"ApiToken": {}},
+     *          {"SanctumBearerToken": {}}
+     *      },
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/SettingsListResource"))
+     *     )
+     * )
+     */
     public function list(): AnonymousResourceCollection
     {
         $items = Setting::query()
@@ -49,6 +82,28 @@ class SettingController extends Controller
         return SettingsListResource::collection($items);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/control/settings/show/{key}",
+     *     summary="Show a specific setting",
+     *          tags={"Settings"},
+     *      security={
+     *          {"ApiToken": {}},
+     *          {"SanctumBearerToken": {}}
+     *      },
+     *     @OA\Parameter(
+     *         name="key",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/SettingResource")
+     *     )
+     * )
+     */
     public function show(string $key): SettingResource
     {
         $setting = Setting::query()->where('key', $key)->firstOrFail();
@@ -57,6 +112,24 @@ class SettingController extends Controller
     }
 
     /**
+     * @OA\Post(
+     *     path="/api/control/settings/add",
+     *     summary="Store a newly created resource in storage",
+     *          tags={"Settings"},
+     *      security={
+     *          {"ApiToken": {}},
+     *          {"SanctumBearerToken": {}}
+     *      },
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/SettingStoreRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Resource created successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GeneralResource")
+     *     )
+     * )
      * Store a newly created resource in storage.
      *
      * @param SettingStoreRequest $request
@@ -97,6 +170,32 @@ class SettingController extends Controller
         ]));
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/control/settings/update/{key}",
+     *     summary="Update a specific setting",
+     *          tags={"Settings"},
+     *      security={
+     *          {"ApiToken": {}},
+     *          {"SanctumBearerToken": {}}
+     *      },
+     *     @OA\Parameter(
+     *         name="key",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/SettingUpdateRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Resource updated successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GeneralResource")
+     *     )
+     * )
+     */
     public function update(SettingUpdateRequest $request, string $key): JsonResponse
     {
         $validated = $request->validated();
@@ -127,7 +226,28 @@ class SettingController extends Controller
         ]));
     }
 
+
     /**
+     * @OA\Delete(
+     *     path="/api/control/settings/delete/{key}",
+     *     summary="Remove the specified resource from storage",
+     *          tags={"Settings"},
+     *      security={
+     *          {"ApiToken": {}},
+     *          {"SanctumBearerToken": {}}
+     *      },
+     *     @OA\Parameter(
+     *         name="key",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Resource deleted successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GeneralResource")
+     *     )
+     * )
      * Remove the specified resource from storage.
      *
      * @param string $key
@@ -136,6 +256,14 @@ class SettingController extends Controller
     public function destroy(string $key): JsonResponse
     {
         $setting = Setting::query()->where('key', $key)->firstOrFail();
+
+        if ($setting->isForSystem()) {
+            return response()->json(GeneralResource::make([
+                'message' => LangService::instance()
+                    ->setDefault('You cannot delete system settings!')
+                    ->getLang('you_cannot_delete_system_settings')
+            ]), 400);
+        }
 
         DB::transaction(static function () use ($setting) {
             $setting->delete();

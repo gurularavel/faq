@@ -1,0 +1,1728 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "FAQ API",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/control/admins/load": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get list of admins",
+                "operationId": "7e4cd459a2d619299c9e90c017fa9dd0",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AdminsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/admins/show/{id}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get admin by ID",
+                "operationId": "ff8354912b63b88bfbf2648a59dd7057",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/admins/add": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Create a new admin",
+                "operationId": "bebd869a85fa7cbfaac9e6642ffde9e2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Admin created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminsResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/admins/update/{id}": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Update an existing admin",
+                "operationId": "6d055b16d60275095c549f92a54095da",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Admin updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminsResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/admins/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Delete an admin",
+                "operationId": "3802e98297faf93823280932475ae113",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Admin deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login for Control Panel",
+                "description": "Control Panel Login API",
+                "operationId": "controlLogin",
+                "requestBody": {
+                    "description": "Credentials and device information",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "device_type",
+                                    "username",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "device_type": {
+                                        "description": "Type of device requesting the token",
+                                        "type": "string",
+                                        "enum": [
+                                            "android",
+                                            "ios",
+                                            "web"
+                                        ],
+                                        "example": "web"
+                                    },
+                                    "username": {
+                                        "description": "Username or email address",
+                                        "type": "string",
+                                        "maxLength": 100,
+                                        "example": "sahib@fermanli.net"
+                                    },
+                                    "password": {
+                                        "description": "Account password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "maxLength": 100,
+                                        "minLength": 8,
+                                        "example": "12345678"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful login",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "description": "User information",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "username": {
+                                                    "type": "string",
+                                                    "example": "adminUser"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "admin@example.com"
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John"
+                                                },
+                                                "surname": {
+                                                    "type": "string",
+                                                    "example": "Doe"
+                                                },
+                                                "role_ids": {
+                                                    "description": "List of role IDs",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    },
+                                                    "example": [
+                                                        1
+                                                    ]
+                                                },
+                                                "roles": {
+                                                    "description": "Detailed roles data",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "admin"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "token": {
+                                            "description": "Authentication token",
+                                            "type": "string",
+                                            "example": "2|abcdefgh1234..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid username or password!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/profile/check-logged-in": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Check if user is logged in",
+                "description": "Returns a simple 'LoggedIn' message if user is authenticated.",
+                "operationId": "checkLoggedIn",
+                "responses": {
+                    "200": {
+                        "description": "User is logged in",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Status of the user",
+                                            "type": "string",
+                                            "example": "LoggedIn"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/profile/change-password": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Change user password",
+                "description": "Allows an authenticated user to change their password.",
+                "operationId": "changePassword",
+                "requestBody": {
+                    "description": "New password",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password"
+                                ],
+                                "properties": {
+                                    "password": {
+                                        "description": "New password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "maxLength": 100,
+                                        "minLength": 8,
+                                        "example": "newpassword123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Your password has been changed! You are logged out of other devices."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid request data"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout from current device",
+                "description": "Logs out the authenticated user from the current device.",
+                "operationId": "logout",
+                "responses": {
+                    "200": {
+                        "description": "Logged out from current device",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out from current device."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/logout-all": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout from all devices",
+                "description": "Logs out the authenticated user from all devices.",
+                "operationId": "logoutAll",
+                "responses": {
+                    "200": {
+                        "description": "Logged out from all devices",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out from all devices."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/roles/list": {
+            "get": {
+                "tags": [
+                    "Role"
+                ],
+                "summary": "Get list of roles",
+                "operationId": "89d42ac89b32436b22af9143b8f94d4c",
+                "responses": {
+                    "200": {
+                        "description": "Roles list retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/RolesListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/settings/load": {
+            "get": {
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Display a listing of the resource",
+                "operationId": "16a98c8ef24e6016578c38f62b816030",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 5
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SettingsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/settings/list": {
+            "get": {
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "List all settings",
+                "operationId": "cb1d9efa22869f7c6cc3d26f5190db66",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SettingsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/settings/show/{key}": {
+            "get": {
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Show a specific setting",
+                "operationId": "f143ba97b16b2014d603157c76846014",
+                "parameters": [
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/settings/add": {
+            "post": {
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Store a newly created resource in storage",
+                "operationId": "8a1bfb94bee32ba218156717efee1fde",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SettingStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Resource created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/settings/update/{key}": {
+            "post": {
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Update a specific setting",
+                "operationId": "3d07b5145546bb92c05fc8b41d435a40",
+                "parameters": [
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SettingUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Resource updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/settings/delete/{key}": {
+            "delete": {
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Remove the specified resource from storage",
+                "operationId": "ad3dd1d27dd9e1e17802d1feb10537ed",
+                "parameters": [
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resource deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/translations/load": {
+            "get": {
+                "tags": [
+                    "Translation"
+                ],
+                "summary": "Get list of translations",
+                "operationId": "b37fe3e8f2d4792649fde97fc86606a1",
+                "parameters": [
+                    {
+                        "name": "group",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "keyword",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "text",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Translations list retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/translations/filters": {
+            "get": {
+                "tags": [
+                    "Translation"
+                ],
+                "summary": "Get translation filters",
+                "operationId": "1df194c20c334c4a8e6769d4c9815003",
+                "responses": {
+                    "200": {
+                        "description": "Filters retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/translations/show/{group}/{key}": {
+            "get": {
+                "tags": [
+                    "Translation"
+                ],
+                "summary": "Get translation by group and key",
+                "operationId": "9ae7defd89c2b7e8483d1901ab41efcd",
+                "parameters": [
+                    {
+                        "name": "group",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Translation retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Translation not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/translations/update/{group}/{key}": {
+            "post": {
+                "tags": [
+                    "Translation"
+                ],
+                "summary": "Update translation",
+                "operationId": "6933b797f898c7076c2cf0e8ca73c95f",
+                "parameters": [
+                    {
+                        "name": "group",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TranslationUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Translation updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Translation not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/translations/create": {
+            "get": {
+                "tags": [
+                    "Translation"
+                ],
+                "summary": "Create new translation",
+                "operationId": "1e4316c09f3bc4b007eff696086f29eb",
+                "responses": {
+                    "200": {
+                        "description": "Translation creation data retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/translations/add": {
+            "post": {
+                "tags": [
+                    "Translation"
+                ],
+                "summary": "Create new translation",
+                "operationId": "a2edb78b64ac80f683f77902599e8eae",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TranslationStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Translation created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Translation already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/translations/delete/{group}/{key}": {
+            "delete": {
+                "tags": [
+                    "Translation"
+                ],
+                "summary": "Delete translation",
+                "operationId": "a0d8145c1328f6bd9da683ced879bf22",
+                "parameters": [
+                    {
+                        "name": "group",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Translation deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Translation not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/local-translations/languages/list": {
+            "get": {
+                "tags": [
+                    "LocalTranslations"
+                ],
+                "summary": "Get available languages",
+                "description": "Returns a list of available languages and versions.",
+                "operationId": "getLanguages",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "versions": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/local-translations/{lang}": {
+            "get": {
+                "tags": [
+                    "LocalTranslations"
+                ],
+                "summary": "Get translations for a language",
+                "description": "Returns translations for the specified language.",
+                "operationId": "getTranslations",
+                "parameters": [
+                    {
+                        "name": "lang",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "version": {
+                                                    "type": "integer"
+                                                },
+                                                "translations": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Language not found"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "TranslationGroupEnum": {
+                "title": "Translation Group Enum",
+                "description": "Enumeration of translation groups",
+                "type": "string",
+                "enum": [
+                    "all",
+                    "admin",
+                    "app"
+                ]
+            },
+            "AdminStoreRequest": {
+                "title": "Admin Store Request",
+                "description": "Request body for creating a new admin",
+                "required": [
+                    "username",
+                    "email",
+                    "password",
+                    "roles"
+                ],
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "example": "admin"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 150,
+                        "example": "admin@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "P@ssw0rd!"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "John"
+                    },
+                    "surname": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Doe"
+                    }
+                },
+                "type": "object"
+            },
+            "AdminUpdateRequest": {
+                "title": "Admin Update Request",
+                "description": "Request body for updating an existing admin",
+                "required": [
+                    "username",
+                    "email",
+                    "roles"
+                ],
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "example": "admin"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 150,
+                        "example": "admin@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "P@ssw0rd!"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "John"
+                    },
+                    "surname": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Doe"
+                    }
+                },
+                "type": "object"
+            },
+            "SettingStoreRequest": {
+                "title": "Setting Store Request",
+                "description": "Request body for storing a new setting",
+                "required": [
+                    "key",
+                    "value"
+                ],
+                "properties": {
+                    "key": {
+                        "type": "string",
+                        "maxLength": 150,
+                        "example": "site_name"
+                    },
+                    "value": {
+                        "type": "string",
+                        "maxLength": 1000,
+                        "example": "My Website"
+                    }
+                },
+                "type": "object"
+            },
+            "SettingUpdateRequest": {
+                "title": "Setting Update Request",
+                "description": "Request body for updating a setting",
+                "required": [
+                    "value"
+                ],
+                "properties": {
+                    "value": {
+                        "type": "string",
+                        "maxLength": 1000,
+                        "example": "Updated Value"
+                    }
+                },
+                "type": "object"
+            },
+            "GetTranslationsRequest": {
+                "title": "Get Translations Request",
+                "description": "Request parameters for getting translations",
+                "properties": {
+                    "group": {
+                        "description": "Translation group",
+                        "type": "string",
+                        "enum": [
+                            "all",
+                            "admin",
+                            "app"
+                        ]
+                    },
+                    "keyword": {
+                        "description": "Keyword to search translations",
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "text": {
+                        "description": "Text to search translations",
+                        "type": "string",
+                        "maxLength": 500
+                    }
+                },
+                "type": "object"
+            },
+            "TranslationStoreRequest": {
+                "title": "Translation Store Request",
+                "description": "Request body for storing a new translation",
+                "required": [
+                    "group",
+                    "key",
+                    "translations"
+                ],
+                "properties": {
+                    "group": {
+                        "type": "string",
+                        "maxLength": 30,
+                        "example": "general"
+                    },
+                    "key": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "welcome_message"
+                    },
+                    "translations": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "language_id",
+                                "text"
+                            ],
+                            "properties": {
+                                "language_id": {
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "text": {
+                                    "type": "string",
+                                    "example": "Welcome"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "TranslationUpdateRequest": {
+                "title": "Translation Update Request",
+                "description": "Request body for updating a translation",
+                "required": [
+                    "translations"
+                ],
+                "properties": {
+                    "translations": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "group",
+                                "key",
+                                "text",
+                                "language_id"
+                            ],
+                            "properties": {
+                                "group": {
+                                    "type": "string",
+                                    "maxLength": 30,
+                                    "example": "general"
+                                },
+                                "key": {
+                                    "type": "string",
+                                    "maxLength": 255,
+                                    "example": "welcome_message"
+                                },
+                                "text": {
+                                    "type": "string",
+                                    "example": "Welcome"
+                                },
+                                "language_id": {
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "GeneralListRequest": {
+                "title": "General List Request",
+                "description": "Request parameters for listing resources",
+                "properties": {
+                    "sort": {
+                        "description": "Field to sort by",
+                        "type": "string"
+                    },
+                    "sort_type": {
+                        "description": "Sort direction",
+                        "type": "string",
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ]
+                    },
+                    "limit": {
+                        "description": "Number of items per page",
+                        "type": "integer",
+                        "maximum": 100,
+                        "minimum": 5
+                    },
+                    "search": {
+                        "description": "Search term",
+                        "type": "string",
+                        "maxLength": 100
+                    }
+                },
+                "type": "object"
+            },
+            "AdminResource": {
+                "title": "Admin Resource",
+                "description": "Admin resource representation",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "admin"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "admin@example.com"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John"
+                    },
+                    "surname": {
+                        "type": "string",
+                        "example": "Doe"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "AdminsResource": {
+                "title": "Admins Resource",
+                "description": "Admins resource representation",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "admin"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "admin@example.com"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John"
+                    },
+                    "surname": {
+                        "type": "string",
+                        "example": "Doe"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RolesListResource"
+                        }
+                    },
+                    "created_user": {
+                        "type": "string",
+                        "example": "creator"
+                    },
+                    "created_date": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-10-01T12:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "RolesListResource": {
+                "title": "Roles List Resource",
+                "description": "Roles list resource representation",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Admin"
+                    },
+                    "guard_name": {
+                        "type": "string",
+                        "example": "web"
+                    }
+                },
+                "type": "object"
+            },
+            "SettingResource": {
+                "title": "Setting Resource",
+                "description": "Resource representation of a setting",
+                "properties": {
+                    "key": {
+                        "description": "The key of the setting",
+                        "type": "string"
+                    },
+                    "value": {
+                        "description": "The value of the setting",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "SettingsListResource": {
+                "title": "Settings List Resource",
+                "description": "Resource representation of a list of settings",
+                "properties": {
+                    "key": {
+                        "description": "The key of the setting",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "SettingsResource": {
+                "title": "Settings Resource",
+                "description": "Resource representation of a setting",
+                "properties": {
+                    "key": {
+                        "description": "The key of the setting",
+                        "type": "string"
+                    },
+                    "value": {
+                        "description": "The value of the setting",
+                        "type": "string"
+                    },
+                    "created_user": {
+                        "description": "The username of the user who created the setting",
+                        "type": "string"
+                    },
+                    "created_date": {
+                        "description": "The date and time when the setting was created",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "GeneralResource": {
+                "title": "General Resource",
+                "description": "General resource representation",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Operation successful"
+                    },
+                    "data": {
+                        "description": "The data returned by the operation",
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "ApiToken": {
+                "type": "apiKey",
+                "description": "ApiToken required for all end points",
+                "name": "Token",
+                "in": "header"
+            },
+            "SanctumBearerToken": {
+                "type": "http",
+                "description": "Sanctum Bearer Token required after user logs in (Authorization: Bearer <token>)",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Admin",
+            "description": "Admin"
+        },
+        {
+            "name": "Authentication",
+            "description": "Authentication"
+        },
+        {
+            "name": "Role",
+            "description": "Role"
+        },
+        {
+            "name": "Settings",
+            "description": "Settings"
+        },
+        {
+            "name": "Translation",
+            "description": "Translation"
+        },
+        {
+            "name": "LocalTranslations",
+            "description": "LocalTranslations"
+        }
+    ]
+}

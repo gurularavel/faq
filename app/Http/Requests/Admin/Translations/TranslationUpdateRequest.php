@@ -5,7 +5,29 @@ namespace App\Http\Requests\Admin\Translations;
 use App\Services\LangService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Schema(
+ *     schema="TranslationUpdateRequest",
+ *     type="object",
+ *     title="Translation Update Request",
+ *     description="Request body for updating a translation",
+ *     required={"translations"},
+ *     @OA\Property(
+ *         property="translations",
+ *         type="array",
+ *         @OA\Items(
+ *             type="object",
+ *             required={"group", "key", "text", "language_id"},
+ *             @OA\Property(property="group", type="string", maxLength=30, example="general"),
+ *             @OA\Property(property="key", type="string", maxLength=255, example="welcome_message"),
+ *             @OA\Property(property="text", type="string", example="Welcome"),
+ *             @OA\Property(property="language_id", type="integer", example=1)
+ *         )
+ *     )
+ * )
+ */
 class TranslationUpdateRequest extends FormRequest
 {
     /**

@@ -14,14 +14,33 @@ use App\Services\LangService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
+use OpenApi\Annotations as OA;
 
 class AdminController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @param GeneralListRequest $request
-     * @return AnonymousResourceCollection
+     * @OA\Get(
+     *     path="/api/control/admins/load",
+     *     summary="Get list of admins",
+     *     tags={"Admin"},
+     *     security={
+     *            {
+     *                "ApiToken": {},
+     *                "SanctumBearerToken": {}
+     *            }
+     *       },
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/AdminsResource"))
+     *     )
+     * )
      */
     public function index(GeneralListRequest $request): AnonymousResourceCollection
     {
@@ -38,16 +57,56 @@ class AdminController extends Controller
         return AdminsResource::collection($admins);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/control/admins/show/{id}",
+     *     summary="Get admin by ID",
+     *     tags={"Admin"},
+     *          security={
+     *            {
+     *                "ApiToken": {},
+     *                "SanctumBearerToken": {}
+     *            }
+     *       },
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/AdminResource")
+     *     )
+     * )
+     */
     public function show(Admin $admin): AdminResource
     {
         return AdminResource::make($admin);
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param AdminStoreRequest $request
-     * @return JsonResponse
+     * @OA\Post(
+     *     path="/api/control/admins/add",
+     *     summary="Create a new admin",
+     *     tags={"Admin"},
+     *          security={
+     *            {
+     *                "ApiToken": {},
+     *                "SanctumBearerToken": {}
+     *            }
+     *       },
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/AdminStoreRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Admin created successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/AdminsResource")
+     *     )
+     * )
      */
     public function store(AdminStoreRequest $request): JsonResponse
     {
@@ -77,6 +136,34 @@ class AdminController extends Controller
         ]));
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/control/admins/update/{id}",
+     *     summary="Update an existing admin",
+     *     tags={"Admin"},
+     *          security={
+     *            {
+     *                "ApiToken": {},
+     *                "SanctumBearerToken": {}
+     *            }
+     *       },
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/AdminUpdateRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Admin updated successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/AdminsResource")
+     *     )
+     * )
+     */
     public function update(AdminUpdateRequest $request, Admin $admin): JsonResponse
     {
         $validated = $request->validated();
@@ -108,10 +195,28 @@ class AdminController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param Admin $admin
-     * @return JsonResponse
+     * @OA\Delete(
+     *     path="/api/control/admins/delete/{id}",
+     *     summary="Delete an admin",
+     *     tags={"Admin"},
+     *          security={
+     *            {
+     *                "ApiToken": {},
+     *                "SanctumBearerToken": {}
+     *            }
+     *       },
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Admin deleted successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GeneralResource")
+     *     )
+     * )
      */
     public function destroy(Admin $admin): JsonResponse
     {

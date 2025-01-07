@@ -1,7 +1,6 @@
 <?php
 
 use App\Enum\RoleEnum;
-use App\Enum\TranslationGroupEnum;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\LogoutController;
@@ -27,8 +26,6 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
         Route::group(['prefix' => 'local-translations'], static function () {
             Route::get('languages/list', [LocalTranslationsController::class, 'getLanguages'])->withoutMiddleware(['auth:sanctum']);
             Route::get('{lang}', [LocalTranslationsController::class, 'getTranslations'])->withoutMiddleware(['auth:sanctum']);
-            Route::post('set-default/{group}', [LocalTranslationsController::class, 'setDefaultValue'])
-                ->whereIn('group', TranslationGroupEnum::cases());
         });
 
         Route::group(['prefix' => 'admins', 'middleware' => ['role:' . RoleEnum::ADMIN->value]], static function () {

@@ -3,7 +3,17 @@
 namespace App\Enum;
 
 use Illuminate\Support\Str;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Schema(
+ *     schema="TranslationGroupEnum",
+ *     type="string",
+ *     title="Translation Group Enum",
+ *     description="Enumeration of translation groups",
+ *     enum={"all", "admin", "app"}
+ * )
+ */
 enum TranslationGroupEnum: string
 {
     case ALL = 'all';
