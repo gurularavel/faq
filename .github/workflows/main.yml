@@ -1,0 +1,100 @@
+name: 🚀 Deploy via SSH with Incremental Updates
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history for git commands
+
+      - name: 🔍 Get changed files
+        id: changed-files
+        run: |
+          # Get the list of changed files between the last successful deployment and current commit
+          echo "files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | tr '\n' ' ')" >> $GITHUB_OUTPUT
+
+      - name: 📂 Deploy using SSH
+        uses: appleboy/ssh-action@master
+        env:
+          CHANGED_FILES: ${{ steps.changed-files.outputs.files }}
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USERNAME }}
+          password: ${{ secrets.REMOTE_PASSWORD }}
+          port: 222
+          envs: CHANGED_FILES
+          script: |
+            cd /usr/www/users/kvadrp/projects/faq
+            
+            # Create deployment directory if it doesn't exist
+            mkdir -p .deployment
+
+            # Initialize git if not already initialized
+            if [ ! -d .git ]; then
+              git init
+              git config --local user.email "github-actions@github.com"
+              git config --local user.name "GitHub Actions"
+              git remote add origin https://${{ secrets.GIT_USERNAME }}:${{ secrets.GIT_TOKEN }}@github.com/gurularavel/faq.git
+              echo "none" > .deployment/last_commit
+            fi
+            
+            # Read the last deployed commit
+            LAST_COMMIT=$(cat .deployment/last_commit)
+            
+            # Fetch latest changes
+            git fetch origin master
+            
+            if [ "$LAST_COMMIT" != "none" ]; then
+              # Get list of changed files from the environment variable
+              echo "Changed files: $CHANGED_FILES"
+              
+              # Create a temporary directory for changed files
+              mkdir -p .deployment/temp
+              
+              # Checkout only the changed files
+              for file in $CHANGED_FILES; do
+                if [ -n "$file" ]; then
+                  echo "Updating: $file"
+                  git checkout origin/master -- "$file"
+                  
+                  # Ensure directory exists for the file
+                  mkdir -p "$(dirname "$file")"
+                  
+                  # Copy the file to its destination
+                  cp -f "$file" "$file"
+                fi
+              done
+              
+              # Clean up temporary directory
+              rm -rf .deployment/temp
+            else
+              # First deployment - checkout all files
+              git checkout origin/master -f
+              echo "Initial deployment - all files updated"
+            fi
+            
+            # Update the last commit hash
+            git rev-parse origin/master > .deployment/last_commit
+            
+            # Set proper permissions
+            find . -type d -exec chmod 755 {} \;
+            find . -type f -exec chmod 644 {} \;
+            
+            # Set specific permissions for Laravel directories
+            chmod -R 755 storage bootstrap/cache 2>/dev/null || true
+            
+            # Create deployment log
+            echo "Deployment completed at $(date)" > .deployment/deploy_log.txt
+            echo "Changed files:" >> .deployment/deploy_log.txt
+            echo "$CHANGED_FILES" >> .deployment/deploy_log.txt
+            
+            echo "Deployment completed successfully"
+            echo "Deployment log:"
+            cat .deployment/deploy_log.txt
