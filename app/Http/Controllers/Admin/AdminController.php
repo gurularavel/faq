@@ -10,14 +10,21 @@ use App\Http\Resources\Admin\Admins\AdminResource;
 use App\Http\Resources\Admin\Admins\AdminsResource;
 use App\Http\Resources\GeneralResource;
 use App\Models\Admin;
+use App\Repositories\AdminRepository;
 use App\Services\LangService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use OpenApi\Annotations as OA;
 
 class AdminController extends Controller
 {
+    private AdminRepository $repo;
+
+    public function __construct(AdminRepository $repo)
+    {
+        $this->repo = $repo;
+    }
+
     /**
      * @OA\Get(
      *     path="/api/control/admins/load",
@@ -44,17 +51,7 @@ class AdminController extends Controller
      */
     public function index(GeneralListRequest $request): AnonymousResourceCollection
     {
-        $data = $request->validated();
-
-        $admins = Admin::query()
-            ->with([
-                'creatable',
-                'roles',
-            ])
-            ->orderByDesc('id')
-            ->paginate($data['limit'] ?? 10);
-
-        return AdminsResource::collection($admins);
+        return AdminsResource::collection($this->repo->load($request->validated()));
     }
 
     /**
@@ -110,18 +107,7 @@ class AdminController extends Controller
      */
     public function store(AdminStoreRequest $request): JsonResponse
     {
-        $validated = $request->validated();
-
-        $roles = $validated['roles'] ?? [];
-        unset($validated['roles']);
-
-        $admin = DB::transaction(static function () use ($validated, $roles) {
-            $admin = Admin::query()->create($validated);
-
-            $admin->roles()->sync($roles);
-
-            return $admin;
-        });
+        $admin = $this->repo->store($request->validated());
 
         $admin->load([
             'creatable',
@@ -166,20 +152,7 @@ class AdminController extends Controller
      */
     public function update(AdminUpdateRequest $request, Admin $admin): JsonResponse
     {
-        $validated = $request->validated();
-
-        $roles = $validated['roles'] ?? [];
-        unset($validated['roles']);
-
-        if (empty($validated['password'])) {
-            unset($validated['password']);
-        }
-
-        DB::transaction(static function () use ($validated, $roles, $admin) {
-            $admin->update($validated);
-
-            $admin->roles()->sync($roles);
-        });
+        $admin = $this->repo->update($admin, $request->validated());
 
         $admin->load([
             'creatable',
@@ -220,7 +193,7 @@ class AdminController extends Controller
      */
     public function destroy(Admin $admin): JsonResponse
     {
-        $admin->delete();
+        $this->repo->destroy($admin);
 
         return response()->json(GeneralResource::make([
             'message' => LangService::instance()
