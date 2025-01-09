@@ -19,7 +19,7 @@ use OpenApi\Annotations as OA;
 
 class SettingController extends Controller
 {
-    protected SettingRepository $repo;
+    private SettingRepository $repo;
 
     public function __construct(SettingRepository $repo)
     {
