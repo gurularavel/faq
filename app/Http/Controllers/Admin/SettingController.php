@@ -6,21 +6,26 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Settings\SettingStoreRequest;
 use App\Http\Requests\Admin\Settings\SettingUpdateRequest;
 use App\Http\Requests\GeneralListRequest;
+use App\Http\Resources\Admin\Settings\SettingResource;
 use App\Http\Resources\Admin\Settings\SettingsListResource;
 use App\Http\Resources\Admin\Settings\SettingsResource;
-use App\Http\Resources\Admin\Settings\SettingResource;
 use App\Http\Resources\GeneralResource;
-use App\Models\Setting;
+use App\Repositories\SettingRepository;
 use App\Services\LangService;
-use App\Services\SettingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Annotations as OA;
 
 class SettingController extends Controller
 {
+    protected SettingRepository $repo;
+
+    public function __construct(SettingRepository $repo)
+    {
+        $this->repo = $repo;
+    }
+
     /**
      * @OA\Get(
      *     path="/api/control/settings/load",
@@ -47,14 +52,7 @@ class SettingController extends Controller
     {
         $validated = $request->validated();
 
-        $items = Setting::query()
-            ->with([
-                'creatable',
-            ])
-            ->orderBy('key')
-            ->paginate($validated['limit'] ?? 10);
-
-        return SettingsResource::collection($items);
+        return SettingsResource::collection($this->repo->load($validated));
     }
 
     /**
@@ -75,11 +73,7 @@ class SettingController extends Controller
      */
     public function list(): AnonymousResourceCollection
     {
-        $items = Setting::query()
-            ->orderBy('key')
-            ->get();
-
-        return SettingsListResource::collection($items);
+        return SettingsListResource::collection($this->repo->list());
     }
 
     /**
@@ -104,9 +98,18 @@ class SettingController extends Controller
      *     )
      * )
      */
-    public function show(string $key): SettingResource
+    public function show(string $key): SettingResource|JsonResponse
     {
-        $setting = Setting::query()->where('key', $key)->firstOrFail();
+        $setting = $this->repo->findByKey($key);
+
+        if (!$setting) {
+            return response()->json(GeneralResource::make([
+                'message' => LangService::instance()
+                    ->setDefault('This key not found! Key: @key')
+                    ->getLang('setting_key_not_found', ['@key' => $key]),
+                'key' => $key,
+            ]), 404);
+        }
 
         return SettingResource::make($setting);
     }
@@ -141,7 +144,7 @@ class SettingController extends Controller
 
         $validated['key'] = Str::snake($validated['key']);
 
-        if (Setting::query()->where('key', $validated['key'])->exists()) {
+        if ($this->repo->findByKey($validated['key'])) {
             return response()->json(GeneralResource::make([
                 'message' => LangService::instance()
                     ->setDefault('This key is already in use! Key: @key')
@@ -150,13 +153,7 @@ class SettingController extends Controller
             ]), 400);
         }
 
-        $setting = DB::transaction(static function () use ($validated) {
-            $setting = Setting::query()->create($validated);
-
-            SettingService::instance()->setCache();
-
-            return $setting;
-        });
+        $setting = $this->repo->store($validated);
 
         $setting->load([
             'creatable',
@@ -200,19 +197,20 @@ class SettingController extends Controller
     {
         $validated = $request->validated();
 
-        $oldSetting = Setting::query()->where('key', $key)->firstOrFail();
+        $oldSetting = $this->repo->findByKey($key);
+
+        if (!$oldSetting) {
+            return response()->json(GeneralResource::make([
+                'message' => LangService::instance()
+                    ->setDefault('This key not found! Key: @key')
+                    ->getLang('setting_key_not_found', ['@key' => $key]),
+                'key' => $key,
+            ]), 404);
+        }
 
         $validated['key'] = $key;
 
-        $setting = DB::transaction(static function () use ($validated, $oldSetting) {
-            $oldSetting->delete();
-
-            $setting = Setting::query()->create($validated);
-
-            SettingService::instance()->setCache();
-
-            return $setting;
-        });
+        $setting = $this->repo->update($oldSetting, $validated);
 
         $setting->load([
             'creatable',
@@ -255,21 +253,18 @@ class SettingController extends Controller
      */
     public function destroy(string $key): JsonResponse
     {
-        $setting = Setting::query()->where('key', $key)->firstOrFail();
+        $setting = $this->repo->findByKey($key);
 
-        if ($setting->isForSystem()) {
+        if (!$setting) {
             return response()->json(GeneralResource::make([
                 'message' => LangService::instance()
-                    ->setDefault('You cannot delete system settings!')
-                    ->getLang('you_cannot_delete_system_settings')
-            ]), 400);
+                    ->setDefault('This key not found! Key: @key')
+                    ->getLang('setting_key_not_found', ['@key' => $key]),
+                'key' => $key,
+            ]), 404);
         }
 
-        DB::transaction(static function () use ($setting) {
-            $setting->delete();
-
-            SettingService::instance()->setCache();
-        });
+        $this->repo->destroy($setting);
 
         return response()->json(GeneralResource::make([
             'message' => LangService::instance()
