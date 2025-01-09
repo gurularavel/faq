@@ -18,22 +18,22 @@ class LangService
     private string $group;
     private ?string $language;
     private ?string $default;
-    private bool $set_default_enable;
-    private bool $cache_enable;
-    private bool $has_user_lang;
-    private string $default_lang;
+    private bool $setDefaultEnable;
+    private bool $cacheEnable;
+    private bool $hasUserLang;
+    private string $defaultLang;
 
-    private string $cache_language_key;
-    private string $cache_translations_key;
-    private ?array $languages_data = null;
+    private string $cacheLanguageKey;
+    private string $cacheTranslationsKey;
+    private ?array $languagesData = null;
 
     private function __construct() {
-        $this->set_default_enable = config('language.set_default_enable');
-        $this->cache_enable = config('language.cache_enable');
-        $this->has_user_lang = config('language.has_user_lang');
-        $this->default_lang = config('language.default_lang');
-        $this->cache_language_key = config('language.cache_language_key');
-        $this->cache_translations_key = config('language.cache_translations_key');
+        $this->setDefaultEnable = config('language.set_default_enable');
+        $this->cacheEnable = config('language.cache_enable');
+        $this->hasUserLang = config('language.has_user_lang');
+        $this->defaultLang = config('language.default_lang');
+        $this->cacheLanguageKey = config('language.cache_language_key');
+        $this->cacheTranslationsKey = config('language.cache_translations_key');
 
         $this->group = TranslationGroupEnum::ALL->value;
         $this->default = null;
@@ -73,12 +73,12 @@ class LangService
 
     public function getDefaultLang(): string
     {
-        return $this->default_lang;
+        return $this->defaultLang;
     }
 
     public function getDefaultLangId()
     {
-        return $this->getLangIdByKey($this->default_lang);
+        return $this->getLangIdByKey($this->defaultLang);
     }
 
     public function getCurrentLang()
@@ -90,11 +90,11 @@ class LangService
 
             $user_lang = null;
 
-            if ($this->has_user_lang) {
+            if ($this->hasUserLang) {
                 $user_lang = auth()->user()->lang ?? null;
             }
 
-            $lang = $user_lang ?? (in_array($header_lang, data_get($this->getLanguages(), '*.key'), true) ? $header_lang : $this->default_lang);
+            $lang = $user_lang ?? (in_array($header_lang, data_get($this->getLanguages(), '*.key'), true) ? $header_lang : $this->defaultLang);
         }
 
         return $lang;
@@ -114,7 +114,7 @@ class LangService
 
         if (isset($translations[$key])) {
             $text = $translations[$key];
-        } else if ($this->set_default_enable && $this->default) {
+        } else if ($this->setDefaultEnable && $this->default) {
             $text = $this->setDefaultTranslation($key);
         } else {
             $text = ('_' . $key);
@@ -158,7 +158,7 @@ class LangService
             return $this->localTranslations[$lang];
         }
 
-        if ($this->cache_enable) {
+        if ($this->cacheEnable) {
             $data = json_decode($this->getTranslationsCache($this->group, $lang), true);
 
             if (!isset($this->localTranslations[$lang]) || !is_array($this->localTranslations[$lang])) {
@@ -199,13 +199,13 @@ class LangService
 
     private function getTranslationsCache(string $group, string $lang)
     {
-        $cache = Cache::get($this->cache_translations_key . '_' . $group . '_' . $lang);
+        $cache = Cache::get($this->cacheTranslationsKey . '_' . $group . '_' . $lang);
         $decodedCache = json_decode($cache, true);
 
         if (empty($decodedCache) || count($decodedCache) === 0) {
             $this->setTranslationsCache($group, $lang);
 
-            return Cache::get($this->cache_translations_key . '_' . $group . '_' . $lang);
+            return Cache::get($this->cacheTranslationsKey . '_' . $group . '_' . $lang);
         }
 
         return $cache;
@@ -224,9 +224,9 @@ class LangService
         foreach ($langs as $lang) {
             $lang = strtolower($lang);
 
-            $this->clearCache($this->cache_translations_key . '_' . $group . '_' . $lang);
+            $this->clearCache($this->cacheTranslationsKey . '_' . $group . '_' . $lang);
 
-            Cache::rememberForever($this->cache_translations_key . '_' . $group . '_' . $lang, function () use ($group, $lang) {
+            Cache::rememberForever($this->cacheTranslationsKey . '_' . $group . '_' . $lang, function () use ($group, $lang) {
                 return json_encode($this->getTranslationsData($group, $lang));
             });
         }
@@ -238,15 +238,15 @@ class LangService
 
     public function getLanguages(): array
     {
-        if ($this->languages_data) {
-            return $this->languages_data;
+        if ($this->languagesData) {
+            return $this->languagesData;
         }
 
-        $this->languages_data = $this->cache_enable
+        $this->languagesData = $this->cacheEnable
             ? json_decode($this->getLanguagesCache(), true)
             : $this->getLanguagesData();
 
-        return $this->languages_data;
+        return $this->languagesData;
     }
 
     public function getLangKeyById(int $id)
@@ -281,16 +281,16 @@ class LangService
 
     private function getLanguagesCache()
     {
-        $cache = Cache::get($this->cache_language_key);
+        $cache = Cache::get($this->cacheLanguageKey);
 
         return $cache ?? $this->setLanguagesCache();
     }
 
     public function setLanguagesCache()
     {
-        $this->clearCache($this->cache_language_key);
+        $this->clearCache($this->cacheLanguageKey);
 
-        return Cache::rememberForever($this->cache_language_key, function () {
+        return Cache::rememberForever($this->cacheLanguageKey, function () {
             return json_encode($this->getLanguagesData());
         });
     }
@@ -302,20 +302,48 @@ class LangService
 
     public function changeTranslationVersion(): void
     {
-        $versions_arr = [];
+        $versionsArr = [];
 
-        $versions_json = Storage::disk('public')->get('versions.json');
+        $versions_json = $this->getVersionsJson();
+
         if ($versions_json) {
             $versions = json_decode($versions_json, true);
 
             if (is_array($versions)) {
-                $versions_arr = $versions;
+                $versionsArr = $versions;
             }
         }
 
-        $versions_arr['lang_version'] = ($versions_arr['lang_version'] ?? 0) + 1;
-        $versions_arr['default_lang'] = config('language.default_lang');
+        $versionsArr['lang_version'] = ($versionsArr['lang_version'] ?? 0) + 1;
+        $versionsArr['default_lang'] = config('language.default_lang');
 
-        Storage::disk('public')->put('versions.json', json_encode($versions_arr));
+        Storage::disk('public')->put('versions.json', json_encode($versionsArr));
+    }
+
+    public function getVersionsJson(): ?string
+    {
+        return Storage::disk('public')->get('versions.json');
+    }
+
+    public function getVersion(): int
+    {
+        $version = 0;
+
+        $versionsJson = $this->getVersionsJson();
+
+        if ($versionsJson) {
+            $versions = json_decode($versionsJson, true);
+
+            if (is_array($versions)) {
+                $version = $versions['lang_version'] ?? 0;
+            }
+        }
+
+        return $version;
+    }
+
+    public function getLanguageByKey(string $lang)
+    {
+        return Language::query()->where('key', $lang)->firstOrFail();
     }
 }

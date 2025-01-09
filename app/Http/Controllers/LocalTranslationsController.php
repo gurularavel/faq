@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Language;
 use App\Services\LangService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 class LocalTranslationsController extends Controller
@@ -45,7 +43,7 @@ class LocalTranslationsController extends Controller
     {
         return response()->json([
             'data' => LangService::instance()->getLanguages(),
-            'versions' => json_decode(Storage::disk('public')->get('versions.json')),
+            'versions' => json_decode(LangService::instance()->getVersionsJson()),
         ]);
     }
 
@@ -92,22 +90,11 @@ class LocalTranslationsController extends Controller
      */
     public function getTranslations(string $lang): JsonResponse
     {
-        Language::query()->where('key', $lang)->firstOrFail();
-
-        $version = 0;
-
-        $versions_json = Storage::disk('public')->get('versions.json');
-        if ($versions_json) {
-            $versions = json_decode($versions_json, true);
-
-            if (is_array($versions)) {
-                $version = $versions['lang_version'] ?? 0;
-            }
-        }
+        LangService::instance()->getLanguageByKey($lang);
 
         return response()->json([
             'data' => [
-                'version' => $version,
+                'version' => LangService::instance()->getVersion(),
                 'translations' => LangService::instance()->setLanguage($lang)->getStaticTranslations(),
             ]
         ]);

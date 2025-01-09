@@ -1,10 +1,10 @@
 <?php
 
+use App\Services\LangService;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
 
 Route::get('versions', static function () {
-    return Storage::disk('public')->get('versions.json');
+    return LangService::instance()->getVersionsJson();
 });
 
 require_once 'control.php';
