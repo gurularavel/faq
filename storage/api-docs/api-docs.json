@@ -536,6 +536,332 @@
                 ]
             }
         },
+        "/api/control/categories/load": {
+            "get": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Display a listing of the resource",
+                "operationId": "1743819eb17071e369592181f2bdacbe",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/CategoriesListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CategoriesResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/categories/list": {
+            "get": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "List categories",
+                "operationId": "fcaa890b95b684f7e0e01539226a5f42",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/CategoriesListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CategoriesListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/categories/subs/{category}": {
+            "get": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Load subcategories",
+                "operationId": "b9e7557de28c82c99129fdf5690ee2c1",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/CategoriesListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CategoriesResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/categories/show/{category}": {
+            "get": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Show category",
+                "operationId": "fa389542c8e0c943bceb80df9f4a47d7",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CategoryResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/categories/add": {
+            "post": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Store a newly created resource in storage",
+                "operationId": "09837142d96588d93f02126fa3a15d56",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CategoryStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Resource created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/categories/update/{category}": {
+            "post": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Update the specified resource in storage",
+                "operationId": "1c945909b96236bed685fe856e561a10",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CategoryUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Resource updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/categories/delete/{category}": {
+            "delete": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Remove the specified resource from storage",
+                "operationId": "c60ee9bd97cd0d8507501e5231445db4",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resource deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/categories/change-active-status/{category}": {
+            "post": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Change the active status of the specified resource",
+                "operationId": "d3e832ef8f38f0857f1e888b98a8e66c",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/roles/list": {
             "get": {
                 "tags": [
@@ -1348,6 +1674,87 @@
                 },
                 "type": "object"
             },
+            "CategoriesListRequest": {
+                "title": "Categories List Request",
+                "description": "Request parameters for listing categories",
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/GeneralListRequest"
+                    },
+                    {
+                        "properties": {
+                            "with_subs": {
+                                "description": "Include subcategories",
+                                "type": "string",
+                                "enum": [
+                                    "yes",
+                                    "no"
+                                ]
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "CategoryStoreRequest": {
+                "title": "Category Store Request",
+                "description": "Request parameters for storing a category",
+                "properties": {
+                    "parent_id": {
+                        "description": "Parent Category ID",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "translations": {
+                        "description": "Translations",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "language_id": {
+                                    "description": "Language ID",
+                                    "type": "integer"
+                                },
+                                "title": {
+                                    "description": "Category Title",
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "CategoryUpdateRequest": {
+                "title": "Category Update Request",
+                "description": "Request parameters for updating a category",
+                "properties": {
+                    "parent_id": {
+                        "description": "Parent Category ID",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "translations": {
+                        "description": "Translations",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "language_id": {
+                                    "description": "Language ID",
+                                    "type": "integer"
+                                },
+                                "title": {
+                                    "description": "Category Title",
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "SettingStoreRequest": {
                 "title": "Setting Store Request",
                 "description": "Request body for storing a new setting",
@@ -1498,28 +1905,11 @@
                 "title": "General List Request",
                 "description": "Request parameters for listing resources",
                 "properties": {
-                    "sort": {
-                        "description": "Field to sort by",
-                        "type": "string"
-                    },
-                    "sort_type": {
-                        "description": "Sort direction",
-                        "type": "string",
-                        "enum": [
-                            "asc",
-                            "desc"
-                        ]
-                    },
                     "limit": {
                         "description": "Number of items per page",
                         "type": "integer",
                         "maximum": 100,
                         "minimum": 5
-                    },
-                    "search": {
-                        "description": "Search term",
-                        "type": "string",
-                        "maxLength": 100
                     }
                 },
                 "type": "object"
@@ -1596,6 +1986,96 @@
                         "type": "string",
                         "format": "date-time",
                         "example": "2023-10-01T12:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "CategoriesListResource": {
+                "title": "Categories List Resource",
+                "description": "Categories List Resource",
+                "properties": {
+                    "id": {
+                        "description": "Category ID",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Category Title",
+                        "type": "string"
+                    },
+                    "subs": {
+                        "description": "Subcategories",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CategoriesListResource"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "CategoriesResource": {
+                "title": "Categories Resource",
+                "description": "Categories Resource",
+                "properties": {
+                    "id": {
+                        "description": "Category ID",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Category Title",
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "description": "Is Active",
+                        "type": "boolean"
+                    },
+                    "parent_id": {
+                        "description": "Parent Category ID",
+                        "type": "integer"
+                    },
+                    "parent": {
+                        "$ref": "#/components/schemas/CategoriesResource"
+                    },
+                    "subs": {
+                        "description": "Subcategories",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CategoriesResource"
+                        }
+                    },
+                    "subs_count": {
+                        "description": "Subcategories Count",
+                        "type": "integer"
+                    },
+                    "created_user": {
+                        "description": "Created User",
+                        "type": "string"
+                    },
+                    "created_date": {
+                        "description": "Created Date",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "CategoryResource": {
+                "title": "Category Resource",
+                "description": "Category Resource",
+                "properties": {
+                    "id": {
+                        "description": "Category ID",
+                        "type": "integer"
+                    },
+                    "parent_id": {
+                        "description": "Parent Category ID",
+                        "type": "integer"
+                    },
+                    "translations": {
+                        "description": "Translations",
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
                     }
                 },
                 "type": "object"
@@ -1707,6 +2187,10 @@
         {
             "name": "Authentication",
             "description": "Authentication"
+        },
+        {
+            "name": "Category",
+            "description": "Category"
         },
         {
             "name": "Role",

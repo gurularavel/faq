@@ -4,6 +4,7 @@ use App\Enum\RoleEnum;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\LogoutController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TranslationController;
@@ -57,6 +58,17 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
             Route::post('add', [SettingController::class, 'store']);
             Route::post('update/{key}', [SettingController::class, 'update']);
             Route::delete('delete/{key}', [SettingController::class, 'destroy']);
+        });
+
+        Route::group(['prefix' => 'categories'], static function () {
+            Route::get('load', [CategoryController::class, 'index']);
+            Route::get('list', [CategoryController::class, 'list']);
+            Route::get('show/{category}', [CategoryController::class, 'show']);
+            Route::get('subs/{category}', [CategoryController::class, 'loadSubs']);
+            Route::post('add', [CategoryController::class, 'store']);
+            Route::post('update/{category}', [CategoryController::class, 'update']);
+            Route::post('change-active-status/{category}', [CategoryController::class, 'changeActiveStatus']);
+            Route::delete('delete/{category}', [CategoryController::class, 'destroy']);
         });
     });
 });
