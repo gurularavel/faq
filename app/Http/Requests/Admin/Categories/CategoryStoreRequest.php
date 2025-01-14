@@ -7,7 +7,6 @@ use App\Rules\FirstTranslationRequired;
 use App\Services\LangService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\File;
 use OpenApi\Annotations as OA;
 
 /**

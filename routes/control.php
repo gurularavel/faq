@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\LogoutController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
@@ -80,6 +81,17 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
             Route::post('update/{category}', [CategoryController::class, 'update']);
             Route::post('change-active-status/{category}', [CategoryController::class, 'changeActiveStatus']);
             Route::delete('delete/{category}', [CategoryController::class, 'destroy']);
+        });
+
+        Route::group(['prefix' => 'departments'], static function () {
+            Route::get('load', [DepartmentController::class, 'index']);
+            Route::get('list', [DepartmentController::class, 'list']);
+            Route::get('show/{department}', [DepartmentController::class, 'show']);
+            Route::get('subs/{department}', [DepartmentController::class, 'loadSubs']);
+            Route::post('add', [DepartmentController::class, 'store']);
+            Route::post('update/{department}', [DepartmentController::class, 'update']);
+            Route::post('change-active-status/{department}', [DepartmentController::class, 'changeActiveStatus']);
+            Route::delete('delete/{department}', [DepartmentController::class, 'destroy']);
         });
     });
 });

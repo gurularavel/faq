@@ -862,6 +862,332 @@
                 ]
             }
         },
+        "/api/control/departments/load": {
+            "get": {
+                "tags": [
+                    "Department"
+                ],
+                "summary": "Display a listing of the resource",
+                "operationId": "e9d12be415eb053c653e9df459e0e496",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/DepartmentsListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DepartmentsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/departments/list": {
+            "get": {
+                "tags": [
+                    "Department"
+                ],
+                "summary": "List departments",
+                "operationId": "2f6aacc852e43fbeabb9c2632366decd",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/DepartmentsListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DepartmentsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/departments/subs/{department}": {
+            "get": {
+                "tags": [
+                    "Department"
+                ],
+                "summary": "Load subdepartments",
+                "operationId": "9cebd108c14dca75721883b184fa368e",
+                "parameters": [
+                    {
+                        "name": "department",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/DepartmentsListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DepartmentsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/departments/show/{department}": {
+            "get": {
+                "tags": [
+                    "Department"
+                ],
+                "summary": "Show department",
+                "operationId": "0bd4d0978ff2346423d0f6eb1f92131b",
+                "parameters": [
+                    {
+                        "name": "department",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DepartmentResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/departments/add": {
+            "post": {
+                "tags": [
+                    "Department"
+                ],
+                "summary": "Store a newly created resource in storage",
+                "operationId": "33d72a8ded4ea7bbc5de6925bc9393d7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DepartmentStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Resource created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/departments/update/{department}": {
+            "post": {
+                "tags": [
+                    "Department"
+                ],
+                "summary": "Update the specified resource in storage",
+                "operationId": "8fa8619b415dd36682d0bc5944ee26f4",
+                "parameters": [
+                    {
+                        "name": "department",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DepartmentUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Resource updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/departments/delete/{department}": {
+            "delete": {
+                "tags": [
+                    "Department"
+                ],
+                "summary": "Remove the specified resource from storage",
+                "operationId": "8a4503d02bd42cb4b174f355ed40d176",
+                "parameters": [
+                    {
+                        "name": "department",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resource deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/departments/change-active-status/{department}": {
+            "post": {
+                "tags": [
+                    "Department"
+                ],
+                "summary": "Change the active status of the specified resource",
+                "operationId": "bd3abb9a58451d2c536179be3ac30e70",
+                "parameters": [
+                    {
+                        "name": "department",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/languages/load": {
             "get": {
                 "tags": [
@@ -2022,6 +2348,87 @@
                 },
                 "type": "object"
             },
+            "DepartmentStoreRequest": {
+                "title": "Department Store Request",
+                "description": "Request parameters for storing a department",
+                "properties": {
+                    "parent_id": {
+                        "description": "Parent Department ID",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "translations": {
+                        "description": "Translations",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "language_id": {
+                                    "description": "Language ID",
+                                    "type": "integer"
+                                },
+                                "title": {
+                                    "description": "Department Title",
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "DepartmentUpdateRequest": {
+                "title": "Department Update Request",
+                "description": "Request parameters for updating a department",
+                "properties": {
+                    "parent_id": {
+                        "description": "Parent Department ID",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "translations": {
+                        "description": "Translations",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "language_id": {
+                                    "description": "Language ID",
+                                    "type": "integer"
+                                },
+                                "title": {
+                                    "description": "Department Title",
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "DepartmentsListRequest": {
+                "title": "Departments List Request",
+                "description": "Request parameters for listing departments",
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/GeneralListRequest"
+                    },
+                    {
+                        "properties": {
+                            "with_subs": {
+                                "description": "Include subdepartments",
+                                "type": "string",
+                                "enum": [
+                                    "yes",
+                                    "no"
+                                ]
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
             "LanguageStoreRequest": {
                 "title": "Language Store Request",
                 "required": [
@@ -2370,6 +2777,96 @@
                 },
                 "type": "object"
             },
+            "DepartmentResource": {
+                "title": "Department Resource",
+                "description": "Department Resource",
+                "properties": {
+                    "id": {
+                        "description": "Department ID",
+                        "type": "integer"
+                    },
+                    "parent_id": {
+                        "description": "Parent Department ID",
+                        "type": "integer"
+                    },
+                    "translations": {
+                        "description": "Translations",
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "DepartmentsListResource": {
+                "title": "Departments List Resource",
+                "description": "Departments List Resource",
+                "properties": {
+                    "id": {
+                        "description": "Department ID",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Department Title",
+                        "type": "string"
+                    },
+                    "subs": {
+                        "description": "Subdepartments",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DepartmentsListResource"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "DepartmentsResource": {
+                "title": "Departments Resource",
+                "description": "Departments Resource",
+                "properties": {
+                    "id": {
+                        "description": "Department ID",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Department Title",
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "description": "Is Active",
+                        "type": "boolean"
+                    },
+                    "parent_id": {
+                        "description": "Parent Department ID",
+                        "type": "integer"
+                    },
+                    "parent": {
+                        "$ref": "#/components/schemas/DepartmentsResource"
+                    },
+                    "subs": {
+                        "description": "Subdepartments",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DepartmentsResource"
+                        }
+                    },
+                    "subs_count": {
+                        "description": "Subdepartments Count",
+                        "type": "integer"
+                    },
+                    "created_user": {
+                        "description": "Created User",
+                        "type": "string"
+                    },
+                    "created_date": {
+                        "description": "Created Date",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "LanguageResource": {
                 "title": "Language Resource",
                 "description": "Language Resource",
@@ -2554,6 +3051,10 @@
         {
             "name": "Category",
             "description": "Category"
+        },
+        {
+            "name": "Department",
+            "description": "Department"
         },
         {
             "name": "Language",
