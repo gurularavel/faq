@@ -6,7 +6,7 @@ use App\Casts\Languages\KeyCast;
 use App\Services\LangService;
 use App\Traits\ActionBy;
 use App\Traits\ActionUser;
-use App\Traits\SoftDeleteAcceptable;
+use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Language extends Model
 {
-    use SoftDeletes, ActionBy, ActionUser, SoftDeleteAcceptable;
+    use SoftDeletes, ActionBy, ActionUser, CascadeSoftDeletes;
 
     protected $fillable = [
         'key', // len 2
@@ -30,7 +30,7 @@ class Language extends Model
         'is_active' => 'boolean',
     ];
 
-    protected array $softDeleteAcceptableRelations = ['translations', 'modelTranslations'];
+    protected array $cascadeDeletes = ['translations', 'modelTranslations'];
 
     public static function boot(): void
     {
