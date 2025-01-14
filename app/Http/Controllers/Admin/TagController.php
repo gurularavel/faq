@@ -3,33 +3,34 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Languages\LanguageStoreRequest;
+use App\Http\Requests\Admin\Tags\TagStoreRequest;
+use App\Http\Requests\Admin\Tags\TagUpdateRequest;
 use App\Http\Requests\GeneralListRequest;
-use App\Http\Resources\Admin\Languages\LanguageResource;
-use App\Http\Resources\Admin\Languages\LanguagesListResource;
-use App\Http\Resources\Admin\Languages\LanguagesResource;
+use App\Http\Resources\Admin\Tags\TagResource;
+use App\Http\Resources\Admin\Tags\TagsListResource;
+use App\Http\Resources\Admin\Tags\TagsResource;
 use App\Http\Resources\GeneralResource;
-use App\Models\Language;
-use App\Repositories\LanguageRepository;
+use App\Models\Tag;
+use App\Repositories\TagRepository;
 use App\Services\LangService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Annotations as OA;
 
-class LanguageController extends Controller
+class TagController extends Controller
 {
-    private LanguageRepository $repo;
+    private TagRepository $repo;
 
-    public function __construct(LanguageRepository $repo)
+    public function __construct(TagRepository $repo)
     {
         $this->repo = $repo;
     }
 
     /**
      * @OA\Get(
-     *     path="/api/control/languages/load",
-     *     summary="Get list of languages",
-     *     tags={"Language"},
+     *     path="/api/control/tags/load",
+     *     summary="Get list of tags",
+     *     tags={"Tag"},
      *     security={
      *            {
      *                "ApiToken": {},
@@ -45,28 +46,28 @@ class LanguageController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/LanguagesResource"))
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/TagsResource"))
      *     )
      * )
      */
     public function index(GeneralListRequest $request): AnonymousResourceCollection
     {
-        return LanguagesResource::collection($this->repo->load($request->validated()));
+        return TagsResource::collection($this->repo->load($request->validated()));
     }
 
     /**
      * @OA\Get(
-     *     path="/api/control/languages/list",
-     *     summary="Get list of languages",
-     *     tags={"Language"},
+     *     path="/api/control/tags/list",
+     *     summary="Get list of tags",
+     *     tags={"Tag"},
      *     security={
      *         {"ApiToken": {}},
      *         {"SanctumBearerToken": {}}
      *     },
      *     @OA\Response(
      *         response=200,
-     *         description="Languages list retrieved successfully",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/LanguagesListResource"))
+     *         description="Tags list retrieved successfully",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/TagsListResource"))
      *     )
      * )
      *
@@ -76,14 +77,14 @@ class LanguageController extends Controller
      */
     public function list(): AnonymousResourceCollection
     {
-        return LanguagesListResource::collection($this->repo->list());
+        return TagsListResource::collection($this->repo->list());
     }
 
     /**
      * @OA\Get(
-     *     path="/api/control/languages/show/{id}",
-     *     summary="Get language by ID",
-     *     tags={"Language"},
+     *     path="/api/control/tags/show/{id}",
+     *     summary="Get tag by ID",
+     *     tags={"Tag"},
      *          security={
      *            {
      *                "ApiToken": {},
@@ -99,20 +100,49 @@ class LanguageController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/LanguageResource")
+     *         @OA\JsonContent(ref="#/components/schemas/TagResource")
      *     )
      * )
      */
-    public function show(Language $language): LanguageResource
+    public function show(Tag $tag): TagResource
     {
-        return LanguageResource::make($language);
+        return TagResource::make($tag);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/control/tags/find/{title}",
+     *     summary="Find tag by title",
+     *     tags={"Tag"},
+     *          security={
+     *            {
+     *                "ApiToken": {},
+     *                "SanctumBearerToken": {}
+     *            }
+     *       },
+     *     @OA\Parameter(
+     *         name="title",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *          @OA\Response(
+     *          response=200,
+     *          description="Tags list retrieved successfully",
+     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/TagsListResource"))
+     *      )
+     * )
+     */
+    public function findByTitle(string $title): AnonymousResourceCollection
+    {
+        return TagsListResource::collection($this->repo->findByTitle($title));
     }
 
     /**
      * @OA\Post(
-     *     path="/api/control/languages/add",
-     *     summary="Create a new language",
-     *     tags={"Language"},
+     *     path="/api/control/tags/add",
+     *     summary="Create a new tag",
+     *     tags={"Tag"},
      *          security={
      *            {
      *                "ApiToken": {},
@@ -121,34 +151,34 @@ class LanguageController extends Controller
      *       },
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/LanguageStoreRequest")
+     *         @OA\JsonContent(ref="#/components/schemas/TagStoreRequest")
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Language created successfully",
-     *         @OA\JsonContent(ref="#/components/schemas/LanguagesResource")
+     *         description="Tag created successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/TagsResource")
      *     )
      * )
      */
-    public function store(LanguageStoreRequest $request): JsonResponse
+    public function store(TagStoreRequest $request): JsonResponse
     {
-        $language = $this->repo->store($request->validated());
+        $tag = $this->repo->store($request->validated());
 
-        $this->repo->loadRelations($language);
+        $this->repo->loadRelations($tag);
 
         return response()->json(GeneralResource::make([
             'message' => LangService::instance()
                 ->setDefault('Saved successfully!')
                 ->getLang('admin_form_saved_successfully'),
-            'data' => LanguageResource::make($language),
+            'data' => TagResource::make($tag),
         ]));
     }
 
     /**
      * @OA\Post(
-     *     path="/api/control/languages/update/{id}",
-     *     summary="Update an existing language",
-     *     tags={"Language"},
+     *     path="/api/control/tags/update/{id}",
+     *     summary="Update an existing tag",
+     *     tags={"Tag"},
      *          security={
      *            {
      *                "ApiToken": {},
@@ -163,34 +193,34 @@ class LanguageController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/LanguageStoreRequest")
+     *         @OA\JsonContent(ref="#/components/schemas/TagUpdateRequest")
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Language updated successfully",
-     *         @OA\JsonContent(ref="#/components/schemas/LanguagesResource")
+     *         description="Tag updated successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/TagsResource")
      *     )
      * )
      */
-    public function update(LanguageStoreRequest $request, Language $language): JsonResponse
+    public function update(TagUpdateRequest $request, Tag $tag): JsonResponse
     {
-        $updatedLanguage = $this->repo->update($language, $request->validated());
+        $updatedTag = $this->repo->update($tag, $request->validated());
 
-        $this->repo->loadRelations($updatedLanguage);
+        $this->repo->loadRelations($updatedTag);
 
         return response()->json(GeneralResource::make([
             'message' => LangService::instance()
                 ->setDefault('Saved successfully!')
                 ->getLang('admin_form_saved_successfully'),
-            'data' => LanguageResource::make($updatedLanguage),
+            'data' => TagResource::make($updatedTag),
         ]));
     }
 
     /**
      * @OA\Post(
-     *     path="/api/control/languages/change-active-status/{id}",
+     *     path="/api/control/tags/change-active-status/{id}",
      *     summary="Change the active status of the specified resource",
-     *               tags={"Language"},
+     *               tags={"Tag"},
      *       security={
      *              {
      *                  "ApiToken": {},
@@ -210,9 +240,9 @@ class LanguageController extends Controller
      *     )
      * )
      */
-    public function changeActiveStatus(Language $language): JsonResponse
+    public function changeActiveStatus(Tag $tag): JsonResponse
     {
-        $this->repo->changeActiveStatus($language);
+        $this->repo->changeActiveStatus($tag);
 
         return response()->json(GeneralResource::make([
             'message' => LangService::instance()
@@ -223,9 +253,9 @@ class LanguageController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/control/languages/delete/{id}",
-     *     summary="Delete an language",
-     *     tags={"Language"},
+     *     path="/api/control/tags/delete/{id}",
+     *     summary="Delete an tag",
+     *     tags={"Tag"},
      *          security={
      *            {
      *                "ApiToken": {},
@@ -245,9 +275,9 @@ class LanguageController extends Controller
      *     )
      * )
      */
-    public function destroy(Language $language): JsonResponse
+    public function destroy(Tag $tag): JsonResponse
     {
-        $this->repo->destroy($language);
+        $this->repo->destroy($tag);
 
         return response()->json(GeneralResource::make([
             'message' => LangService::instance()

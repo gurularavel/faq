@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TranslationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\LocalTranslationsController;
@@ -82,6 +83,17 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
             Route::post('update/{category}', [CategoryController::class, 'update']);
             Route::post('change-active-status/{category}', [CategoryController::class, 'changeActiveStatus']);
             Route::delete('delete/{category}', [CategoryController::class, 'destroy']);
+        });
+
+        Route::group(['prefix' => 'tags'], static function () {
+            Route::get('load', [TagController::class, 'index']);
+            Route::get('list', [TagController::class, 'list']);
+            Route::get('show/{tag}', [TagController::class, 'show']);
+            Route::get('find/{title}', [TagController::class, 'findByTitle']);
+            Route::post('add', [TagController::class, 'store']);
+            Route::post('update/{tag}', [TagController::class, 'update']);
+            Route::post('change-active-status/{tag}', [TagController::class, 'changeActiveStatus']);
+            Route::delete('delete/{tag}', [TagController::class, 'destroy']);
         });
 
         Route::group(['prefix' => 'departments'], static function () {

@@ -1233,11 +1233,11 @@
                 "tags": [
                     "Language"
                 ],
-                "summary": "Get list of roles",
+                "summary": "Get list of languages",
                 "operationId": "719ced882e20275e10bd2c1a85385b10",
                 "responses": {
                     "200": {
-                        "description": "Roles list retrieved successfully",
+                        "description": "Languages list retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1265,7 +1265,7 @@
                 "tags": [
                     "Language"
                 ],
-                "summary": "Get admin by ID",
+                "summary": "Get language by ID",
                 "operationId": "8fe3f7f357df95df96cd4f0a30e27759",
                 "parameters": [
                     {
@@ -1423,7 +1423,7 @@
                 "tags": [
                     "Language"
                 ],
-                "summary": "Delete an admin",
+                "summary": "Delete an language",
                 "operationId": "89670b4dd85126d3e597d322c4b06bd6",
                 "parameters": [
                     {
@@ -1724,6 +1724,313 @@
                         "ApiToken": []
                     },
                     {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/tags/load": {
+            "get": {
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Get list of tags",
+                "operationId": "77c8a59ae051a62b831b7d54274e4d3f",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TagsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/tags/list": {
+            "get": {
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Get list of tags",
+                "operationId": "695fe86780d32242a3270b2f52e509e3",
+                "responses": {
+                    "200": {
+                        "description": "Tags list retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TagsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/tags/show/{id}": {
+            "get": {
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Get tag by ID",
+                "operationId": "355bffd2c552fb505effc914d54d194e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TagResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/tags/find/{title}": {
+            "get": {
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Find tag by title",
+                "operationId": "e9527ad02f814be44db58241043482d4",
+                "parameters": [
+                    {
+                        "name": "title",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tags list retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TagsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/tags/add": {
+            "post": {
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Create a new tag",
+                "operationId": "d7735459bb9a663a5d94093b5e271f58",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TagStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Tag created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TagsResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/tags/update/{id}": {
+            "post": {
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Update an existing tag",
+                "operationId": "3e70414eb619410615367a5c867446d3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TagUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tag updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TagsResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/tags/change-active-status/{id}": {
+            "post": {
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Change the active status of the specified resource",
+                "operationId": "75f4741530ae3a3af83d09bb756562ba",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/tags/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Delete an tag",
+                "operationId": "d80e35442be7755573a1e85b41f15399",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Admin deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
                         "SanctumBearerToken": []
                     }
                 ]
@@ -2755,6 +3062,36 @@
                 },
                 "type": "object"
             },
+            "TagStoreRequest": {
+                "title": "Tag Store Request",
+                "required": [
+                    "title"
+                ],
+                "properties": {
+                    "title": {
+                        "description": "Title of the tag",
+                        "type": "string",
+                        "maxLength": 150,
+                        "example": "Test"
+                    }
+                },
+                "type": "object"
+            },
+            "TagUpdateRequest": {
+                "title": "Tag Update Request",
+                "required": [
+                    "title"
+                ],
+                "properties": {
+                    "title": {
+                        "description": "Title of the tag",
+                        "type": "string",
+                        "maxLength": 150,
+                        "example": "Test"
+                    }
+                },
+                "type": "object"
+            },
             "GetTranslationsRequest": {
                 "title": "Get Translations Request",
                 "description": "Request parameters for getting translations",
@@ -3345,6 +3682,67 @@
                 },
                 "type": "object"
             },
+            "TagResource": {
+                "title": "Tag Resource",
+                "description": "Tag Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the tag",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Title of the tag",
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "description": "Is Active",
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "TagsListResource": {
+                "title": "Tags List Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the tag",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Title of the tag",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "TagsResource": {
+                "title": "Tags Resource",
+                "description": "Tags Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the tag",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Title of the tag",
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "description": "Is Active",
+                        "type": "boolean"
+                    },
+                    "created_user": {
+                        "description": "Created User",
+                        "type": "string"
+                    },
+                    "created_date": {
+                        "description": "Created Date",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "UserResource": {
                 "title": "User Resource",
                 "description": "User Resource",
@@ -3500,6 +3898,10 @@
         {
             "name": "Settings",
             "description": "Settings"
+        },
+        {
+            "name": "Tag",
+            "description": "Tag"
         },
         {
             "name": "Translation",
