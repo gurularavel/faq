@@ -116,7 +116,9 @@ class DepartmentRepository
 
     public function destroy(Department $department): void
     {
-        $department->delete();
+        DB::transaction(static function () use ($department) {
+            $department->delete();
+        });
     }
 
     public function changeActiveStatus(Department $department): void

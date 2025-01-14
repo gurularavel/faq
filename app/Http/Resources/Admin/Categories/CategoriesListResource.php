@@ -48,6 +48,7 @@ class CategoriesListResource extends JsonResource
             'id' => $this->id,
             'title' => $this->getLang('title'),
             'subs' => CategoriesListResource::collection($this->whenLoaded('subs')),
+            'parent' => CategoriesListResource::make($this->whenLoaded('parent')),
         ];
     }
 }

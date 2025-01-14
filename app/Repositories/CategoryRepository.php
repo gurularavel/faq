@@ -116,7 +116,9 @@ class CategoryRepository
 
     public function destroy(Category $category): void
     {
-        $category->delete();
+        DB::transaction(static function () use ($category) {
+            $category->delete();
+        });
     }
 
     public function changeActiveStatus(Category $category): void

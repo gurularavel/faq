@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\ActionBy;
 use App\Traits\ActionUser;
+use App\Traits\SoftDeleteAcceptable;
 use App\Traits\Translatable;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Category extends Model
 {
-    use SoftDeletes, ActionBy, ActionUser, Translatable, CascadeSoftDeletes;
+    use SoftDeletes, ActionBy, ActionUser, Translatable, CascadeSoftDeletes, SoftDeleteAcceptable;
 
     protected $fillable = [
         'category_id',
@@ -31,6 +32,8 @@ class Category extends Model
     ];
 
     protected array $cascadeDeletes = ['subs', 'translatable'];
+
+    protected array $softDeleteAcceptableRelations = ['faqs'];
 
     public function scopeActive(Builder $query): void
     {
@@ -45,5 +48,10 @@ class Category extends Model
     public function subs(): HasMany
     {
         return $this->hasMany(Category::class, 'category_id');
+    }
+
+    public function faqs(): HasMany
+    {
+        return $this->hasMany(Faq::class);
     }
 }

@@ -1188,6 +1188,272 @@
                 ]
             }
         },
+        "/api/control/faqs/load": {
+            "get": {
+                "tags": [
+                    "Faq"
+                ],
+                "summary": "Display a listing of the resource",
+                "operationId": "b9b1e60e01bcbdbd5b78e7a513cf8a3b",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/GeneralListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FaqsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/faqs/list": {
+            "get": {
+                "tags": [
+                    "Faq"
+                ],
+                "summary": "List faqs",
+                "operationId": "aa88b43d0fe1b7b645fbc7a8907022d5",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FaqsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/faqs/show/{faq}": {
+            "get": {
+                "tags": [
+                    "Faq"
+                ],
+                "summary": "Show faq",
+                "operationId": "b592ee16f16fea507b06d058613086ca",
+                "parameters": [
+                    {
+                        "name": "faq",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FaqResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/faqs/add": {
+            "post": {
+                "tags": [
+                    "Faq"
+                ],
+                "summary": "Store a newly created resource in storage",
+                "operationId": "caef3c5bc3a35356ea41822ea0337ae4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FaqStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Resource created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/faqs/update/{faq}": {
+            "post": {
+                "tags": [
+                    "Faq"
+                ],
+                "summary": "Update the specified resource in storage",
+                "operationId": "60ed39ff852c9e33dba3c8fff3bf5b76",
+                "parameters": [
+                    {
+                        "name": "faq",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FaqUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Resource updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/faqs/delete/{faq}": {
+            "delete": {
+                "tags": [
+                    "Faq"
+                ],
+                "summary": "Remove the specified resource from storage",
+                "operationId": "7b5c02c3493d9f37ac6fccf086e2aad4",
+                "parameters": [
+                    {
+                        "name": "faq",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resource deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/faqs/change-active-status/{faq}": {
+            "post": {
+                "tags": [
+                    "Faq"
+                ],
+                "summary": "Change the active status of the specified resource",
+                "operationId": "dc537e9c005a8d3737ebe5a92aaf89b9",
+                "parameters": [
+                    {
+                        "name": "faq",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/languages/load": {
             "get": {
                 "tags": [
@@ -3003,6 +3269,114 @@
                     }
                 ]
             },
+            "FaqStoreRequest": {
+                "title": "FAQ Store Request",
+                "description": "Request body for storing a new FAQ",
+                "required": [
+                    "category_id",
+                    "translations"
+                ],
+                "properties": {
+                    "category_id": {
+                        "description": "ID of the category",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "translations": {
+                        "description": "Translations for the FAQ",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "language_id",
+                                "question",
+                                "answer"
+                            ],
+                            "properties": {
+                                "language_id": {
+                                    "description": "ID of the language",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "question": {
+                                    "description": "Question text",
+                                    "type": "string",
+                                    "example": "What is your name?"
+                                },
+                                "answer": {
+                                    "description": "Answer text",
+                                    "type": "string",
+                                    "example": "My name is John Doe."
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "tags": {
+                        "description": "Tags associated with the FAQ",
+                        "type": "array",
+                        "items": {
+                            "description": "ID of the tag",
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "FaqUpdateRequest": {
+                "title": "FAQ Update Request",
+                "description": "Request body for updating an existing FAQ",
+                "required": [
+                    "category_id",
+                    "translations"
+                ],
+                "properties": {
+                    "category_id": {
+                        "description": "ID of the category",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "translations": {
+                        "description": "Translations for the FAQ",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "language_id",
+                                "question",
+                                "answer"
+                            ],
+                            "properties": {
+                                "language_id": {
+                                    "description": "ID of the language",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "question": {
+                                    "description": "Question text",
+                                    "type": "string",
+                                    "example": "What is your name?"
+                                },
+                                "answer": {
+                                    "description": "Answer text",
+                                    "type": "string",
+                                    "example": "My name is John Doe."
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "tags": {
+                        "description": "Tags associated with the FAQ",
+                        "type": "array",
+                        "items": {
+                            "description": "ID of the tag",
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "LanguageStoreRequest": {
                 "title": "Language Store Request",
                 "required": [
@@ -3540,6 +3914,91 @@
                 },
                 "type": "object"
             },
+            "FaqResource": {
+                "title": "FAQ Resource",
+                "description": "FAQ Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the FAQ",
+                        "type": "integer"
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/CategoriesListResource"
+                    },
+                    "tags": {
+                        "description": "Tags associated with the FAQ",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TagsListResource"
+                        }
+                    },
+                    "translations": {
+                        "description": "Translations of the FAQ",
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "FaqsListResource": {
+                "title": "FAQs List Resource",
+                "description": "FAQs List Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the FAQ",
+                        "type": "integer"
+                    },
+                    "question": {
+                        "description": "Question text",
+                        "type": "string"
+                    },
+                    "answer": {
+                        "description": "Answer text",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "FaqsResource": {
+                "title": "FAQs Resource",
+                "description": "FAQs Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the FAQ",
+                        "type": "integer"
+                    },
+                    "question": {
+                        "description": "Question text",
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "description": "Status of the FAQ",
+                        "type": "boolean"
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/CategoriesListResource"
+                    },
+                    "tags": {
+                        "description": "Tags associated with the FAQ",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TagsListResource"
+                        }
+                    },
+                    "created_user": {
+                        "description": "Username of the creator",
+                        "type": "string"
+                    },
+                    "created_date": {
+                        "description": "Creation date of the FAQ",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "LanguageResource": {
                 "title": "Language Resource",
                 "description": "Language Resource",
@@ -3886,6 +4345,10 @@
         {
             "name": "Department",
             "description": "Department"
+        },
+        {
+            "name": "Faq",
+            "description": "Faq"
         },
         {
             "name": "Language",
