@@ -27,7 +27,12 @@ use OpenApi\Annotations as OA;
  *         type="array",
  *         @OA\Items(ref="#/components/schemas/DepartmentsListResource"),
  *         description="Subdepartments"
- *     )
+ *     ),
+ *      @OA\Property(
+ *          property="parent",
+ *          ref="#/components/schemas/DepartmentsListResource",
+ *          description="Parent Department"
+ *      )
  * )
  *
  * @property mixed $id
@@ -48,6 +53,7 @@ class DepartmentsListResource extends JsonResource
             'id' => $this->id,
             'title' => $this->getLang('title'),
             'subs' => DepartmentsListResource::collection($this->whenLoaded('subs')),
+            'parent' => DepartmentsListResource::make($this->whenLoaded('parent')),
         ];
     }
 }

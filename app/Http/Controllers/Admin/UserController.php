@@ -3,33 +3,34 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Languages\LanguageStoreRequest;
+use App\Http\Requests\Admin\Users\UserStoreRequest;
+use App\Http\Requests\Admin\Users\UserUpdateRequest;
 use App\Http\Requests\GeneralListRequest;
-use App\Http\Resources\Admin\Languages\LanguageResource;
-use App\Http\Resources\Admin\Languages\LanguagesListResource;
-use App\Http\Resources\Admin\Languages\LanguagesResource;
+use App\Http\Resources\Admin\Users\UserResource;
+use App\Http\Resources\Admin\Users\UsersListResource;
+use App\Http\Resources\Admin\Users\UsersResource;
 use App\Http\Resources\GeneralResource;
-use App\Models\Language;
-use App\Repositories\LanguageRepository;
+use App\Models\User;
+use App\Repositories\UserRepository;
 use App\Services\LangService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Annotations as OA;
 
-class LanguageController extends Controller
+class UserController extends Controller
 {
-    private LanguageRepository $repo;
+    private UserRepository $repo;
 
-    public function __construct(LanguageRepository $repo)
+    public function __construct(UserRepository $repo)
     {
         $this->repo = $repo;
     }
 
     /**
      * @OA\Get(
-     *     path="/api/control/languages/load",
-     *     summary="Get list of languages",
-     *     tags={"Language"},
+     *     path="/api/control/users/load",
+     *     summary="Get list of users",
+     *     tags={"User"},
      *     security={
      *            {
      *                "ApiToken": {},
@@ -45,20 +46,20 @@ class LanguageController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/LanguagesResource"))
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/UsersResource"))
      *     )
      * )
      */
     public function index(GeneralListRequest $request): AnonymousResourceCollection
     {
-        return LanguagesResource::collection($this->repo->load($request->validated()));
+        return UsersResource::collection($this->repo->load($request->validated()));
     }
 
     /**
      * @OA\Get(
-     *     path="/api/control/languages/list",
+     *     path="/api/control/users/list",
      *     summary="Get list of roles",
-     *     tags={"Language"},
+     *     tags={"User"},
      *     security={
      *         {"ApiToken": {}},
      *         {"SanctumBearerToken": {}}
@@ -66,7 +67,7 @@ class LanguageController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Roles list retrieved successfully",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/LanguagesListResource"))
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/UsersListResource"))
      *     )
      * )
      *
@@ -76,14 +77,14 @@ class LanguageController extends Controller
      */
     public function list(): AnonymousResourceCollection
     {
-        return LanguagesListResource::collection($this->repo->list());
+        return UsersListResource::collection($this->repo->list());
     }
 
     /**
      * @OA\Get(
-     *     path="/api/control/languages/show/{id}",
+     *     path="/api/control/users/show/{id}",
      *     summary="Get admin by ID",
-     *     tags={"Language"},
+     *     tags={"User"},
      *          security={
      *            {
      *                "ApiToken": {},
@@ -99,20 +100,23 @@ class LanguageController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/LanguageResource")
+     *         @OA\JsonContent(ref="#/components/schemas/UserResource")
      *     )
      * )
      */
-    public function show(Language $language): LanguageResource
+
+    public function show(User $user): UserResource
     {
-        return LanguageResource::make($language);
+        $this->repo->loadRelations($user);
+
+        return UserResource::make($user);
     }
 
     /**
      * @OA\Post(
-     *     path="/api/control/languages/add",
-     *     summary="Create a new language",
-     *     tags={"Language"},
+     *     path="/api/control/users/add",
+     *     summary="Create a new user",
+     *     tags={"User"},
      *          security={
      *            {
      *                "ApiToken": {},
@@ -121,34 +125,34 @@ class LanguageController extends Controller
      *       },
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/LanguageStoreRequest")
+     *         @OA\JsonContent(ref="#/components/schemas/UserStoreRequest")
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Language created successfully",
-     *         @OA\JsonContent(ref="#/components/schemas/LanguagesResource")
+     *         description="User created successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/UsersResource")
      *     )
      * )
      */
-    public function store(LanguageStoreRequest $request): JsonResponse
+    public function store(UserStoreRequest $request): JsonResponse
     {
-        $language = $this->repo->store($request->validated());
+        $user = $this->repo->store($request->validated());
 
-        $this->repo->loadRelations($language);
+        $this->repo->loadRelations($user);
 
         return response()->json(GeneralResource::make([
             'message' => LangService::instance()
                 ->setDefault('Saved successfully!')
                 ->getLang('admin_form_saved_successfully'),
-            'data' => LanguageResource::make($language),
+            'data' => UserResource::make($user),
         ]));
     }
 
     /**
      * @OA\Post(
-     *     path="/api/control/languages/update/{id}",
-     *     summary="Update an existing language",
-     *     tags={"Language"},
+     *     path="/api/control/users/update/{id}",
+     *     summary="Update an existing user",
+     *     tags={"User"},
      *          security={
      *            {
      *                "ApiToken": {},
@@ -163,34 +167,35 @@ class LanguageController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/LanguageStoreRequest")
+     *         @OA\JsonContent(ref="#/components/schemas/UserUpdateRequest")
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Language updated successfully",
-     *         @OA\JsonContent(ref="#/components/schemas/LanguagesResource")
+     *         description="User updated successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/UsersResource")
      *     )
      * )
      */
-    public function update(LanguageStoreRequest $request, Language $language): JsonResponse
-    {
-        $updatedLanguage = $this->repo->update($language, $request->validated());
 
-        $this->repo->loadRelations($updatedLanguage);
+    public function update(UserUpdateRequest $request, User $user): JsonResponse
+    {
+        $updatedUser = $this->repo->update($user, $request->validated());
+
+        $this->repo->loadRelations($updatedUser);
 
         return response()->json(GeneralResource::make([
             'message' => LangService::instance()
                 ->setDefault('Saved successfully!')
                 ->getLang('admin_form_saved_successfully'),
-            'data' => LanguageResource::make($updatedLanguage),
+            'data' => UserResource::make($updatedUser),
         ]));
     }
 
     /**
      * @OA\Post(
-     *     path="/api/control/languages/change-active-status/{id}",
+     *     path="/api/control/users/change-active-status/{id}",
      *     summary="Change the active status of the specified resource",
-     *               tags={"Language"},
+     *               tags={"User"},
      *       security={
      *              {
      *                  "ApiToken": {},
@@ -210,9 +215,9 @@ class LanguageController extends Controller
      *     )
      * )
      */
-    public function changeActiveStatus(Language $language): JsonResponse
+    public function changeActiveStatus(User $user): JsonResponse
     {
-        $this->repo->changeActiveStatus($language);
+        $this->repo->changeActiveStatus($user);
 
         return response()->json(GeneralResource::make([
             'message' => LangService::instance()
@@ -223,9 +228,9 @@ class LanguageController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/control/languages/delete/{id}",
+     *     path="/api/control/users/delete/{id}",
      *     summary="Delete an admin",
-     *     tags={"Language"},
+     *     tags={"User"},
      *          security={
      *            {
      *                "ApiToken": {},
@@ -245,9 +250,9 @@ class LanguageController extends Controller
      *     )
      * )
      */
-    public function destroy(Language $language): JsonResponse
+    public function destroy(User $user): JsonResponse
     {
-        $this->repo->destroy($language);
+        $this->repo->destroy($user);
 
         return response()->json(GeneralResource::make([
             'message' => LangService::instance()

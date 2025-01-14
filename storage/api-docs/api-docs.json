@@ -1243,7 +1243,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/RolesListResource"
+                                        "$ref": "#/components/schemas/LanguagesListResource"
                                     }
                                 }
                             }
@@ -2072,6 +2072,273 @@
                 ]
             }
         },
+        "/api/control/users/load": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get list of users",
+                "operationId": "2a565718707fa006c1b1fa4a286494bb",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/UsersResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/users/list": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get list of roles",
+                "operationId": "a02ba517c961d1219837acc393d44877",
+                "responses": {
+                    "200": {
+                        "description": "Roles list retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/UsersListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/users/show/{id}": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get admin by ID",
+                "operationId": "3f9151e86adbfcaab2849e704f789ee6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/users/add": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Create a new user",
+                "operationId": "2373648cea056e79a3264a2d95f41adf",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UsersResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/users/update/{id}": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update an existing user",
+                "operationId": "77fcc3ed129124fc6e68693a7f3b65a9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UsersResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/users/change-active-status/{id}": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Change the active status of the specified resource",
+                "operationId": "cbf5da7e004c87cee77492e964b1b2ec",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/users/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Delete an admin",
+                "operationId": "de256c7814f3df126916e244ad0f50da",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Admin deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/local-translations/languages/list": {
             "get": {
                 "tags": [
@@ -2598,6 +2865,72 @@
                 },
                 "type": "object"
             },
+            "UserStoreRequest": {
+                "title": "User Store Request",
+                "description": "Request body for creating a new user",
+                "required": [
+                    "email",
+                    "name",
+                    "surname",
+                    "department_id"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 150,
+                        "example": "user@example.com"
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "John"
+                    },
+                    "surname": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Doe"
+                    },
+                    "department_id": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
+            "UserUpdateRequest": {
+                "title": "User Update Request",
+                "description": "Request parameters for updating a user",
+                "required": [
+                    "email",
+                    "name",
+                    "surname",
+                    "department_id"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 150,
+                        "example": "user@example.com"
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "John"
+                    },
+                    "surname": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Doe"
+                    },
+                    "department_id": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
             "GeneralListRequest": {
                 "title": "General List Request",
                 "description": "Request parameters for listing resources",
@@ -2817,6 +3150,9 @@
                         "items": {
                             "$ref": "#/components/schemas/DepartmentsListResource"
                         }
+                    },
+                    "parent": {
+                        "$ref": "#/components/schemas/DepartmentsListResource"
                     }
                 },
                 "type": "object"
@@ -3009,6 +3345,103 @@
                 },
                 "type": "object"
             },
+            "UserResource": {
+                "title": "User Resource",
+                "description": "User Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the user",
+                        "type": "integer"
+                    },
+                    "email": {
+                        "description": "Email of the user",
+                        "type": "string"
+                    },
+                    "name": {
+                        "description": "Name of the user",
+                        "type": "string"
+                    },
+                    "surname": {
+                        "description": "Surname of the user",
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "description": "Is Active",
+                        "type": "boolean"
+                    },
+                    "department": {
+                        "$ref": "#/components/schemas/DepartmentsListResource"
+                    }
+                },
+                "type": "object"
+            },
+            "UsersListResource": {
+                "title": "Users List Resource",
+                "description": "Users List Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the user",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "Name of the user",
+                        "type": "string"
+                    },
+                    "surname": {
+                        "description": "Surname of the user",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "UsersResource": {
+                "title": "Users Resource",
+                "description": "Users Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the user",
+                        "type": "integer"
+                    },
+                    "email": {
+                        "description": "Email of the user",
+                        "type": "string"
+                    },
+                    "name": {
+                        "description": "Name of the user",
+                        "type": "string"
+                    },
+                    "surname": {
+                        "description": "Surname of the user",
+                        "type": "string"
+                    },
+                    "last_login_date": {
+                        "description": "Last Login Date",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "score": {
+                        "description": "Score of the user",
+                        "type": "integer"
+                    },
+                    "is_active": {
+                        "description": "Is Active",
+                        "type": "boolean"
+                    },
+                    "department": {
+                        "$ref": "#/components/schemas/DepartmentsListResource"
+                    },
+                    "created_user": {
+                        "description": "Created User",
+                        "type": "string"
+                    },
+                    "created_date": {
+                        "description": "Created Date",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "GeneralResource": {
                 "title": "General Resource",
                 "description": "General resource representation",
@@ -3071,6 +3504,10 @@
         {
             "name": "Translation",
             "description": "Translation"
+        },
+        {
+            "name": "User",
+            "description": "User"
         },
         {
             "name": "LocalTranslations",

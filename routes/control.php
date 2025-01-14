@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TranslationController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\LocalTranslationsController;
 use App\Http\Middleware\RouteLogMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -92,6 +93,16 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
             Route::post('update/{department}', [DepartmentController::class, 'update']);
             Route::post('change-active-status/{department}', [DepartmentController::class, 'changeActiveStatus']);
             Route::delete('delete/{department}', [DepartmentController::class, 'destroy']);
+        });
+
+        Route::group(['prefix' => 'users'], static function () {
+            Route::get('load', [UserController::class, 'index']);
+            Route::get('list', [UserController::class, 'list']);
+            Route::get('show/{user}', [UserController::class, 'show']);
+            Route::post('add', [UserController::class, 'store']);
+            Route::post('update/{user}', [UserController::class, 'update']);
+            Route::post('change-active-status/{user}', [UserController::class, 'changeActiveStatus']);
+            Route::delete('delete/{user}', [UserController::class, 'destroy']);
         });
     });
 });

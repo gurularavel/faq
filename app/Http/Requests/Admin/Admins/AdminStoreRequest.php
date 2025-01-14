@@ -45,7 +45,7 @@ class AdminStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => ['required', 'string', 'max:100', Rule::unique(Admin::class, 'username')],
+            'username' => ['required', 'string', 'max:100', Rule::unique(Admin::class, 'username')->whereNull('deleted_at')],
             'email' => ['required', 'string', 'email', 'max:150', Rule::unique(Admin::class, 'email')],
             'password' => ['required', Password::min(8)->letters()->mixedCase()->numbers()->symbols()],
             'roles' => ['required', 'array', 'min:1'],

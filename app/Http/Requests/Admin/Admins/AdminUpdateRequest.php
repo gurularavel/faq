@@ -45,7 +45,7 @@ class AdminUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => ['required', 'string', 'max:100', Rule::unique(Admin::class, 'username')->ignore($this->route('admin'))],
+            'username' => ['required', 'string', 'max:100', Rule::unique(Admin::class, 'username')->whereNull('deleted_at')->ignore($this->route('admin'))],
             'email' => ['required', 'string', 'email', 'max:150', Rule::unique(Admin::class, 'email')->ignore($this->route('admin'))],
             'password' => ['nullable', Password::min(8)->letters()->mixedCase()->numbers()->symbols()],
             'roles' => ['required', 'array', 'min:1'],
