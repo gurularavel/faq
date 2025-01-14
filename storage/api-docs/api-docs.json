@@ -862,6 +862,273 @@
                 ]
             }
         },
+        "/api/control/languages/load": {
+            "get": {
+                "tags": [
+                    "Language"
+                ],
+                "summary": "Get list of languages",
+                "operationId": "4564a97ea0f5df76aff518c00baa70e2",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/LanguagesResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/languages/list": {
+            "get": {
+                "tags": [
+                    "Language"
+                ],
+                "summary": "Get list of roles",
+                "operationId": "719ced882e20275e10bd2c1a85385b10",
+                "responses": {
+                    "200": {
+                        "description": "Roles list retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/RolesListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/languages/show/{id}": {
+            "get": {
+                "tags": [
+                    "Language"
+                ],
+                "summary": "Get admin by ID",
+                "operationId": "8fe3f7f357df95df96cd4f0a30e27759",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LanguageResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/languages/add": {
+            "post": {
+                "tags": [
+                    "Language"
+                ],
+                "summary": "Create a new language",
+                "operationId": "acbd09056bae06fbfd26c8c2e12fff81",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LanguageStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Language created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LanguagesResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/languages/update/{id}": {
+            "post": {
+                "tags": [
+                    "Language"
+                ],
+                "summary": "Update an existing language",
+                "operationId": "e520e241b490dd97f8c2a67c8955a4b5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LanguageStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Language updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LanguagesResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/languages/change-active-status/{id}": {
+            "post": {
+                "tags": [
+                    "Language"
+                ],
+                "summary": "Change the active status of the specified resource",
+                "operationId": "7488f70155a2e42c3f13847d90aba878",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/languages/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Language"
+                ],
+                "summary": "Delete an admin",
+                "operationId": "89670b4dd85126d3e597d322c4b06bd6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Admin deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/roles/list": {
             "get": {
                 "tags": [
@@ -1755,6 +2022,29 @@
                 },
                 "type": "object"
             },
+            "LanguageStoreRequest": {
+                "title": "Language Store Request",
+                "required": [
+                    "key",
+                    "title"
+                ],
+                "properties": {
+                    "key": {
+                        "description": "Key of the language",
+                        "type": "string",
+                        "maxLength": 2,
+                        "minLength": 2,
+                        "example": "en"
+                    },
+                    "title": {
+                        "description": "Title of the language",
+                        "type": "string",
+                        "maxLength": 50,
+                        "example": "English"
+                    }
+                },
+                "type": "object"
+            },
             "SettingStoreRequest": {
                 "title": "Setting Store Request",
                 "description": "Request body for storing a new setting",
@@ -2080,6 +2370,79 @@
                 },
                 "type": "object"
             },
+            "LanguageResource": {
+                "title": "Language Resource",
+                "description": "Language Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the language",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Title of the language",
+                        "type": "string"
+                    },
+                    "key": {
+                        "description": "Key of the language",
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "description": "Is Active",
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "LanguagesListResource": {
+                "title": "Languages List Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the language",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Title of the language",
+                        "type": "string"
+                    },
+                    "key": {
+                        "description": "Key of the language",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "LanguagesResource": {
+                "title": "Languages Resource",
+                "description": "Languages Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the language",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Title of the language",
+                        "type": "string"
+                    },
+                    "key": {
+                        "description": "Key of the language",
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "description": "Is Active",
+                        "type": "boolean"
+                    },
+                    "created_user": {
+                        "description": "Created User",
+                        "type": "string"
+                    },
+                    "created_date": {
+                        "description": "Created Date",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "RolesListResource": {
                 "title": "Roles List Resource",
                 "description": "Roles list resource representation",
@@ -2191,6 +2554,10 @@
         {
             "name": "Category",
             "description": "Category"
+        },
+        {
+            "name": "Language",
+            "description": "Language"
         },
         {
             "name": "Role",

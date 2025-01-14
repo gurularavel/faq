@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\LogoutController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TranslationController;
@@ -39,6 +40,16 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
 
         Route::group(['prefix' => 'roles', 'middleware' => ['role:' . RoleEnum::ADMIN->value]], static function () {
             Route::get('list', [RoleController::class, 'list']);
+        });
+
+        Route::group(['prefix' => 'languages'], static function () {
+            Route::get('load', [LanguageController::class, 'index']);
+            Route::get('list', [LanguageController::class, 'list']);
+            Route::get('show/{language}', [LanguageController::class, 'show']);
+            Route::post('add', [LanguageController::class, 'store']);
+            Route::post('update/{language}', [LanguageController::class, 'update']);
+            Route::post('change-active-status/{language}', [LanguageController::class, 'changeActiveStatus']);
+            Route::delete('delete/{language}', [LanguageController::class, 'destroy']);
         });
 
         Route::group(['prefix' => 'translations', 'middleware' => ['role:' . RoleEnum::ADMIN->value]], static function () {

@@ -267,7 +267,7 @@ class LangService
 
     private function getLanguagesData(): array
     {
-        return Language::query()->select(['id', 'key'])->get()?->toArray() ?? [];
+        return Language::query()->active()->select(['id', 'key'])->get()?->toArray() ?? [];
     }
 
     private function clearCache(string $key): void
