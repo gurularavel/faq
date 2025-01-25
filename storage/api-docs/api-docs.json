@@ -1950,6 +1950,272 @@
                 ]
             }
         },
+        "/api/control/question-groups/load": {
+            "get": {
+                "tags": [
+                    "QuestionGroup"
+                ],
+                "summary": "Display a listing of the resource",
+                "operationId": "ceb65ee2613f4d360f522a03dfbc6fa3",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/GeneralListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/QuestionGroupsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/question-groups/list": {
+            "get": {
+                "tags": [
+                    "QuestionGroup"
+                ],
+                "summary": "List questionGroups",
+                "operationId": "f8f75ad35c54afeeec738b2b16127cb5",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/QuestionGroupsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/question-groups/show/{questionGroup}": {
+            "get": {
+                "tags": [
+                    "QuestionGroup"
+                ],
+                "summary": "Show questionGroup",
+                "operationId": "cb11b3156362d707af97814a036434fe",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuestionGroupResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/question-groups/add": {
+            "post": {
+                "tags": [
+                    "QuestionGroup"
+                ],
+                "summary": "Store a newly created resource in storage",
+                "operationId": "5b13463b068a1a4a3db6506dd37bc42c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QuestionGroupStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Resource created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/question-groups/update/{questionGroup}": {
+            "post": {
+                "tags": [
+                    "QuestionGroup"
+                ],
+                "summary": "Update the specified resource in storage",
+                "operationId": "f82d713a3f14dc19bd85da712ed29928",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QuestionGroupUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Resource updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/question-groups/delete/{questionGroup}": {
+            "delete": {
+                "tags": [
+                    "QuestionGroup"
+                ],
+                "summary": "Remove the specified resource from storage",
+                "operationId": "30307a978a0cbb3f1e8f3bbc4d3c59f1",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resource deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/question-groups/change-active-status/{questionGroup}": {
+            "post": {
+                "tags": [
+                    "QuestionGroup"
+                ],
+                "summary": "Change the active status of the specified resource",
+                "operationId": "a8e1b00f7bfed7fbe67f030f31c26863",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/roles/list": {
             "get": {
                 "tags": [
@@ -3695,6 +3961,72 @@
                 },
                 "type": "object"
             },
+            "QuestionGroupStoreRequest": {
+                "title": "Question Group Store Request",
+                "description": "Request body for creating a new question group",
+                "required": [
+                    "translations"
+                ],
+                "properties": {
+                    "translations": {
+                        "description": "Translations for the question group",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "language_id",
+                                "title"
+                            ],
+                            "properties": {
+                                "language_id": {
+                                    "description": "ID of the language",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "title": {
+                                    "description": "Title of the question group",
+                                    "type": "string",
+                                    "example": "General Knowledge"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "QuestionGroupUpdateRequest": {
+                "title": "Question Group Update Request",
+                "description": "Request body for updating an existing question group",
+                "required": [
+                    "translations"
+                ],
+                "properties": {
+                    "translations": {
+                        "description": "Translations for the question group",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "language_id",
+                                "title"
+                            ],
+                            "properties": {
+                                "language_id": {
+                                    "description": "ID of the language",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "title": {
+                                    "description": "Title of the question group",
+                                    "type": "string",
+                                    "example": "General Knowledge"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "SettingStoreRequest": {
                 "title": "Setting Store Request",
                 "description": "Request body for storing a new setting",
@@ -4434,6 +4766,77 @@
                 },
                 "type": "object"
             },
+            "QuestionGroupResource": {
+                "title": "Question Group Resource",
+                "description": "Question Group Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the question group",
+                        "type": "integer"
+                    },
+                    "translations": {
+                        "description": "Translations for the question group",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "language_id": {
+                                    "description": "ID of the language",
+                                    "type": "integer"
+                                },
+                                "title": {
+                                    "description": "Title of the question group",
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "QuestionGroupsListResource": {
+                "title": "Question Groups List Resource",
+                "description": "Question Groups List Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the question group",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Title of the question group",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "QuestionGroupsResource": {
+                "title": "Question Groups Resource",
+                "description": "Question Groups Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the question group",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Title of the question group",
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "description": "Status of the question group",
+                        "type": "boolean"
+                    },
+                    "created_user": {
+                        "description": "Username of the creator",
+                        "type": "string"
+                    },
+                    "created_date": {
+                        "description": "Creation date of the question group",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "RolesListResource": {
                 "title": "Roles List Resource",
                 "description": "Roles list resource representation",
@@ -4719,6 +5122,10 @@
         {
             "name": "Language",
             "description": "Language"
+        },
+        {
+            "name": "QuestionGroup",
+            "description": "QuestionGroup"
         },
         {
             "name": "Role",

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\DifficultyLevelController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\LanguageController;
+use App\Http\Controllers\Admin\QuestionGroupController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TagController;
@@ -136,6 +137,16 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
             Route::post('add', [DifficultyLevelController::class, 'store']);
             Route::post('update/{difficultyLevel}', [DifficultyLevelController::class, 'update']);
             Route::delete('delete/{difficultyLevel}', [DifficultyLevelController::class, 'destroy']);
+        });
+
+        Route::group(['prefix' => 'question-groups'], static function () {
+            Route::get('load', [QuestionGroupController::class, 'index']);
+            Route::get('list', [QuestionGroupController::class, 'list']);
+            Route::get('show/{questionGroup}', [QuestionGroupController::class, 'show']);
+            Route::post('add', [QuestionGroupController::class, 'store']);
+            Route::post('update/{questionGroup}', [QuestionGroupController::class, 'update']);
+            Route::post('change-active-status/{questionGroup}', [QuestionGroupController::class, 'changeActiveStatus']);
+            Route::delete('delete/{questionGroup}', [QuestionGroupController::class, 'destroy']);
         });
     });
 });
