@@ -65,7 +65,7 @@ class AdminService
     public function changePassword(array $validated): void
     {
         /** @var Admin $user */
-        $user = auth("sanctum")->user();
+        $user = auth("admin")->user();
 
         $user->update($validated);
 
@@ -81,7 +81,7 @@ class AdminService
     public function logout(): void
     {
         /** @var Admin $user */
-        $user = auth("sanctum")->user();
+        $user = auth("admin")->user();
 
         $user->currentAccessToken()->delete();
     }
@@ -89,7 +89,7 @@ class AdminService
     public function logoutAll(): void
     {
         /** @var Admin $user */
-        $user = auth("sanctum")->user();
+        $user = auth("admin")->user();
 
         $user->tokens()->delete();
     }

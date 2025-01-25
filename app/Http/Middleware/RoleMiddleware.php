@@ -19,7 +19,7 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string $name): mixed
     {
-        $user = auth("sanctum")->user();
+        $user = auth("admin")->user();
         if ($user->tokenCan('role:' . $name)) {
             return $next($request);
         }

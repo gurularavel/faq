@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\DifficultyLevelController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\LanguageController;
+use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\QuestionGroupController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('control')->group(callback: static function () {
     Route::post("login", [LoginController::class, 'login']);
 
-    Route::group(['middleware' => ['auth:sanctum']], static function () {
+    Route::group(['middleware' => ['auth:admin']], static function () {
         Route::group(['prefix' => 'profile'], static function () {
             Route::get("check-logged-in", [LoginController::class, 'checkLoggedIn']);
             Route::post("change-password", [LoginController::class, 'changePassword']);
@@ -32,8 +33,8 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
         Route::post("logout-all", [LogoutController::class, 'logoutAll']);
 
         Route::group(['prefix' => 'local-translations'], static function () {
-            Route::get('languages/list', [LocalTranslationsController::class, 'getLanguages'])->withoutMiddleware(['auth:sanctum']);
-            Route::get('{lang}', [LocalTranslationsController::class, 'getTranslations'])->withoutMiddleware(['auth:sanctum']);
+            Route::get('languages/list', [LocalTranslationsController::class, 'getLanguages'])->withoutMiddleware(['auth:admin']);
+            Route::get('{lang}', [LocalTranslationsController::class, 'getTranslations'])->withoutMiddleware(['auth:admin']);
         });
 
         Route::group(['prefix' => 'admins', 'middleware' => ['role:' . RoleEnum::ADMIN->value]], static function () {
@@ -147,6 +148,16 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
             Route::post('update/{questionGroup}', [QuestionGroupController::class, 'update']);
             Route::post('change-active-status/{questionGroup}', [QuestionGroupController::class, 'changeActiveStatus']);
             Route::delete('delete/{questionGroup}', [QuestionGroupController::class, 'destroy']);
+
+            Route::group(['prefix' => '{questionGroup}/questions'], static function () {
+                Route::get('load', [QuestionController::class, 'index']);
+                Route::get('list', [QuestionController::class, 'list']);
+                Route::get('show/{question}', [QuestionController::class, 'show']);
+                Route::post('add', [QuestionController::class, 'store']);
+                Route::post('update/{question}', [QuestionController::class, 'update']);
+                Route::post('change-active-status/{question}', [QuestionController::class, 'changeActiveStatus']);
+                Route::delete('delete/{question}', [QuestionController::class, 'destroy']);
+            });
         });
     });
 });

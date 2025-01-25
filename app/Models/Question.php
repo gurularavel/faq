@@ -8,17 +8,23 @@ use App\Traits\Translatable;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
+ * @property mixed $id
+ * @property mixed $answers
  * @property bool|mixed $is_active
  */
-class QuestionGroup extends Model
+class Question extends Model
 {
     use SoftDeletes, ActionBy, ActionUser, Translatable, CascadeSoftDeletes;
 
     protected $fillable = [
+        'uuid',
+        'question_group_id',
+        'difficulty_level_id',
         'is_active',
     ];
 
@@ -26,20 +32,25 @@ class QuestionGroup extends Model
         'is_active' => 'boolean',
     ];
 
-    protected array $cascadeDeletes = ['translatable', 'questions'];
+    protected array $cascadeDeletes = ['translatable'];
 
     public function scopeActive(Builder $query): void
     {
         $query->where('is_active', true);
     }
 
-    public function isActive(): bool
+    public function questionGroup(): BelongsTo
     {
-        return $this->is_active;
+        return $this->belongsTo(QuestionGroup::class);
     }
 
-    public function questions(): HasMany
+    public function difficultyLevel(): BelongsTo
     {
-        return $this->hasMany(Question::class);
+        return $this->belongsTo(DifficultyLevel::class);
+    }
+
+    public function answers(): HasMany
+    {
+        return $this->hasMany(Answer::class);
     }
 }

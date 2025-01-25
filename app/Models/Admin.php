@@ -11,6 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
+ * @property mixed $id
  * @property mixed $token
  * @method createToken(string $deviceType, string[] $array)
  */

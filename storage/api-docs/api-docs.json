@@ -1950,6 +1950,332 @@
                 ]
             }
         },
+        "/api/control/question-groups/{questionGroup}/questions/load": {
+            "get": {
+                "tags": [
+                    "Question"
+                ],
+                "summary": "Display a listing of the resource",
+                "operationId": "7b3afd52eeb88c82611e8087f66767b6",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/GeneralListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/QuestionsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/question-groups/{questionGroup}/questions/list": {
+            "get": {
+                "tags": [
+                    "Question"
+                ],
+                "summary": "List questions",
+                "operationId": "2beb7aaf88c83bfb30f0a3184437a0e7",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/QuestionsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/question-groups/{questionGroup}/questions/show/{question}": {
+            "get": {
+                "tags": [
+                    "Question"
+                ],
+                "summary": "Show question",
+                "operationId": "d817d27865d9870943713234f980d7bd",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "question",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuestionResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/question-groups/{questionGroup}/questions/add": {
+            "post": {
+                "tags": [
+                    "Question"
+                ],
+                "summary": "Store a newly created resource in storage",
+                "operationId": "7f6943a88896e63dbce367098d76281f",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QuestionStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Resource created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/question-groups/{questionGroup}/questions/update/{question}": {
+            "post": {
+                "tags": [
+                    "Question"
+                ],
+                "summary": "Update the specified resource in storage",
+                "operationId": "f91aa504821c789ef436f9033352ee1b",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "question",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QuestionUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Resource updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/question-groups/{questionGroup}/questions/delete/{question}": {
+            "delete": {
+                "tags": [
+                    "Question"
+                ],
+                "summary": "Remove the specified resource from storage",
+                "operationId": "6f512125a75fbd39bee33e8d576a64d8",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "question",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resource deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/question-groups/{questionGroup}/questions/change-active-status/{question}": {
+            "post": {
+                "tags": [
+                    "Question"
+                ],
+                "summary": "Change the active status of the specified resource",
+                "operationId": "94960f8423e737e5f51327a5af53a76b",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "question",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/question-groups/load": {
             "get": {
                 "tags": [
@@ -4027,6 +4353,174 @@
                 },
                 "type": "object"
             },
+            "QuestionStoreRequest": {
+                "title": "Question Store Request",
+                "description": "Request body for creating a new question",
+                "required": [
+                    "difficulty_level_id",
+                    "translations",
+                    "answers"
+                ],
+                "properties": {
+                    "difficulty_level_id": {
+                        "description": "ID of the difficulty level",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "translations": {
+                        "description": "Translations for the question",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "language_id",
+                                "title"
+                            ],
+                            "properties": {
+                                "language_id": {
+                                    "description": "ID of the language",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "title": {
+                                    "description": "Title of the question",
+                                    "type": "string",
+                                    "example": "What is the capital of France?"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "answers": {
+                        "description": "Answers for the question (min: 2)",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "is_correct",
+                                "translations"
+                            ],
+                            "properties": {
+                                "is_correct": {
+                                    "description": "Indicates if the answer is correct",
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "translations": {
+                                    "description": "Translations for the answer",
+                                    "type": "array",
+                                    "items": {
+                                        "required": [
+                                            "language_id",
+                                            "title"
+                                        ],
+                                        "properties": {
+                                            "language_id": {
+                                                "description": "ID of the language",
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "title": {
+                                                "description": "Title of the answer",
+                                                "type": "string",
+                                                "example": "Paris"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "QuestionUpdateRequest": {
+                "title": "Question Update Request",
+                "description": "Request body for updating an existing question",
+                "required": [
+                    "difficulty_level_id",
+                    "translations",
+                    "answers"
+                ],
+                "properties": {
+                    "difficulty_level_id": {
+                        "description": "ID of the difficulty level",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "translations": {
+                        "description": "Translations for the question",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "language_id",
+                                "title"
+                            ],
+                            "properties": {
+                                "language_id": {
+                                    "description": "ID of the language",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "title": {
+                                    "description": "Title of the question",
+                                    "type": "string",
+                                    "example": "What is the capital of France?"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "answers": {
+                        "description": "Answers for the question (min: 2)",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "is_correct",
+                                "translations"
+                            ],
+                            "properties": {
+                                "uuid": {
+                                    "description": "If it is a new question, a null uuid should be sent, else an existing uuid should be sent",
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                                },
+                                "is_correct": {
+                                    "description": "Indicates if the answer is correct",
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "translations": {
+                                    "description": "Translations for the answer",
+                                    "type": "array",
+                                    "items": {
+                                        "required": [
+                                            "language_id",
+                                            "title"
+                                        ],
+                                        "properties": {
+                                            "language_id": {
+                                                "description": "ID of the language",
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "title": {
+                                                "description": "Title of the answer",
+                                                "type": "string",
+                                                "example": "Paris"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "SettingStoreRequest": {
                 "title": "Setting Store Request",
                 "description": "Request body for storing a new setting",
@@ -4278,6 +4772,11 @@
                         "type": "integer",
                         "maximum": 100,
                         "minimum": 5
+                    },
+                    "search": {
+                        "description": "Search",
+                        "type": "string",
+                        "maxLength": 300
                     }
                 },
                 "type": "object"
@@ -4354,6 +4853,63 @@
                         "type": "string",
                         "format": "date-time",
                         "example": "2023-10-01T12:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "AnswerResource": {
+                "title": "Answer Resource",
+                "description": "Answer Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the answer",
+                        "type": "integer"
+                    },
+                    "uuid": {
+                        "description": "UUID of the answer",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "is_correct": {
+                        "description": "Indicates if the answer is correct",
+                        "type": "boolean"
+                    },
+                    "translations": {
+                        "description": "Translations for the answer",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "language_id": {
+                                    "description": "ID of the language",
+                                    "type": "integer"
+                                },
+                                "title": {
+                                    "description": "Title of the answer",
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "AnswersListResource": {
+                "title": "Answers List Resource",
+                "description": "Answers List Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the answer",
+                        "type": "integer"
+                    },
+                    "uuid": {
+                        "description": "UUID of the answer",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "title": {
+                        "description": "Title of the answer",
+                        "type": "string"
                     }
                 },
                 "type": "object"
@@ -4837,6 +5393,97 @@
                 },
                 "type": "object"
             },
+            "QuestionResource": {
+                "title": "Question Resource",
+                "description": "Question Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the question",
+                        "type": "integer"
+                    },
+                    "question_group": {
+                        "$ref": "#/components/schemas/QuestionGroupsListResource"
+                    },
+                    "difficulty_levels": {
+                        "$ref": "#/components/schemas/DifficultyLevelsListResource"
+                    },
+                    "translations": {
+                        "description": "Translations for the question",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "language_id": {
+                                    "description": "ID of the language",
+                                    "type": "integer"
+                                },
+                                "title": {
+                                    "description": "Title of the question",
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "answers": {
+                        "description": "Answers for the question",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AnswerResource"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "QuestionsListResource": {
+                "title": "Questions List Resource",
+                "description": "Questions List Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the question",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Title of the question",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "QuestionsResource": {
+                "title": "Questions Resource",
+                "description": "Questions Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the question",
+                        "type": "integer"
+                    },
+                    "difficulty_levels": {
+                        "$ref": "#/components/schemas/DifficultyLevelsListResource"
+                    },
+                    "title": {
+                        "description": "Title of the question",
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "description": "Indicates if the question is active",
+                        "type": "boolean"
+                    },
+                    "answers_count": {
+                        "description": "Count of answers for the question",
+                        "type": "integer"
+                    },
+                    "created_user": {
+                        "description": "Username of the user who created the question",
+                        "type": "string"
+                    },
+                    "created_date": {
+                        "description": "Date when the question was created",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "RolesListResource": {
                 "title": "Roles List Resource",
                 "description": "Roles list resource representation",
@@ -5122,6 +5769,10 @@
         {
             "name": "Language",
             "description": "Language"
+        },
+        {
+            "name": "Question",
+            "description": "Question"
         },
         {
             "name": "QuestionGroup",
