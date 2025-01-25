@@ -1188,6 +1188,235 @@
                 ]
             }
         },
+        "/api/control/difficulty-levels/load": {
+            "get": {
+                "tags": [
+                    "DifficultyLevel"
+                ],
+                "summary": "Display a listing of the resource",
+                "operationId": "95a67530d1b992628fd91ed65e7f5c8b",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/GeneralListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DifficultyLevelsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/difficulty-levels/list": {
+            "get": {
+                "tags": [
+                    "DifficultyLevel"
+                ],
+                "summary": "List difficultyLevels",
+                "operationId": "f1b634ae165a53d06014691a1bf6c509",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DifficultyLevelsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/difficulty-levels/show/{difficultyLevel}": {
+            "get": {
+                "tags": [
+                    "DifficultyLevel"
+                ],
+                "summary": "Show difficultyLevel",
+                "operationId": "f218d4fe240c102cb4825daf25d322b4",
+                "parameters": [
+                    {
+                        "name": "difficultyLevel",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DifficultyLevelResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/difficulty-levels/add": {
+            "post": {
+                "tags": [
+                    "DifficultyLevel"
+                ],
+                "summary": "Store a newly created resource in storage",
+                "operationId": "41af5855fb3e4ab590b6e78f672368a2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DifficultyLevelStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Resource created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/difficulty-levels/update/{difficultyLevel}": {
+            "post": {
+                "tags": [
+                    "DifficultyLevel"
+                ],
+                "summary": "Update the specified resource in storage",
+                "operationId": "d64feb4114515a3e1f05a38dd288d6b4",
+                "parameters": [
+                    {
+                        "name": "difficultyLevel",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DifficultyLevelUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Resource updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/difficulty-levels/delete/{difficultyLevel}": {
+            "delete": {
+                "tags": [
+                    "DifficultyLevel"
+                ],
+                "summary": "Remove the specified resource from storage",
+                "operationId": "55315aee82b53ca112be76773d95cc6c",
+                "parameters": [
+                    {
+                        "name": "difficultyLevel",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resource deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/faqs/load": {
             "get": {
                 "tags": [
@@ -3269,6 +3498,72 @@
                     }
                 ]
             },
+            "DifficultyLevelStoreRequest": {
+                "title": "Difficulty Level Store Request",
+                "description": "Request body for creating a new difficulty level",
+                "required": [
+                    "translations"
+                ],
+                "properties": {
+                    "translations": {
+                        "description": "Translations for the difficulty level",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "language_id",
+                                "title"
+                            ],
+                            "properties": {
+                                "language_id": {
+                                    "description": "ID of the language",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "title": {
+                                    "description": "Title of the difficulty level",
+                                    "type": "string",
+                                    "example": "Easy"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "DifficultyLevelUpdateRequest": {
+                "title": "Difficulty Level Update Request",
+                "description": "Request body for updating an existing difficulty level",
+                "required": [
+                    "translations"
+                ],
+                "properties": {
+                    "translations": {
+                        "description": "Translations for the difficulty level",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "language_id",
+                                "title"
+                            ],
+                            "properties": {
+                                "language_id": {
+                                    "description": "ID of the language",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "title": {
+                                    "description": "Title of the difficulty level",
+                                    "type": "string",
+                                    "example": "Easy"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "FaqStoreRequest": {
                 "title": "FAQ Store Request",
                 "description": "Request body for storing a new FAQ",
@@ -3914,6 +4209,73 @@
                 },
                 "type": "object"
             },
+            "DifficultyLevelResource": {
+                "title": "Difficulty Level Resource",
+                "description": "Difficulty Level Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the difficulty level",
+                        "type": "integer"
+                    },
+                    "translations": {
+                        "description": "Translations for the difficulty level",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "language_id": {
+                                    "description": "ID of the language",
+                                    "type": "integer"
+                                },
+                                "title": {
+                                    "description": "Title of the difficulty level",
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "DifficultyLevelsListResource": {
+                "title": "Difficulty Levels List Resource",
+                "description": "Difficulty Levels List Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the difficulty level",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Title of the difficulty level",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "DifficultyLevelsResource": {
+                "title": "Difficulty Levels Resource",
+                "description": "Difficulty Levels Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the difficulty level",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Title of the difficulty level",
+                        "type": "string"
+                    },
+                    "created_user": {
+                        "description": "Username of the creator",
+                        "type": "string"
+                    },
+                    "created_date": {
+                        "description": "Creation date of the difficulty level",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "FaqResource": {
                 "title": "FAQ Resource",
                 "description": "FAQ Resource",
@@ -4345,6 +4707,10 @@
         {
             "name": "Department",
             "description": "Department"
+        },
+        {
+            "name": "DifficultyLevel",
+            "description": "DifficultyLevel"
         },
         {
             "name": "Faq",

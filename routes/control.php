@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\LogoutController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\DifficultyLevelController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\RoleController;
@@ -126,6 +127,15 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
             Route::post('update/{user}', [UserController::class, 'update']);
             Route::post('change-active-status/{user}', [UserController::class, 'changeActiveStatus']);
             Route::delete('delete/{user}', [UserController::class, 'destroy']);
+        });
+
+        Route::group(['prefix' => 'difficulty-levels'], static function () {
+            Route::get('load', [DifficultyLevelController::class, 'index']);
+            Route::get('list', [DifficultyLevelController::class, 'list']);
+            Route::get('show/{difficultyLevel}', [DifficultyLevelController::class, 'show']);
+            Route::post('add', [DifficultyLevelController::class, 'store']);
+            Route::post('update/{difficultyLevel}', [DifficultyLevelController::class, 'update']);
+            Route::delete('delete/{difficultyLevel}', [DifficultyLevelController::class, 'destroy']);
         });
     });
 });
