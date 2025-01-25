@@ -8,11 +8,14 @@ use App\Traits\Translatable;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property bool|mixed $is_active
+ * @property mixed $departments
+ * @property mixed $users
  */
 class QuestionGroup extends Model
 {
@@ -26,7 +29,7 @@ class QuestionGroup extends Model
         'is_active' => 'boolean',
     ];
 
-    protected array $cascadeDeletes = ['translatable', 'questions'];
+    protected array $cascadeDeletes = ['translatable', 'questions', 'usersRel', 'departmentsRel'];
 
     public function scopeActive(Builder $query): void
     {
@@ -41,5 +44,25 @@ class QuestionGroup extends Model
     public function questions(): HasMany
     {
         return $this->hasMany(Question::class);
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, QuestionGroupUser::class);
+    }
+
+    public function departments(): BelongsToMany
+    {
+        return $this->belongsToMany(Department::class, QuestionGroupDepartment::class);
+    }
+
+    public function usersRel(): HasMany
+    {
+        return $this->hasMany(QuestionGroupUser::class);
+    }
+
+    public function departmentsRel(): HasMany
+    {
+        return $this->hasMany(QuestionGroupDepartment::class);
     }
 }

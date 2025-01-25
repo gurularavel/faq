@@ -22,6 +22,11 @@ use OpenApi\Annotations as OA;
  *         type="string",
  *         description="Title of the question group"
  *     ),
+ *          @OA\Property(
+ *          property="active_questions_count",
+ *          type="integer",
+ *          description="Active questions count of the question group"
+ *      ),
  *     @OA\Property(
  *         property="is_active",
  *         type="boolean",
@@ -59,6 +64,7 @@ class QuestionGroupsResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->getLang('title'),
+            'active_questions_count' => $this->whenCounted('questions'),
             'is_active' => $this->is_active ?? true,
             'created_user' => $this->whenLoaded('creatable', function () {
                 return $this->creatable?->username;

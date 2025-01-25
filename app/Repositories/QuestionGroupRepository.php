@@ -16,6 +16,11 @@ class QuestionGroupRepository
                 'translatable',
                 'creatable',
             ])
+            ->withCount([
+                'questions' => function ($query) {
+                    $query->active();
+                },
+            ])
             ->orderByDesc('id')
             ->paginate($validated['limit'] ?? 10);
     }
@@ -37,6 +42,11 @@ class QuestionGroupRepository
             ->load([
                 'translatable',
                 'creatable',
+            ])
+            ->loadCount([
+                'questions' => function ($query) {
+                    $query->active();
+                },
             ]);
     }
 
@@ -90,5 +100,31 @@ class QuestionGroupRepository
             $questionGroup->is_active = !$questionGroup->is_active;
             $questionGroup->save();
         });
+    }
+
+    public function getAssignedIds(QuestionGroup $questionGroup): array
+    {
+        $questionGroup->load([
+            'departments',
+            'users',
+        ]);
+
+        return [
+            'departments' => $questionGroup->departments->pluck('id')->toArray(),
+            'users' => $questionGroup->users->pluck('id')->toArray(),
+        ];
+    }
+
+    public function assign(QuestionGroup $questionGroup, array $validated): QuestionGroup
+    {
+        $departments = $validated['departments'] ?? [];
+        $users = $validated['users'] ?? [];
+
+        DB::transaction(static function () use ($questionGroup, $departments, $users) {
+            $questionGroup->departments()->sync($departments);
+            $questionGroup->users()->sync($users);
+        });
+
+        return $questionGroup;
     }
 }

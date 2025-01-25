@@ -2542,6 +2542,135 @@
                 ]
             }
         },
+        "/api/control/question-groups/get-assigned-ids/{questionGroup}": {
+            "get": {
+                "tags": [
+                    "QuestionGroup"
+                ],
+                "summary": "Get assigned department and user IDs for a question group",
+                "operationId": "c96b5696a4363d90c93755c667519ebd",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "departments": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "users": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/question-groups/assign/{questionGroup}": {
+            "post": {
+                "tags": [
+                    "QuestionGroup"
+                ],
+                "summary": "Assign departments and users to a question group",
+                "operationId": "76e828354b8f4b4507ae331aba994b49",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QuestionGroupAssignRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Question group assigned successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "departments": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "users": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": []
+                    },
+                    {
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/roles/list": {
             "get": {
                 "tags": [
@@ -4287,6 +4416,31 @@
                 },
                 "type": "object"
             },
+            "QuestionGroupAssignRequest": {
+                "title": "Question Group Assign Request",
+                "description": "Request body for assigning departments and users to a question group.",
+                "properties": {
+                    "departments": {
+                        "description": "List of department IDs",
+                        "type": "array",
+                        "items": {
+                            "description": "ID of the department",
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    "users": {
+                        "description": "List of user IDs",
+                        "type": "array",
+                        "items": {
+                            "description": "ID of the user",
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "QuestionGroupStoreRequest": {
                 "title": "Question Group Store Request",
                 "description": "Request body for creating a new question group",
@@ -5376,6 +5530,10 @@
                     "title": {
                         "description": "Title of the question group",
                         "type": "string"
+                    },
+                    "active_questions_count": {
+                        "description": "Active questions count of the question group",
+                        "type": "integer"
                     },
                     "is_active": {
                         "description": "Status of the question group",

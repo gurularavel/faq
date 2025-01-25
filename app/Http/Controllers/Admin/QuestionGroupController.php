@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\QuestionGroups\QuestionGroupAssignRequest;
 use App\Http\Requests\Admin\QuestionGroups\QuestionGroupStoreRequest;
 use App\Http\Requests\Admin\QuestionGroups\QuestionGroupUpdateRequest;
 use App\Http\Requests\GeneralListRequest;
@@ -270,5 +271,108 @@ class QuestionGroupController extends Controller
                 ->setDefault('Status changed successfully!')
                 ->getLang('admin_status_changed_successfully'),
         ]));
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/control/question-groups/get-assigned-ids/{questionGroup}",
+     *     summary="Get assigned department and user IDs for a question group",
+     *     tags={"QuestionGroup"},
+     *     security={
+     *         {"ApiToken": {}},
+     *         {"SanctumBearerToken": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="questionGroup",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="departments",
+     *                     type="array",
+     *                     @OA\Items(type="integer")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="users",
+     *                     type="array",
+     *                     @OA\Items(type="integer")
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function getAssignedIds(QuestionGroup $questionGroup): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->repo->getAssignedIds($questionGroup),
+        ]);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/control/question-groups/assign/{questionGroup}",
+     *     summary="Assign departments and users to a question group",
+     *     tags={"QuestionGroup"},
+     *     security={
+     *         {"ApiToken": {}},
+     *         {"SanctumBearerToken": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="questionGroup",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/QuestionGroupAssignRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Question group assigned successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string"
+     *             ),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="departments",
+     *                     type="array",
+     *                     @OA\Items(type="integer")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="users",
+     *                     type="array",
+     *                     @OA\Items(type="integer")
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function assign(QuestionGroupAssignRequest $request, QuestionGroup $questionGroup): JsonResponse
+    {
+        $this->repo->assign($questionGroup, $request->validated());
+
+        return response()->json([
+            'message' => LangService::instance()
+                ->setDefault('Question group assigned successfully!')
+                ->getLang('question_group_assigned_successfully'),
+            'data' => $this->repo->getAssignedIds($questionGroup),
+        ]);
     }
 }

@@ -148,6 +148,8 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
             Route::post('update/{questionGroup}', [QuestionGroupController::class, 'update']);
             Route::post('change-active-status/{questionGroup}', [QuestionGroupController::class, 'changeActiveStatus']);
             Route::delete('delete/{questionGroup}', [QuestionGroupController::class, 'destroy']);
+            Route::get('get-assigned-ids/{questionGroup}', [QuestionGroupController::class, 'getAssignedIds']);
+            Route::post('assign/{questionGroup}', [QuestionGroupController::class, 'assign']);
 
             Route::group(['prefix' => '{questionGroup}/questions'], static function () {
                 Route::get('load', [QuestionController::class, 'index']);

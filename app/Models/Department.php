@@ -9,6 +9,7 @@ use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -30,7 +31,7 @@ class Department extends Model
         'is_active' => 'boolean',
     ];
 
-    protected array $cascadeDeletes = ['subs', 'translatable'];
+    protected array $cascadeDeletes = ['subs', 'translatable', 'questionGroupsRel'];
 
     public function scopeActive(Builder $query): void
     {
@@ -50,5 +51,15 @@ class Department extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    public function questionGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(QuestionGroup::class, QuestionGroupDepartment::class);
+    }
+
+    public function questionGroupsRel(): HasMany
+    {
+        return $this->hasMany(QuestionGroupDepartment::class);
     }
 }
