@@ -3862,6 +3862,205 @@
                 ]
             }
         },
+        "/api/app/login": {
+            "post": {
+                "tags": [
+                    "AppAuthentication"
+                ],
+                "summary": "Login for App",
+                "description": "App Login API",
+                "operationId": "appLogin",
+                "requestBody": {
+                    "description": "Credentials and device information",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "device_type",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "device_type": {
+                                        "description": "Type of device requesting the token",
+                                        "type": "string",
+                                        "enum": [
+                                            "android",
+                                            "ios",
+                                            "web"
+                                        ],
+                                        "example": "web"
+                                    },
+                                    "email": {
+                                        "description": "Email address",
+                                        "type": "string",
+                                        "maxLength": 150,
+                                        "example": "elchinmammadov@eko.local"
+                                    },
+                                    "password": {
+                                        "description": "Account password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "maxLength": 100,
+                                        "minLength": 8,
+                                        "example": "Ee123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful login",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserProfileResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid username or password!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": []
+                    }
+                ]
+            }
+        },
+        "/api/app/profile/check-logged-in": {
+            "get": {
+                "tags": [
+                    "AppAuthentication"
+                ],
+                "summary": "Check if user is logged in",
+                "description": "Returns a simple 'LoggedIn' message if user is authenticated.",
+                "operationId": "appCheckLoggedIn",
+                "responses": {
+                    "200": {
+                        "description": "User is logged in",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Status of the user",
+                                            "type": "string",
+                                            "example": "LoggedIn"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/app/logout": {
+            "post": {
+                "tags": [
+                    "AppAuthentication"
+                ],
+                "summary": "Logout from current device",
+                "description": "Logs out the authenticated user from the current device.",
+                "operationId": "appLogout",
+                "responses": {
+                    "200": {
+                        "description": "Logged out from current device",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out from current device."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/app/logout-all": {
+            "post": {
+                "tags": [
+                    "AppAuthentication"
+                ],
+                "summary": "Logout from all devices",
+                "description": "Logs out the authenticated user from all devices.",
+                "operationId": "appLogoutAll",
+                "responses": {
+                    "200": {
+                        "description": "Logged out from all devices",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out from all devices."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/local-translations/languages/list": {
             "get": {
                 "tags": [
@@ -5869,6 +6068,44 @@
                 },
                 "type": "object"
             },
+            "UserProfileResource": {
+                "title": "User Profile Resource",
+                "description": "User profile resource representation",
+                "properties": {
+                    "id": {
+                        "description": "User ID",
+                        "type": "integer"
+                    },
+                    "email": {
+                        "description": "User email",
+                        "type": "string"
+                    },
+                    "username": {
+                        "description": "User username",
+                        "type": "string"
+                    },
+                    "is_expired": {
+                        "description": "User account expiration status",
+                        "type": "boolean"
+                    },
+                    "name": {
+                        "description": "User first name",
+                        "type": "string"
+                    },
+                    "surname": {
+                        "description": "User last name",
+                        "type": "string"
+                    },
+                    "department": {
+                        "$ref": "#/components/schemas/DepartmentsListResource"
+                    },
+                    "token": {
+                        "description": "User authentication token",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
             "GeneralResource": {
                 "title": "General Resource",
                 "description": "General resource representation",
@@ -5888,13 +6125,24 @@
         "securitySchemes": {
             "ApiToken": {
                 "type": "apiKey",
-                "description": "ApiToken required for all end points",
+                "description": "ApiToken required for all end points of control panel",
                 "name": "Token",
                 "in": "header"
             },
             "SanctumBearerToken": {
                 "type": "http",
-                "description": "Sanctum Bearer Token required after user logs in (Authorization: Bearer <token>)",
+                "description": "Sanctum Bearer Token required after user logs in (Authorization: Bearer <token>) for control panel",
+                "scheme": "bearer"
+            },
+            "AppApiToken": {
+                "type": "apiKey",
+                "description": "ApiToken required for all end points of app",
+                "name": "Token",
+                "in": "header"
+            },
+            "AppSanctumBearerToken": {
+                "type": "http",
+                "description": "Sanctum Bearer Token required after user logs in (Authorization: Bearer <token>) for app",
                 "scheme": "bearer"
             }
         }
@@ -5955,6 +6203,10 @@
         {
             "name": "User",
             "description": "User"
+        },
+        {
+            "name": "AppAuthentication",
+            "description": "AppAuthentication"
         },
         {
             "name": "LocalTranslations",

@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\App\Auth\LoginController;
+use App\Http\Controllers\App\Auth\LogoutController;
 use App\Http\Controllers\LocalTranslationsController;
+use App\Http\Middleware\CheckUserExpiredMiddleware;
 use App\Http\Middleware\RouteLogMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -8,5 +11,16 @@ Route::middleware(['general_access:app', RouteLogMiddleware::class])->prefix('ap
     Route::group(['prefix' => 'local-translations'], static function () {
         Route::get('languages/list', [LocalTranslationsController::class, 'getLanguages']);
         Route::get('{lang}', [LocalTranslationsController::class, 'getTranslations']);
+    });
+
+    Route::post('login', [LoginController::class, 'login']);
+
+    Route::group(['middleware' => ['auth:user', CheckUserExpiredMiddleware::class]], static function () {
+        Route::group(['prefix' => 'profile'], static function () {
+            Route::get('check-logged-in', [LoginController::class, 'checkLoggedIn']);
+        });
+
+        Route::post('logout', [LogoutController::class, 'logout']);
+        Route::post('logout-all', [LogoutController::class, 'logoutAll']);
     });
 });

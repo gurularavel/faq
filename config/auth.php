@@ -44,6 +44,10 @@ return [
             'driver' => 'sanctum',
             'provider' => 'admins',
         ],
+        'ldap' => [
+            'driver'   => 'session',
+            'provider' => 'ldap-users',
+        ],
     ],
 
     /*
@@ -71,6 +75,10 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,
+        ],
+        'ldap-users' => [
+            'driver' => 'ldap',
+            'model'  => LdapRecord\Models\ActiveDirectory\User::class,
         ],
     ],
 
