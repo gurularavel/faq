@@ -3,7 +3,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
-import { CloseOutlined } from "@ant-design/icons";
+import CloseIcon from "@mui/icons-material/Close";
 import { useMediaQuery, IconButton, Box } from "@mui/material";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -51,7 +51,7 @@ export default function Modal({
           {title}
         </DialogTitle>
         <IconButton onClick={handleClose}>
-          <CloseOutlined />
+          <CloseIcon />
         </IconButton>
       </Box>
       <DialogContent>

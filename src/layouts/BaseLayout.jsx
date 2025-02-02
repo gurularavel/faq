@@ -2,23 +2,26 @@ import React from "react";
 import { ToastContainer } from "react-toastify";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "@utils/theme/theme";
+import { HeaderProvider } from "../components/layout/header/context/HeaderContext";
 export default function BaseLayout({ children }) {
   return (
-    <ThemeProvider theme={theme}>
-      {children}
+    <HeaderProvider>
+      <ThemeProvider theme={theme}>
+        {children}
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-    </ThemeProvider>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+      </ThemeProvider>
+    </HeaderProvider>
   );
 }

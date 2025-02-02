@@ -15,10 +15,14 @@ const ControlLogin = Loadable(
 );
 
 // control pages
-const Dashboard = Loadable(
-  lazy(() => import("@pages/admin/dashboard/Dashboard"))
+const Questions = Loadable(
+  lazy(() => import("@pages/admin/questions/Questions"))
+);
+const QuestionsGroup = Loadable(
+  lazy(() => import("@pages/admin/questions-group/QuestionsGroup"))
 );
 const Users = Loadable(lazy(() => import("@pages/admin/users/Users")));
+const Translations = Loadable(lazy(() => import("@pages/admin/translations")));
 
 export default function App() {
   const { isAdmin, isUser } = usePermissions();
@@ -27,8 +31,10 @@ export default function App() {
       <Route element={<AuthGuard />}>
         {isAdmin ? (
           <Route path="/" element={<ControlLayout />}>
-            <Route index element={<Dashboard />} />
+            <Route index element={<Questions />} />
+            <Route path="questions-group" element={<QuestionsGroup />} />
             <Route path="users" element={<Users />} />
+            <Route path="translations" element={<Translations />} />
           </Route>
         ) : isUser ? (
           <Route path="/" element={<MainLayout />}>

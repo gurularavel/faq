@@ -124,6 +124,32 @@ const theme = createTheme({
         },
       },
     },
+    MuiListItemIcon: {
+      styleOverrides: {
+        root: {
+          minWidth: "32px",
+          "& img": {
+            width: "24px",
+            height: "24px",
+          },
+        },
+      },
+    },
+    MuiListItem: {
+      styleOverrides: {
+        root: {
+          color: "#1F1F1F",
+          paddingTop: "24px",
+          paddingBottom: "24px",
+          "&:hover": {
+            background: "#F5FAFF",
+          },
+          "&.active": {
+            background: "#F5FAFF",
+          },
+        },
+      },
+    },
     MuiContainer: {
       styleOverrides: {
         root: {

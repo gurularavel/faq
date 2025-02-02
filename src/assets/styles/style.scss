@@ -34,6 +34,44 @@ body {
   }
 }
 
+.user-icon-button {
+  padding: 0;
+
+  .user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    overflow: hidden;
+
+    img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+  }
+}
+
+.logout-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+
+  .logout-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.logout-item {
+  padding-top: 16px !important;
+  padding-bottom: 16px !important;
+}
+
 @media screen and (max-width: 992px) {
   .login-container {
     .auth-card {
@@ -46,6 +84,17 @@ body {
     }
     .auth-form {
       padding: 0;
+    }
+
+    .user-icon-button {
+      .user-avatar {
+        width: 42px;
+        height: 42px;
+        img {
+          width: 24px;
+          height: 24px;
+        }
+      }
     }
   }
 }
