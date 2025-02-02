@@ -1,0 +1,51 @@
+$textDark: #1f1f1f;
+* {
+  font-family: "Poppins", sans-serif;
+}
+body {
+  margin: 0;
+}
+.text-link {
+  color: $textDark;
+}
+.login-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  .auth-form {
+    width: 100%;
+    max-width: 432px;
+    margin: 0 auto;
+    padding: 10vh 0;
+  }
+  .auth-logo {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 24px;
+    img {
+      width: 330px;
+      height: auto;
+    }
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .login-container {
+    .auth-card {
+      box-shadow: none !important;
+    }
+    .auth-logo {
+      img {
+        width: 130px;
+      }
+    }
+    .auth-form {
+      padding: 0;
+    }
+  }
+}
