@@ -41,7 +41,7 @@ export default function App() {
             <Route index element={<Dashboard />} />
           </Route>
         ) : (
-          <></>
+          <Route path="/" element={<></>} />
         )}
       </Route>
 
