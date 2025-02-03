@@ -376,6 +376,7 @@ export default function Tags() {
               data={filters}
               setData={setFilters}
               placeholder={t("search")}
+              searchIcon={true}
             />
           </Box>
           {isMobile ? <MobileView /> : <DesktopView />}

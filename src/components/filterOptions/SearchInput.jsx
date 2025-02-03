@@ -1,7 +1,13 @@
 import { InputAdornment, TextField } from "@mui/material";
 import React, { useState, useRef, useEffect } from "react";
 import SearchIcon from "@assets/icons/input-search.svg";
-export default function SearchInput({ name, data, setData, placeholder = "" }) {
+export default function SearchInput({
+  name,
+  data,
+  setData,
+  placeholder = "",
+  searchIcon = false,
+}) {
   const [inputValue, setInputValue] = useState(data[name] || "");
   const debounceTimeout = useRef(null);
 
@@ -38,15 +44,19 @@ export default function SearchInput({ name, data, setData, placeholder = "" }) {
       fullWidth
       placeholder={placeholder}
       className="filter-input"
-      slotProps={{
-        input: {
-          startAdornment: (
-            <InputAdornment position="start">
-              <img src={SearchIcon} alt="search" />
-            </InputAdornment>
-          ),
-        },
-      }}
+      slotProps={
+        searchIcon
+          ? {
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <img src={SearchIcon} alt="search" />
+                  </InputAdornment>
+                ),
+              },
+            }
+          : {}
+      }
     />
   );
 }
