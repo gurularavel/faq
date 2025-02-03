@@ -1,6 +1,7 @@
 $textDark: #1f1f1f;
 * {
   font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
 }
 body {
   margin: 0;
@@ -125,7 +126,127 @@ body {
     }
   }
 }
+.data-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  row-gap: 32px;
+  padding: 0px 24px 32px;
+  box-sizing: content-box;
+  &-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    transition: all 0.3s ease;
+    border: 1px solid #a2adc8;
+    cursor: pointer;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    background-image: url("../icons/logo-highlighted.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 
+    // Progress bar
+    .progress-bar {
+      width: 80%;
+      height: 20px;
+      position: absolute;
+      bottom: -20px;
+      margin: 0 auto;
+      left: 0;
+      right: 0;
+      border: 1px solid #a2adc8;
+      border-bottom-right-radius: 8px;
+      border-bottom-left-radius: 8px;
+      border-top: none;
+      &::before {
+        content: "";
+        width: 50px;
+        height: 1.5px;
+        background-color: #ff003c;
+        position: absolute;
+        bottom: 8.5px;
+        z-index: 2;
+        left: 10px;
+        max-width: 90%;
+        transition: 0.2s;
+      }
+      &::after {
+        content: "";
+        width: 20px;
+        height: 20px;
+        background-image: url("../icons/arrow-right-red.svg");
+        background-size: cover;
+        position: absolute;
+        right: 10px;
+        background-repeat: no-repeat;
+      }
+    }
+
+    &:hover {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+
+      .progress-bar {
+        &::before {
+          width: 230px;
+        }
+      }
+
+      .card-actions {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .title-wrapper {
+      margin-bottom: 16px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      h6 {
+        font-weight: 500;
+        color: #333;
+        margin: 0;
+      }
+    }
+
+    .card-content {
+      flex-grow: 1;
+      color: #666;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .card-actions {
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      width: 100%;
+      padding: 16px;
+
+      .MuiIconButton-root {
+        padding: 6px;
+        background: rgba(0, 0, 0, 0.03);
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.06);
+        }
+      }
+    }
+  }
+}
 @media screen and (max-width: 992px) {
   .login-container {
     .auth-card {

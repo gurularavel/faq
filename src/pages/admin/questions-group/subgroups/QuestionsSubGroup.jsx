@@ -26,11 +26,27 @@ import DeleteModal from "@components/modal/DeleteModal";
 import SearchInput from "@components/filterOptions/SearchInput";
 import Add from "./popups/Add";
 import Edit from "./popups/Edit";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-export default function QuestionGroup() {
+export default function QuestionsSubGroup() {
+  const { id } = useParams();
   const t = useTranslate();
   const { setContent } = useHeader();
+  const nav = useNavigate();
+  const [info, setInfo] = useState({});
+  const getInfo = async () => {
+    try {
+      const res = await controlPrivateApi.get(`/categories/show/${id}`);
+      setInfo(res.data.data);
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response.status == 404) {
+          nav(-1);
+        }
+      }
+    }
+  };
+
   const [isLoading, setIsLoading] = useState(true);
 
   const [data, setData] = useState({
@@ -63,7 +79,7 @@ export default function QuestionGroup() {
   };
 
   useEffect(() => {
-    let url = `/categories/load?`;
+    let url = `/categories/subs/${id}?`;
 
     for (const key in filters) {
       if (filters[key]) {
@@ -117,6 +133,7 @@ export default function QuestionGroup() {
 
   //   set add button to header
   useEffect(() => {
+    getInfo();
     setContent(
       <Box sx={{ display: "flex", gap: 2 }}>
         <Button
@@ -126,7 +143,7 @@ export default function QuestionGroup() {
           size="small"
           onClick={() => setModal(1)}
         >
-          {t("new_question_group")}
+          {t("new_question_subgroup")}
         </Button>
       </Box>
     );
@@ -184,11 +201,6 @@ export default function QuestionGroup() {
       setModal(0);
     }
   }, [open]);
-
-  const nav = useNavigate();
-  const handleCardClick = (row) => {
-    nav(`${row.id}`);
-  };
 
   const LoadingSkeleton = () => (
     <>
@@ -278,7 +290,7 @@ export default function QuestionGroup() {
   };
 
   return (
-    <MainCard title={t("tags")}>
+    <MainCard title={info?.translations?.[0]?.title} hasBackBtn={true}>
       <Modal
         open={open}
         fullScreenOnMobile={false}

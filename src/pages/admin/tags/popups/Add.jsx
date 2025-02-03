@@ -31,7 +31,7 @@ const Add = ({ setList, close }) => {
       const res = await controlPrivateApi.post("/tags/add", data);
       notify(res.data.message, "success");
 
-      setList((prev) => ({ ...prev, list: [...prev.list, res.data.data] }));
+      setList((prev) => ({ ...prev, list: [res.data.data, ...prev.list] }));
 
       close();
     } catch (error) {

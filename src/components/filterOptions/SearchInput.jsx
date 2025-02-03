@@ -1,6 +1,7 @@
 import { InputAdornment, TextField } from "@mui/material";
 import React, { useState, useRef, useEffect } from "react";
 import SearchIcon from "@assets/icons/input-search.svg";
+
 export default function SearchInput({
   name,
   data,
@@ -10,8 +11,14 @@ export default function SearchInput({
 }) {
   const [inputValue, setInputValue] = useState(data[name] || "");
   const debounceTimeout = useRef(null);
+  const isInitialMount = useRef(true);
 
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
     if (debounceTimeout.current) {
       clearTimeout(debounceTimeout.current);
     }

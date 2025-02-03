@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Box, Toolbar, useTheme, useMediaQuery, styled } from "@mui/material";
 import ControlHeader from "@components/layout/header/ControlHeader";
 import Sidebar from "@components/layout/sidebar/Sidebar";
+import useLanguage from "@hooks/useLanguage";
 
 const drawerWidth = 280;
 
@@ -25,6 +26,8 @@ const Main = styled("main")(({ theme, open }) => ({
 }));
 
 export default function ControlLayout() {
+  useLanguage("control");
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileOpen, setMobileOpen] = useState(false);

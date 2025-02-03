@@ -21,6 +21,9 @@ const Questions = Loadable(
 const QuestionsGroup = Loadable(
   lazy(() => import("@pages/admin/questions-group/QuestionsGroup"))
 );
+const QuestionsSubGroup = Loadable(
+  lazy(() => import("@pages/admin/questions-group/subgroups/QuestionsSubGroup"))
+);
 const Users = Loadable(lazy(() => import("@pages/admin/users/Users")));
 const Translations = Loadable(lazy(() => import("@pages/admin/translations")));
 const Tags = Loadable(lazy(() => import("@pages/admin/tags/Tags")));
@@ -34,6 +37,7 @@ export default function App() {
           <Route path="/" element={<ControlLayout />}>
             <Route index element={<Questions />} />
             <Route path="questions-group" element={<QuestionsGroup />} />
+            <Route path="questions-group/:id" element={<QuestionsSubGroup />} />
             <Route path="users" element={<Users />} />
             <Route path="tags" element={<Tags />} />
             <Route path="translations" element={<Translations />} />

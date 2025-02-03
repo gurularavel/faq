@@ -19,22 +19,21 @@ import {
   Box,
   Button,
   Skeleton,
-  CircularProgress,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@assets/icons/delete.svg";
 import EditIcon from "@assets/icons/edit.svg";
-import MainCard from "@components/card/MainCard";
 import { controlPrivateApi } from "@src/utils/axios/controlPrivateApi";
 import { notify } from "@src/utils/toast/notify";
 import { isAxiosError } from "axios";
 import { useHeader } from "@hooks/useHeader";
 import { useTranslate } from "@src/utils/translations/useTranslate";
+import MainCard from "@components/card/MainCard";
 import Modal from "@components/modal";
+import DeleteModal from "@components/modal/DeleteModal";
+import SearchInput from "@components/filterOptions/SearchInput";
 import Add from "./popups/Add";
 import Edit from "./popups/Edit";
-import DeleteModal from "@components/modal/DeleteModal";
-import SearchInput from "../../../components/filterOptions/SearchInput";
 
 export default function Tags() {
   const t = useTranslate();
@@ -238,7 +237,7 @@ export default function Tags() {
           <TableRow>
             <TableCell></TableCell>
             <TableCell sx={{ width: "50%" }} colSpan={3}>
-              Title
+              {t("title")}
             </TableCell>
           </TableRow>
         </TableHead>
@@ -359,7 +358,7 @@ export default function Tags() {
   );
 
   return (
-    <MainCard title="Tags">
+    <MainCard title={t("tags")}>
       <Modal
         open={open}
         fullScreenOnMobile={false}
