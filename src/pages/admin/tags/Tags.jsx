@@ -34,6 +34,7 @@ import Modal from "@components/modal";
 import Add from "./popups/Add";
 import Edit from "./popups/Edit";
 import DeleteModal from "@components/modal/DeleteModal";
+import SearchInput from "../../../components/filterOptions/SearchInput";
 
 export default function Tags() {
   const t = useTranslate();
@@ -369,6 +370,14 @@ export default function Tags() {
       />
       <Box className="main-card-body">
         <Box className="main-card-body-inner">
+          <Box className={"filter-area"}>
+            <SearchInput
+              name="search"
+              data={filters}
+              setData={setFilters}
+              placeholder={t("search")}
+            />
+          </Box>
           {isMobile ? <MobileView /> : <DesktopView />}
         </Box>
 

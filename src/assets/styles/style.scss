@@ -107,6 +107,11 @@ body {
     flex-direction: column;
     justify-content: space-between;
     flex: 1;
+    .filter-area {
+      width: 100%;
+      padding: 20px 24px;
+      box-sizing: border-box;
+    }
     .main-card-body-inner {
       width: 100%;
     }
