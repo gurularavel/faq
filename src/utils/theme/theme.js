@@ -135,6 +135,59 @@ const theme = createTheme({
         },
       },
     },
+
+    MuiSwitch: {
+      styleOverrides: {
+        root: {
+          width: 46,
+          height: 24,
+          padding: 0,
+          "& .MuiSwitch-switchBase": {
+            padding: 0,
+            margin: 2,
+            transitionDuration: "300ms",
+            "&.Mui-checked": {
+              transform: "translateX(22px)",
+              color: "#fff",
+              "& + .MuiSwitch-track": {
+                backgroundColor: "#55D653",
+                opacity: 1,
+                border: 0,
+              },
+            },
+            "&.Mui-disabled + .MuiSwitch-track": {
+              opacity: 0.5,
+            },
+          },
+          "& .MuiSwitch-thumb": {
+            boxSizing: "border-box",
+            width: 20,
+            height: 20,
+            boxShadow: "0 2px 4px 0 rgba(0, 0, 0, 0.2)",
+          },
+          "& .MuiSwitch-track": {
+            borderRadius: 26 / 2,
+            backgroundColor: "#C4D0E0",
+            opacity: 1,
+            transition: "background-color 500ms",
+            "&:before, &:after": {
+              content: '""',
+              position: "absolute",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: 16,
+              height: 16,
+            },
+            "&:before": {
+              left: 12,
+            },
+            "&:after": {
+              right: 12,
+            },
+          },
+        },
+      },
+    },
     MuiListItem: {
       styleOverrides: {
         root: {

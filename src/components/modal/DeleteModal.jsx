@@ -6,7 +6,7 @@ export default function DeleteModal({ close, onSuccess }) {
   const t = useTranslate();
   return (
     <Box
-      width={400}
+      minWidth={{ xs: 300, md: 500 }}
       display={"flex"}
       flexDirection={"column"}
       alignItems={"center"}

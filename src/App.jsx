@@ -23,6 +23,7 @@ const QuestionsGroup = Loadable(
 );
 const Users = Loadable(lazy(() => import("@pages/admin/users/Users")));
 const Translations = Loadable(lazy(() => import("@pages/admin/translations")));
+const Tags = Loadable(lazy(() => import("@pages/admin/tags/Tags")));
 
 export default function App() {
   const { isAdmin, isUser } = usePermissions();
@@ -34,6 +35,7 @@ export default function App() {
             <Route index element={<Questions />} />
             <Route path="questions-group" element={<QuestionsGroup />} />
             <Route path="users" element={<Users />} />
+            <Route path="tags" element={<Tags />} />
             <Route path="translations" element={<Translations />} />
           </Route>
         ) : isUser ? (
