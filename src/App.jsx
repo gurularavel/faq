@@ -18,6 +18,9 @@ const ControlLogin = Loadable(
 const Questions = Loadable(
   lazy(() => import("@pages/admin/questions/Questions"))
 );
+const AddQuestion = Loadable(
+  lazy(() => import("@pages/admin/questions/add/AddQuestion"))
+);
 const QuestionsGroup = Loadable(
   lazy(() => import("@pages/admin/questions-group/QuestionsGroup"))
 );
@@ -36,6 +39,7 @@ export default function App() {
         {isAdmin ? (
           <Route path="/" element={<ControlLayout />}>
             <Route index element={<Questions />} />
+            <Route path="add-question" element={<AddQuestion />} />
             <Route path="questions-group" element={<QuestionsGroup />} />
             <Route path="questions-group/:id" element={<QuestionsSubGroup />} />
             <Route path="users" element={<Users />} />

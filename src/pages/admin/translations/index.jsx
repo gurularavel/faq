@@ -31,7 +31,7 @@ export default function Translations() {
   const [list, setList] = useState([]);
   const getFilters = async () => {
     try {
-      const res = await controlPrivateApi.get("/control/translations/filters");
+      const res = await controlPrivateApi.get("/translations/filters");
     } catch (error) {
     } finally {
       setPending(false);
@@ -39,7 +39,7 @@ export default function Translations() {
   };
   const getTranslations = async () => {
     try {
-      const res = await controlPrivateApi.get("/control/translations/load");
+      const res = await controlPrivateApi.get("/translations/load");
       setLanguages(res.data.data.languages);
       setList(res.data.data.translations);
     } catch (error) {

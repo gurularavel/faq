@@ -275,7 +275,7 @@ export default function Tags() {
                     onChange={() => toggleStatus(row.id, row.is_active)}
                   />
                 </TableCell>
-                <TableCell sx={{ minWidth: "100px" }}>
+                <TableCell sx={{ minWidth: "120px" }}>
                   <IconButton
                     onClick={() => {
                       setDraftData(row);

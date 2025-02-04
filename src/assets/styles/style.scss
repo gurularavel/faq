@@ -34,7 +34,27 @@ body {
     }
   }
 }
+.ck-editor__editable[role="textbox"] {
+  padding-left: 20px;
+}
+.ck-content {
+  min-height: 200px;
+}
 
+.ck-content ul,
+.ck-content ol {
+  list-style: disc;
+  padding-left: 20px;
+}
+.ck-content ul li {
+  list-style: disc;
+}
+.ck-content ol li {
+  list-style: number;
+}
+.ck-content .ck-list-bogus-paragraph {
+  display: none;
+}
 .user-icon-button {
   padding: 0;
 

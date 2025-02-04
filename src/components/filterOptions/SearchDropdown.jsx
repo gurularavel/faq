@@ -32,6 +32,7 @@ export default function SearchDropdown({
         value={data[name] || "null"}
         onChange={handleSelectChange}
         displayEmpty
+        className="filter-input"
         MenuProps={MenuProps}
       >
         <MenuItem value="null">{"Hamısı"}</MenuItem>
