@@ -36,7 +36,7 @@ export default function Sidebar({
       text: "Sual kateqoriyalari",
       icon: QuestionCategoryIcon,
     },
-    { path: "/users", text: "İstifadəçilər", icon: UserIcon },
+    { path: "/users-list", text: "İstifadəçilər", icon: UserIcon },
     {
       path: "/users-group",
       text: "İstifadəçi kateqoriyalari",
