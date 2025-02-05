@@ -38,6 +38,11 @@ class Department extends Model
         $query->where('is_active', true);
     }
 
+    public function scopeParents(Builder $query): void
+    {
+        $query->whereNull('department_id');
+    }
+
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'department_id');

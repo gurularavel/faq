@@ -35,6 +35,7 @@ class DepartmentRepository
     {
         return Department::query()
             ->active()
+            ->parents()
             ->with([
                 'translatable',
             ])

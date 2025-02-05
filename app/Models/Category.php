@@ -40,6 +40,11 @@ class Category extends Model
         $query->where('is_active', true);
     }
 
+    public function scopeParents(Builder $query): void
+    {
+        $query->whereNull('category_id');
+    }
+
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');

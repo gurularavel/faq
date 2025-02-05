@@ -35,6 +35,7 @@ class CategoryRepository
     {
         return Category::query()
             ->active()
+            ->parents()
             ->with([
                 'translatable',
             ])
