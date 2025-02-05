@@ -209,7 +209,7 @@ export default function Questions() {
   const deleteRow = async () => {
     try {
       const res = await controlPrivateApi.delete(
-        `/tags/delete/${draftData?.id}`
+        `/faqs/delete/${draftData?.id}`
       );
       setData((prev) => ({
         ...prev,

@@ -40,6 +40,11 @@ const UsersSubGroup = Loadable(
 );
 
 const Users = Loadable(lazy(() => import("@pages/admin/users/Users")));
+const AddUser = Loadable(lazy(() => import("@pages/admin/users/add/AddUser")));
+const EditUser = Loadable(
+  lazy(() => import("@pages/admin/users/edit/EditUser"))
+);
+
 const Translations = Loadable(lazy(() => import("@pages/admin/translations")));
 const Tags = Loadable(lazy(() => import("@pages/admin/tags/Tags")));
 
@@ -58,6 +63,8 @@ export default function App() {
             <Route path="questions-group/:id" element={<QuestionsSubGroup />} />
 
             <Route path="users-list" element={<Users />} />
+            <Route path="users-list/add" element={<AddUser />} />
+            <Route path="users-list/edit/:id" element={<EditUser />} />
 
             <Route path="users-group" element={<UsersGroup />} />
             <Route path="users-group/:id" element={<UsersSubGroup />} />
