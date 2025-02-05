@@ -21,6 +21,9 @@ const Questions = Loadable(
 const AddQuestion = Loadable(
   lazy(() => import("@pages/admin/questions/add/AddQuestion"))
 );
+const EditQuestion = Loadable(
+  lazy(() => import("@pages/admin/questions/edit/EditQuestion"))
+);
 const QuestionsGroup = Loadable(
   lazy(() => import("@pages/admin/questions-group/QuestionsGroup"))
 );
@@ -40,6 +43,7 @@ export default function App() {
           <Route path="/" element={<ControlLayout />}>
             <Route index element={<Questions />} />
             <Route path="add-question" element={<AddQuestion />} />
+            <Route path="edit-question/:id" element={<EditQuestion />} />
             <Route path="questions-group" element={<QuestionsGroup />} />
             <Route path="questions-group/:id" element={<QuestionsSubGroup />} />
             <Route path="users" element={<Users />} />

@@ -278,7 +278,7 @@ export default function QuestionGroup() {
   };
 
   return (
-    <MainCard title={t("tags")}>
+    <MainCard title={t("question_group")}>
       <Modal
         open={open}
         fullScreenOnMobile={false}

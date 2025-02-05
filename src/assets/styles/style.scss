@@ -36,7 +36,9 @@ body {
 }
 .ck-editor__editable[role="textbox"] {
   padding-left: 20px;
+  border-radius: 12px;
 }
+
 .ck-content {
   min-height: 200px;
 }
@@ -132,6 +134,13 @@ body {
       width: 100%;
       padding: 20px 24px;
       box-sizing: border-box;
+      .filter-reset-btn {
+        width: 100%;
+        padding: 0;
+        height: 50px;
+        border: 1px solid #e6e9ed;
+        border-radius: 12px;
+      }
     }
     .main-card-body-inner {
       width: 100%;

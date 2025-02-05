@@ -34,14 +34,14 @@ import Modal from "@components/modal";
 import DeleteModal from "@components/modal/DeleteModal";
 import SearchInput from "@components/filterOptions/SearchInput";
 import SearchDropdown from "@components/filterOptions/SearchDropdown";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UploadFile } from "@mui/icons-material";
-
+import ResetIcon from "@assets/icons/reset.svg";
 export default function Questions() {
   const t = useTranslate();
   const { setContent } = useHeader();
   const [isLoading, setIsLoading] = useState(true);
-
+  const nav = useNavigate();
   const [data, setData] = useState({
     list: [],
     total: 0,
@@ -50,7 +50,20 @@ export default function Questions() {
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
+    category: null,
+    search: null,
+    status: null,
   });
+
+  // reset filter
+  const resetFilter = () =>
+    setFilters({
+      page: 1,
+      limit: 10,
+      category: null,
+      search: null,
+      status: null,
+    });
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -125,8 +138,29 @@ export default function Questions() {
     }
   };
 
+  // get filter options list
+  const [categories, setCategories] = useState([]);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await controlPrivateApi.get("/categories/list");
+      setCategories(
+        res.data.data.map((category) => ({
+          id: category.id,
+          title: category.title,
+        }))
+      );
+    } catch (error) {
+      notify(
+        error.response.data.message ?? "Error loading categories",
+        "error"
+      );
+    }
+  };
+
   //   set add button to header
   useEffect(() => {
+    fetchCategories();
     setContent(
       <Box sx={{ display: "flex", gap: 2 }}>
         <Button
@@ -134,8 +168,15 @@ export default function Questions() {
           color="error"
           startIcon={<UploadFile />}
           size="small"
+          sx={{
+            "& .MuiButton-startIcon": {
+              mr: { xs: 0, sm: 1 },
+            },
+          }}
         >
-          {t("import_questions")}
+          <Box sx={{ display: { xs: "none", sm: "block" } }}>
+            {t("import_questions")}
+          </Box>
         </Button>
         <Button
           variant="contained"
@@ -144,8 +185,15 @@ export default function Questions() {
           size="small"
           component={Link}
           to={"/add-question"}
+          sx={{
+            "& .MuiButton-startIcon": {
+              mr: { xs: 0, sm: 1 },
+            },
+          }}
         >
-          {t("new_question")}
+          <Box sx={{ display: { xs: "none", sm: "block" } }}>
+            {t("new_question")}
+          </Box>
         </Button>
       </Box>
     );
@@ -311,8 +359,7 @@ export default function Questions() {
                 <TableCell sx={{ minWidth: "120px" }}>
                   <IconButton
                     onClick={() => {
-                      setDraftData(row);
-                      setModal(2);
+                      nav(`edit-question/${row.id}`);
                     }}
                   >
                     <img src={EditIcon} alt="edit icon" />
@@ -321,7 +368,7 @@ export default function Questions() {
                     color="error"
                     onClick={() => {
                       setDraftData(row);
-                      setModal(3);
+                      setModal(1);
                     }}
                   >
                     <img src={DeleteIcon} />
@@ -388,8 +435,7 @@ export default function Questions() {
               <Box>
                 <IconButton
                   onClick={() => {
-                    setDraftData(row);
-                    setModal(2);
+                    nav(`edit-question/${row.id}`);
                   }}
                 >
                   <img src={EditIcon} alt="edit icon" />
@@ -398,7 +444,7 @@ export default function Questions() {
                   color="error"
                   onClick={() => {
                     setDraftData(row);
-                    setModal(3);
+                    setModal(1);
                   }}
                 >
                   <img src={DeleteIcon} />
@@ -414,7 +460,7 @@ export default function Questions() {
   );
 
   return (
-    <MainCard title={t("tags")}>
+    <MainCard title={t("questions")}>
       <Modal
         open={open}
         fullScreenOnMobile={false}
@@ -437,31 +483,31 @@ export default function Questions() {
                 />
               </Grid2>
               <Grid2 size={{ xs: 12, lg: 3.25 }}>
-                <SearchInput
-                  name="search"
-                  data={filters}
-                  setData={setFilters}
-                  placeholder={t("search")}
-                  searchIcon={true}
-                />
-              </Grid2>
-              <Grid2 size={{ xs: 9.5, lg: 3.25 }}>
                 <SearchDropdown
                   name="category"
                   data={filters}
-                  list={[]}
+                  list={categories}
                   setData={setFilters}
                   placeholder={t("category")}
                 />
               </Grid2>
-              <Grid2 size={{ xs: 2.5, lg: 0.5 }}>
-                <SearchInput
-                  name="search"
+              <Grid2 size={{ xs: 9.5, lg: 3.25 }}>
+                <SearchDropdown
+                  name="status"
                   data={filters}
+                  list={[
+                    { id: 1, title: t("active") },
+                    { id: 2, title: t("deactive") },
+                  ]}
                   setData={setFilters}
-                  placeholder={t("search")}
-                  searchIcon={true}
+                  placeholder={t("status")}
                 />
+              </Grid2>
+
+              <Grid2 size={{ xs: 2.5, lg: 0.5 }}>
+                <Button className="filter-reset-btn" onClick={resetFilter}>
+                  <img src={ResetIcon} alt="reset" />
+                </Button>
               </Grid2>
             </Grid2>
           </Box>

@@ -2,7 +2,11 @@ import { Box, Button } from "@mui/material";
 import React from "react";
 import LeftIcon from "@assets/icons/arrow-left.svg";
 import { useNavigate } from "react-router-dom";
+import { useTranslate } from "@src/utils/translations/useTranslate";
+
 export default function MainCard({ children, title, hasBackBtn = false }) {
+  const t = useTranslate();
+
   const nav = useNavigate("/");
   return (
     <Box className="main-card">
@@ -11,7 +15,7 @@ export default function MainCard({ children, title, hasBackBtn = false }) {
         {hasBackBtn && (
           <Button className="back-btn" onClick={() => nav(-1)}>
             <img src={LeftIcon} alt="left icon" />
-            Back
+            {t("get_back")}
           </Button>
         )}
       </Box>

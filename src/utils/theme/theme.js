@@ -65,48 +65,26 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           "&.filter-input": {
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": {
-                borderRadius: "12px",
-              },
-              padding: "4px 14px",
-              borderRadius: "12px",
+            padding: "4px 14px",
+            borderRadius: "12px",
+            border: "1px solid #E6E9ED",
+            boxShadow: "none",
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: "transparent",
             },
-          },
-          "& .MuiInputLabel-root": {
-            position: "relative",
-            transform: "none",
-            fontSize: "14px",
-            color: "#1F1F1F",
-            marginBottom: "8px",
-            marginLeft: "8px",
-          },
-          "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-              border: "1px solid #E6E9ED",
-              borderRadius: "6px",
-              top: 0,
-              legend: {
-                display: "none",
-              },
-            },
-
             "&:hover fieldset": {
               borderColor: "#E6E9ED",
             },
             "&.Mui-focused fieldset": {
               borderColor: "#E6E9ED",
             },
+
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderRadius: "12px",
+              },
+            },
           },
-          "& .MuiOutlinedInput-input": {
-            padding: "9.5px 14px",
-          },
-        },
-      },
-      defaultProps: {
-        variant: "outlined",
-        InputLabelProps: {
-          shrink: true,
         },
       },
     },
