@@ -157,7 +157,7 @@ const Edit = ({ langs, setList, close, defaultData }) => {
                   <InputLabel>{t("group")}</InputLabel>
                   <Select {...field} label={t("group")} disabled>
                     <MenuItem value="admin">Admin</MenuItem>
-                    <MenuItem value="app">Admin</MenuItem>
+                    <MenuItem value="app">App</MenuItem>
                   </Select>
                   {errors.group && <p>{errors.group.message}</p>}
                 </FormControl>

@@ -7,24 +7,6 @@ import useLanguage from "@hooks/useLanguage";
 
 const drawerWidth = 280;
 
-const Main = styled("main")(({ theme, open }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  marginLeft: 0,
-  minHeight: "calc(100vh - 50px)",
-  background: "#F5FAFF",
-  transition: theme.transitions.create("margin", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
 export default function ControlLayout() {
   useLanguage("control");
 
@@ -35,6 +17,25 @@ export default function ControlLayout() {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+  const Main = styled("main")(({ theme, open }) => ({
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    marginLeft: 0,
+    minHeight: "calc(100vh - 50px)",
+    maxWidth: isMobile ? "100%" : `calc(100% - ${drawerWidth}px)`,
+    background: "#F5FAFF",
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    ...(open && {
+      transition: theme.transitions.create("margin", {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    }),
+  }));
 
   return (
     <Box sx={{ display: "flex" }}>

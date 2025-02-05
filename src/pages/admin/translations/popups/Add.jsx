@@ -118,6 +118,7 @@ const Add = ({ langs, setList, close }) => {
                     label={t("group")}
                   >
                     <MenuItem value="admin">Admin</MenuItem>
+                    <MenuItem value="app">App</MenuItem>
                   </Select>
                   {errors.group && <p>{errors.group.message}</p>}
                 </FormControl>

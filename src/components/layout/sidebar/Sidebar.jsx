@@ -9,6 +9,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslate } from "@src/utils/translations/useTranslate";
 
 import Logo from "@assets/images/logo.svg";
 
@@ -24,26 +25,35 @@ export default function Sidebar({
   handleDrawerToggle,
   mobileOpen,
 }) {
+  const t = useTranslate();
+
   const { pathname } = useLocation();
   const theme = useTheme();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const menuItems = [
-    { path: "/", text: "Suallar", icon: QuestionIcon },
+    { path: "/", text: t("questions"), icon: QuestionIcon },
     {
       path: "/questions-group",
-      text: "Sual kateqoriyalari",
+      text: t("question_group"),
       icon: QuestionCategoryIcon,
     },
-    { path: "/users-list", text: "İstifadəçilər", icon: UserIcon },
+    { path: "/users-list", text: t("users"), icon: UserIcon },
     {
       path: "/users-group",
-      text: "İstifadəçi kateqoriyalari",
+      text: t("users_group"),
       icon: UsersIcon,
     },
-    { path: "/tags", text: "Teqlər", icon: TagIcon },
-    { path: "/quiz", text: "Quiz", icon: QuizIcon },
+    { path: "/tags", text: t("tags"), icon: TagIcon },
+    { path: "/quiz", text: t("quiz"), icon: QuizIcon },
+    { path: "/admins-list", text: t("admins"), icon: UserIcon },
+    { path: "/translations", text: t("translations"), icon: UserIcon },
+    {
+      path: "/difficulty-levels",
+      text: t("difficulty_levels"),
+      icon: UserIcon,
+    },
   ];
   const isActiveRoute = (itemPath) => {
     if (itemPath === "/") {
