@@ -45,6 +45,14 @@ const EditUser = Loadable(
   lazy(() => import("@pages/admin/users/edit/EditUser"))
 );
 
+const Admins = Loadable(lazy(() => import("@pages/admin/admins/Admins")));
+const AddAdmin = Loadable(
+  lazy(() => import("@pages/admin/admins/add/AddAdmin"))
+);
+const EditAdmin = Loadable(
+  lazy(() => import("@pages/admin/admins/edit/EditAdmin"))
+);
+
 const Translations = Loadable(lazy(() => import("@pages/admin/translations")));
 const Tags = Loadable(lazy(() => import("@pages/admin/tags/Tags")));
 
@@ -65,6 +73,10 @@ export default function App() {
             <Route path="users-list" element={<Users />} />
             <Route path="users-list/add" element={<AddUser />} />
             <Route path="users-list/edit/:id" element={<EditUser />} />
+
+            <Route path="admins-list" element={<Admins />} />
+            <Route path="admins-list/add" element={<AddAdmin />} />
+            <Route path="admins-list/edit/:id" element={<EditAdmin />} />
 
             <Route path="users-group" element={<UsersGroup />} />
             <Route path="users-group/:id" element={<UsersSubGroup />} />
