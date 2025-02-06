@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Admin;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class AdminRepository
@@ -15,6 +16,14 @@ class AdminRepository
                 'creatable',
                 'roles',
             ])
+            ->when($validated['search'] ?? null, function (Builder $builder) use ($validated) {
+                $builder->where(function (Builder $builder) use ($validated) {
+                    $builder->whereLike('name', '%' . $validated['search'] . '%');
+                    $builder->orWhereLike('surname', '%' . $validated['search'] . '%');
+                    $builder->orWhereLike('email', '%' . $validated['search'] . '%');
+                    $builder->orWhereLike('username', '%' . $validated['search'] . '%');
+                });
+            })
             ->orderByDesc('id')
             ->paginate($validated['limit'] ?? 10);
     }

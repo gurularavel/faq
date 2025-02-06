@@ -14,11 +14,12 @@
                 "operationId": "7e4cd459a2d619299c9e90c017fa9dd0",
                 "parameters": [
                     {
-                        "name": "limit",
+                        "name": "parameters",
                         "in": "query",
+                        "description": "List request parameters",
                         "required": false,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/components/schemas/GeneralListRequest"
                         }
                     }
                 ],
