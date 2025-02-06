@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Questions\QuestionsLoadRequest;
 use App\Http\Requests\Admin\Questions\QuestionStoreRequest;
 use App\Http\Requests\Admin\Questions\QuestionUpdateRequest;
 use App\Http\Requests\GeneralListRequest;
@@ -49,7 +50,7 @@ class QuestionController extends Controller
      *          in="query",
      *          description="List request parameters",
      *          required=false,
-     *          @OA\Schema(ref="#/components/schemas/GeneralListRequest")
+     *          @OA\Schema(ref="#/components/schemas/QuestionsLoadRequest")
      *      ),
      *     @OA\Response(
      *         response=200,
@@ -59,11 +60,11 @@ class QuestionController extends Controller
      * )
      * Display a listing of the resource.
      *
-     * @param GeneralListRequest $request
+     * @param QuestionsLoadRequest $request
      * @param QuestionGroup $questionGroup
      * @return AnonymousResourceCollection
      */
-    public function index(GeneralListRequest $request, QuestionGroup $questionGroup): AnonymousResourceCollection
+    public function index(QuestionsLoadRequest $request, QuestionGroup $questionGroup): AnonymousResourceCollection
     {
         return QuestionsResource::collection($this->repo->load($questionGroup, $request->validated()));
     }

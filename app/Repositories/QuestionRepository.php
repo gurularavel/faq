@@ -38,6 +38,13 @@ class QuestionRepository
                     });
                 });
             })
+            ->when($validated['difficulty_level'] ?? null, function (Builder $builder) use ($validated) {
+                $builder->where('difficulty_level_id', $validated['difficulty_level']);
+
+            })
+            ->when($validated['status'] ?? null, function (Builder $builder) use ($validated) {
+                $builder->where('is_active', ((int) $validated['status']) === 1);
+            })
             ->orderByDesc('id')
             ->paginate($validated['limit'] ?? 10);
     }
