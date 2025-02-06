@@ -67,6 +67,21 @@ class QuestionRepository
             ]);
     }
 
+    public function show(Question $question): void
+    {
+        $question
+            ->load([
+                'translatable',
+                'creatable',
+                'questionGroup',
+                'questionGroup.translatable',
+                'difficultyLevel',
+                'difficultyLevel.translatable',
+                'answers',
+                'answers.translatable',
+            ]);
+    }
+
     public function store(QuestionGroup $questionGroup, array $validated): Question
     {
         if (!$questionGroup->isActive()) {

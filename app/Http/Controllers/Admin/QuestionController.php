@@ -129,7 +129,7 @@ class QuestionController extends Controller
      */
     public function show(QuestionGroup $questionGroup, Question $question): QuestionResource
     {
-        $this->repo->loadRelations($question);
+        $this->repo->show($question);
 
         return QuestionResource::make($question);
     }
