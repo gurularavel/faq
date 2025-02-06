@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Tag;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -15,6 +16,9 @@ class TagRepository
             ->with([
                 'creatable',
             ])
+            ->when($validated['search'] ?? null, function (Builder $builder) use ($validated) {
+                $builder->whereLike('title', '%' . $validated['search'] . '%');
+            })
             ->orderByDesc('id')
             ->paginate($validated['limit'] ?? 10);
     }

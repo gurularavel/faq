@@ -2954,11 +2954,12 @@
                 "operationId": "77c8a59ae051a62b831b7d54274e4d3f",
                 "parameters": [
                     {
-                        "name": "limit",
+                        "name": "parameters",
                         "in": "query",
+                        "description": "List request parameters",
                         "required": false,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/components/schemas/GeneralListRequest"
                         }
                     }
                 ],
