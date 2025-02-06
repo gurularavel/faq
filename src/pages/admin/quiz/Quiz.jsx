@@ -27,6 +27,8 @@ import SearchInput from "@components/filterOptions/SearchInput";
 import Add from "./popups/Add";
 import Edit from "./popups/Edit";
 import { useNavigate } from "react-router-dom";
+import Assign from "./popups/Assign";
+import { Success } from "./popups/Success";
 
 export default function QuestionGroup() {
   const t = useTranslate();
@@ -158,6 +160,7 @@ export default function QuestionGroup() {
       }
     }
   };
+  const [successData, setSuccessData] = useState(null);
 
   const popups = [
     "",
@@ -174,6 +177,30 @@ export default function QuestionGroup() {
     {
       title: "",
       element: <DeleteModal onSuccess={deleteRow} close={() => setModal(0)} />,
+    },
+    {
+      title: t("assign_quiz"),
+      element: (
+        <Assign
+          quizId={draftData?.id}
+          close={() => setModal(0)}
+          setModal={setModal}
+          setSuccessData={setSuccessData}
+        />
+      ),
+    },
+    {
+      title: "",
+      element: (
+        <Success
+          selectedDepartments={successData?.selectedDepartments || []}
+          selectedUsers={successData?.selectedUsers || []}
+          close={() => {
+            setModal(0);
+            setSuccessData(null);
+          }}
+        />
+      ),
     },
   ];
 
@@ -273,6 +300,21 @@ export default function QuestionGroup() {
                     <img src={DeleteIcon} alt="delete" />
                   </IconButton>
                 </Box>
+              </div>
+              <div className="card-footer">
+                <Button
+                  variant="outlined"
+                  className="assign-btn"
+                  color="error"
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDraftData(row);
+                    setModal(4);
+                  }}
+                >
+                  {t("assign")}
+                </Button>
               </div>
             </div>
           ))

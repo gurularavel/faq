@@ -33,13 +33,19 @@ import MainCard from "@components/card/MainCard";
 import Modal from "@components/modal";
 import DeleteModal from "@components/modal/DeleteModal";
 import SearchInput from "@components/filterOptions/SearchInput";
-import { Link, useNavigate } from "react-router-dom";
-
-export default function Admins() {
+import SearchDropdown from "@components/filterOptions/SearchDropdown";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { UploadFile } from "@mui/icons-material";
+import ResetIcon from "@assets/icons/reset.svg";
+import { stripHtmlTags } from "@utils/helpers/stripHtmlTags";
+export default function Questions() {
   const t = useTranslate();
   const { setContent } = useHeader();
   const [isLoading, setIsLoading] = useState(true);
   const nav = useNavigate();
+  const [info, setInfo] = useState({});
+
+  const { quizId } = useParams();
   const [data, setData] = useState({
     list: [],
     total: 0,
@@ -49,7 +55,19 @@ export default function Admins() {
     page: 1,
     limit: 10,
     search: null,
+    difficulty_level: null,
+    status: null,
   });
+
+  // reset filter
+  const resetFilter = () =>
+    setFilters({
+      page: 1,
+      limit: 10,
+      search: null,
+      difficulty_level: null,
+      status: null,
+    });
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -58,7 +76,9 @@ export default function Admins() {
     setIsLoading(true);
 
     try {
-      const res = await controlPrivateApi.get(`/admins/load?${queryParams}`);
+      const res = await controlPrivateApi.get(
+        `/question-groups/${quizId}/questions/load?${queryParams}`
+      );
 
       setData({
         list: res.data.data,
@@ -101,7 +121,7 @@ export default function Admins() {
   const toggleStatus = async (id, currentStatus) => {
     try {
       const res = await controlPrivateApi.post(
-        `/admins/change-active-status/${id}`,
+        `/question-groups/${quizId}/questions/change-active-status/${id}`,
         {
           is_active: !currentStatus,
         }
@@ -124,8 +144,43 @@ export default function Admins() {
     }
   };
 
+  //   get quiz info
+  const getInfo = async () => {
+    try {
+      const res = await controlPrivateApi.get(
+        `/question-groups/show/${quizId}`
+      );
+      setInfo(res.data.data);
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response.status == 404) {
+          nav(-1);
+        }
+      }
+    }
+  };
+
+  // get filter options list
+  const [difficultyLevels, setDifficultyLevels] = useState([]);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await controlPrivateApi.get("/difficulty-levels/list");
+      setDifficultyLevels(
+        res.data.data.map((level) => ({
+          id: level.id,
+          title: level.title,
+        }))
+      );
+    } catch (error) {
+      notify(error.response.data.message ?? "Error loading levels", "error");
+    }
+  };
+
   //   set add button to header
   useEffect(() => {
+    getInfo();
+    fetchCategories();
     setContent(
       <Box sx={{ display: "flex", gap: 2 }}>
         <Button
@@ -134,7 +189,7 @@ export default function Admins() {
           startIcon={<AddIcon />}
           size="small"
           component={Link}
-          to={"/admins-list/add"}
+          to={`/quiz/${quizId}/add`}
           sx={{
             "& .MuiButton-startIcon": {
               mr: { xs: 0, sm: 1 },
@@ -142,7 +197,7 @@ export default function Admins() {
           }}
         >
           <Box sx={{ display: { xs: "none", sm: "block" } }}>
-            {t("new_admin")}
+            {t("new_question")}
           </Box>
         </Button>
       </Box>
@@ -159,7 +214,7 @@ export default function Admins() {
   const deleteRow = async () => {
     try {
       const res = await controlPrivateApi.delete(
-        `/admins/delete/${draftData?.id}`
+        `/question-groups/${quizId}/questions/delete/${draftData?.id}`
       );
       setData((prev) => ({
         ...prev,
@@ -221,7 +276,9 @@ export default function Admins() {
               </Grid2>
             </Box>
           </Box>
-          <Box sx={{ mt: 2 }} display="flex" justifyContent="flex-end">
+          <Box sx={{ mt: 2 }} display="flex" justifyContent="space-between">
+            <Skeleton variant="rectangular" width={60} height={20} />
+
             <Box display={"flex"}>
               <Skeleton
                 variant="circular"
@@ -257,11 +314,9 @@ export default function Admins() {
         <TableHead>
           <TableRow>
             <TableCell></TableCell>
-            <TableCell>{t("admin")}</TableCell>
-            <TableCell>{t("email")}</TableCell>
-            <TableCell>{t("username")}</TableCell>
-            <TableCell>{t("role")}</TableCell>
-            <TableCell colSpan={2}>{t("created_date")}</TableCell>
+            <TableCell sx={{ width: "50%" }}>{t("title")}</TableCell>
+            <TableCell>{t("difficulty_level")}</TableCell>
+            <TableCell colSpan={3}>{t("answers_count")}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -271,8 +326,8 @@ export default function Admins() {
                 <TableCell>
                   <Skeleton width={20} />
                 </TableCell>
-                <TableCell>
-                  <Skeleton width={100} />
+                <TableCell width="50%">
+                  <Skeleton />
                 </TableCell>
                 <TableCell>
                   <Skeleton width={100} />
@@ -281,12 +336,8 @@ export default function Admins() {
                   <Skeleton width={100} />
                 </TableCell>
                 <TableCell>
-                  <Skeleton width={100} />
+                  <Skeleton width={40} />
                 </TableCell>
-                <TableCell>
-                  <Skeleton width={100} />
-                </TableCell>
-
                 <TableCell>
                   <Box display="flex" gap={1}>
                     <Skeleton variant="circular" width={32} height={32} />
@@ -301,14 +352,15 @@ export default function Admins() {
                 <TableCell>
                   {filters.page * filters.limit - filters.limit + i + 1}
                 </TableCell>
+                <TableCell>{stripHtmlTags(row.title)}</TableCell>
+                <TableCell>{row.difficulty_levels.title}</TableCell>
+                <TableCell width={150}>{row.answers_count}</TableCell>
                 <TableCell>
-                  {row.name} {row.surname}
+                  <Switch
+                    checked={row.is_active}
+                    onChange={() => toggleStatus(row.id, row.is_active)}
+                  />
                 </TableCell>
-                <TableCell>{row.email}</TableCell>
-                <TableCell>{row.username}</TableCell>
-                <TableCell>{row.roles.map((e) => e.name).join(", ")}</TableCell>
-                <TableCell>{row.created_date}</TableCell>
-
                 <TableCell sx={{ minWidth: "120px" }}>
                   <IconButton
                     onClick={() => {
@@ -349,56 +401,42 @@ export default function Admins() {
         data.list.map((row, i) => (
           <Box key={row.id} padding={2} borderBottom={"1px solid #E6E9ED"}>
             <Typography variant="body1">
-              {filters.page * filters.limit - filters.limit + i + 1}. {row.name}{" "}
-              {row.surname}
+              {filters.page * filters.limit - filters.limit + i + 1}.{" "}
+              {stripHtmlTags(row.title)}
             </Typography>
             <Box mt={1}>
               <Grid2 container spacing={1}>
                 <Grid2 size={6}>
                   <Typography variant="body" fontWeight={"bold"}>
-                    {t("email")}:
-                  </Typography>
-                </Grid2>
-                <Grid2 size={6}>
-                  <Typography variant="body">{row.email}</Typography>
-                </Grid2>
-
-                <Grid2 size={6}>
-                  <Typography variant="body" fontWeight={"bold"}>
-                    {t("username")}:
-                  </Typography>
-                </Grid2>
-                <Grid2 size={6}>
-                  <Typography variant="body">{row.username}</Typography>
-                </Grid2>
-
-                <Grid2 size={6}>
-                  <Typography variant="body" fontWeight={"bold"}>
-                    {t("role")}:
+                    {t("difficulty_level")}:
                   </Typography>
                 </Grid2>
                 <Grid2 size={6}>
                   <Typography variant="body">
-                    {row.roles.map((e) => e.name).join(", ")}
+                    {row.difficulty_levels.title}
                   </Typography>
                 </Grid2>
 
                 <Grid2 size={6}>
                   <Typography variant="body" fontWeight={"bold"}>
-                    {t("created_date")}:
+                    {t("answers_count")}:
                   </Typography>
                 </Grid2>
                 <Grid2 size={6}>
-                  <Typography variant="body">{row.created_date}</Typography>
+                  <Typography variant="body">{row.answers_count}</Typography>
                 </Grid2>
               </Grid2>
             </Box>
             <Box
               sx={{ mt: 2 }}
               display="flex"
-              justifyContent="flex-end"
+              justifyContent="space-between"
               alignItems="center"
             >
+              <Switch
+                checked={row.is_active === 1}
+                onChange={() => toggleStatus(row.id, row.is_active)}
+              />
               <Box>
                 <IconButton
                   onClick={() => {
@@ -427,7 +465,7 @@ export default function Admins() {
   );
 
   return (
-    <MainCard title={t("users")}>
+    <MainCard title={info?.translations?.[0]?.title} hasBackBtn={true}>
       <Modal
         open={open}
         fullScreenOnMobile={false}
@@ -440,7 +478,7 @@ export default function Admins() {
         <Box className="main-card-body-inner">
           <Box className={"filter-area"}>
             <Grid2 container spacing={1}>
-              <Grid2 size={{ xs: 12, lg: 12 }}>
+              <Grid2 size={{ xs: 12, lg: 5 }}>
                 <SearchInput
                   name="search"
                   data={filters}
@@ -448,6 +486,33 @@ export default function Admins() {
                   placeholder={t("search")}
                   searchIcon={true}
                 />
+              </Grid2>
+              <Grid2 size={{ xs: 12, lg: 3.25 }}>
+                <SearchDropdown
+                  name="difficulty_level"
+                  data={filters}
+                  list={difficultyLevels}
+                  setData={setFilters}
+                  placeholder={t("difficulty_level")}
+                />
+              </Grid2>
+              <Grid2 size={{ xs: 9.5, lg: 3.25 }}>
+                <SearchDropdown
+                  name="status"
+                  data={filters}
+                  list={[
+                    { id: 1, title: t("active") },
+                    { id: 2, title: t("deactive") },
+                  ]}
+                  setData={setFilters}
+                  placeholder={t("status")}
+                />
+              </Grid2>
+
+              <Grid2 size={{ xs: 2.5, lg: 0.5 }}>
+                <Button className="filter-reset-btn" onClick={resetFilter}>
+                  <img src={ResetIcon} alt="reset" />
+                </Button>
               </Grid2>
             </Grid2>
           </Box>

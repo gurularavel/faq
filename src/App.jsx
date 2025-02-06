@@ -46,6 +46,15 @@ const EditUser = Loadable(
 );
 
 const Quiz = Loadable(lazy(() => import("@pages/admin/quiz/Quiz")));
+const QuizQuestions = Loadable(
+  lazy(() => import("@pages/admin/quiz/questions/Questions"))
+);
+const QuizQuestionsAdd = Loadable(
+  lazy(() => import("@pages/admin/quiz/questions/add/AddQuestion"))
+);
+const QuizQuestionsEdit = Loadable(
+  lazy(() => import("@pages/admin/quiz/questions/edit/EditQuestion"))
+);
 
 const Admins = Loadable(lazy(() => import("@pages/admin/admins/Admins")));
 const AddAdmin = Loadable(
@@ -89,6 +98,12 @@ export default function App() {
             <Route path="tags" element={<Tags />} />
 
             <Route path="quiz" element={<Quiz />} />
+            <Route path="quiz/:quizId" element={<QuizQuestions />} />
+            <Route path="quiz/:quizId/add" element={<QuizQuestionsAdd />} />
+            <Route
+              path="quiz/:quizId/edit/:id"
+              element={<QuizQuestionsEdit />}
+            />
 
             <Route path="admins-list" element={<Admins />} />
             <Route path="admins-list/add" element={<AddAdmin />} />
