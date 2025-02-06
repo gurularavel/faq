@@ -94,7 +94,7 @@ export default function QuestionGroup() {
   const toggleStatus = async (id, currentStatus) => {
     try {
       const res = await controlPrivateApi.post(
-        `/categories/change-active-status/${id}`,
+        `/question-groups/change-active-status/${id}`,
         {
           is_active: !currentStatus,
         }
@@ -143,7 +143,7 @@ export default function QuestionGroup() {
   const deleteRow = async () => {
     try {
       const res = await controlPrivateApi.delete(
-        `/categories/delete/${draftData?.id}`
+        `/question-groups/delete/${draftData?.id}`
       );
       setData((prev) => ({
         ...prev,
@@ -236,7 +236,12 @@ export default function QuestionGroup() {
               <div className="progress-bar">
                 <div className="line"></div>
               </div>
-              <div className="card-actions">
+              <div
+                className="card-actions"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
                 <Switch
                   checked={row.is_active}
                   onChange={(e) => {

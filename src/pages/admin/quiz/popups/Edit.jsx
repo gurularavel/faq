@@ -56,7 +56,7 @@ const EditQuiz = ({ id, setList, close }) => {
   useEffect(() => {
     const fetchCategoryData = async () => {
       try {
-        const res = await controlPrivateApi.get(`/categories/show/${id}`);
+        const res = await controlPrivateApi.get(`/question-groups/show/${id}`);
         const data = res.data.data;
         reset({
           parent_id: data.parent_id,
@@ -68,7 +68,7 @@ const EditQuiz = ({ id, setList, close }) => {
       } catch (error) {
         if (isAxiosError(error)) {
           notify(
-            error.response?.data?.message || "Error fetching category data",
+            error.response?.data?.message || "Error fetching quiz data",
             "error"
           );
         }
@@ -83,7 +83,7 @@ const EditQuiz = ({ id, setList, close }) => {
     setPending(true);
     try {
       const res = await controlPrivateApi.post(
-        `/categories/update/${id}`,
+        `/question-groups/update/${id}`,
         data
       );
 
@@ -97,10 +97,7 @@ const EditQuiz = ({ id, setList, close }) => {
       close();
     } catch (error) {
       if (isAxiosError(error)) {
-        notify(
-          error.response?.data?.message || "Error updating category",
-          "error"
-        );
+        notify(error.response?.data?.message || "Error updating quiz", "error");
       }
       console.log(error);
     } finally {
