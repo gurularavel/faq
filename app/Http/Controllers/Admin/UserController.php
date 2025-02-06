@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Users\UsersLoadRequest;
 use App\Http\Requests\Admin\Users\UserStoreRequest;
 use App\Http\Requests\Admin\Users\UserUpdateRequest;
 use App\Http\Requests\GeneralListRequest;
@@ -37,12 +38,13 @@ class UserController extends Controller
      *                "SanctumBearerToken": {}
      *            }
      *       },
-     *     @OA\Parameter(
-     *         name="limit",
-     *         in="query",
-     *         required=false,
-     *         @OA\Schema(type="integer")
-     *     ),
+     *               @OA\Parameter(
+     *           name="parameters",
+     *           in="query",
+     *           description="List request parameters",
+     *           required=false,
+     *           @OA\Schema(ref="#/components/schemas/UsersLoadRequest")
+     *       ),
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
@@ -50,7 +52,7 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function index(GeneralListRequest $request): AnonymousResourceCollection
+    public function index(UsersLoadRequest $request): AnonymousResourceCollection
     {
         return UsersResource::collection($this->repo->load($request->validated()));
     }
