@@ -3,9 +3,11 @@
 namespace App\Repositories;
 
 use App\Models\Admin;
+use App\Services\LangService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AdminRepository
 {
@@ -67,6 +69,16 @@ class AdminRepository
 
     public function destroy(Admin $admin): void
     {
-        $admin->delete();
+        if ($admin->id === 1) {
+            throw new BadRequestHttpException(
+                LangService::instance()
+                    ->setDefault('You cannot delete the super admin!')
+                    ->getLang('you_cannot_delete_the_super_admin')
+            );
+        }
+
+        DB::transaction(static function () use ($admin) {
+            $admin->delete();
+        });
     }
 }
