@@ -1,4 +1,3 @@
-// AssignmentSuccess.js
 import React from "react";
 import {
   Box,
@@ -9,7 +8,7 @@ import {
   ListItemText,
   Divider,
 } from "@mui/material";
-import successImg from "@assets/icons/success.svg"; // Make sure you have this asset
+import successImg from "@assets/icons/success.svg";
 import { useTranslate } from "@src/utils/translations/useTranslate";
 
 export const Success = ({

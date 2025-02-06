@@ -143,11 +143,12 @@ export default function Questions() {
 
   const fetchCategories = async () => {
     try {
-      const res = await controlPrivateApi.get("/categories/list");
+      const res = await controlPrivateApi.get("/categories/list?with_subs=yes");
       setCategories(
         res.data.data.map((category) => ({
           id: category.id,
           title: category.title,
+          subs: category.subs,
         }))
       );
     } catch (error) {

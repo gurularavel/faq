@@ -66,7 +66,6 @@ export default function Assign({ quizId, close, setModal, setSuccessData }) {
       );
       const { departments = [], users = [] } = res.data.data;
 
-      // Set the initial values for departments and users
       setValue("departments", departments);
       setValue("users", users);
     } catch (error) {
@@ -142,7 +141,6 @@ export default function Assign({ quizId, close, setModal, setSuccessData }) {
     }
   };
 
-  // Show loading state while fetching initial data
   if (loading.initialData) {
     return (
       <Box
