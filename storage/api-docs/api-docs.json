@@ -1431,7 +1431,7 @@
                         "description": "List request parameters",
                         "required": false,
                         "schema": {
-                            "$ref": "#/components/schemas/GeneralListRequest"
+                            "$ref": "#/components/schemas/FaqsLoadRequest"
                         }
                     }
                 ],
@@ -4591,6 +4591,41 @@
                     }
                 },
                 "type": "object"
+            },
+            "FaqsLoadRequest": {
+                "title": "FAQs Load Request",
+                "description": "Request parameters for loading FAQs",
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/GeneralListRequest"
+                    },
+                    {
+                        "properties": {
+                            "category": {
+                                "description": "ID of the category",
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "status": {
+                                "description": "Status of the FAQ (1 - active, 2 - deactive)",
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "search": {
+                                "description": "Search term for FAQs",
+                                "type": "string",
+                                "example": "example search term"
+                            },
+                            "limit": {
+                                "description": "Number of FAQs to load",
+                                "type": "integer",
+                                "example": 10
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
             },
             "LanguageStoreRequest": {
                 "title": "Language Store Request",
