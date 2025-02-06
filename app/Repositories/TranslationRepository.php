@@ -152,12 +152,16 @@ class TranslationRepository
                 }
 
                 Translation::query()
-                    ->where('group', $group)
-                    ->where('key', $key)
-                    ->where('language_id', $translation['language_id'])
-                    ->update([
-                        'text' => $translation['text'],
-                    ]);
+                    ->updateOrCreate(
+                        [
+                            'group' => $group,
+                            'key' => $key,
+                            'language_id' => $translation['language_id'],
+                        ],
+                        [
+                            'text' => $translation['text'] ?? '',
+                        ]
+                    );
 
                 LangService::instance()->setTranslationsCache($group, $translation['language_id'], false);
             }
