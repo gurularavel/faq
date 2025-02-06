@@ -12,11 +12,12 @@ class DepartmentRepository
     public function load(array $validated): LengthAwarePaginator
     {
         return Department::query()
+            ->parents()
             ->with([
                 'translatable',
                 'creatable',
-                'parent',
-                'parent.translatable',
+                //'parent',
+                //'parent.translatable',
             ])
             ->when(($validated['with_subs'] ?? 'no') === 'yes', function ($query) {
                 $query->with([
