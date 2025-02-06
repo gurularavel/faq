@@ -1693,11 +1693,12 @@
                 "operationId": "4564a97ea0f5df76aff518c00baa70e2",
                 "parameters": [
                     {
-                        "name": "limit",
+                        "name": "parameters",
                         "in": "query",
+                        "description": "List request parameters",
                         "required": false,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/components/schemas/GeneralListRequest"
                         }
                     }
                 ],

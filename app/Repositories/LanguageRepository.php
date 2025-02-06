@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Language;
 use App\Services\LangService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -16,6 +17,9 @@ class LanguageRepository
             ->with([
                 'creatable',
             ])
+            ->when($validated['search'] ?? null, function (Builder $builder) use ($validated) {
+                $builder->whereLike('title', '%' . $validated['search'] . '%');
+            })
             ->orderByDesc('id')
             ->paginate($validated['limit'] ?? 10);
     }

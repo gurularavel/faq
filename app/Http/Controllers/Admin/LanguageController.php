@@ -36,12 +36,13 @@ class LanguageController extends Controller
      *                "SanctumBearerToken": {}
      *            }
      *       },
-     *     @OA\Parameter(
-     *         name="limit",
-     *         in="query",
-     *         required=false,
-     *         @OA\Schema(type="integer")
-     *     ),
+     *                    @OA\Parameter(
+     *            name="parameters",
+     *            in="query",
+     *            description="List request parameters",
+     *            required=false,
+     *            @OA\Schema(ref="#/components/schemas/GeneralListRequest")
+     *        ),
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
