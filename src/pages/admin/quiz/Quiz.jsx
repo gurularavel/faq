@@ -41,6 +41,7 @@ export default function QuestionGroup() {
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
+    searh: null,
   });
 
   const getData = async (url) => {
@@ -63,7 +64,7 @@ export default function QuestionGroup() {
   };
 
   useEffect(() => {
-    let url = `/categories/load?`;
+    let url = `/question-groups/load?`;
 
     for (const key in filters) {
       if (filters[key]) {
@@ -126,7 +127,7 @@ export default function QuestionGroup() {
           size="small"
           onClick={() => setModal(1)}
         >
-          {t("new_question_group")}
+          {t("new_quiz")}
         </Button>
       </Box>
     );
@@ -161,11 +162,11 @@ export default function QuestionGroup() {
   const popups = [
     "",
     {
-      title: t("new_category"),
+      title: t("new_quiz"),
       element: <Add close={() => setModal(0)} setList={setData} />,
     },
     {
-      title: t("edit_category"),
+      title: t("edit_quiz"),
       element: (
         <Edit id={draftData?.id} close={() => setModal(0)} setList={setData} />
       ),
@@ -235,12 +236,7 @@ export default function QuestionGroup() {
               <div className="progress-bar">
                 <div className="line"></div>
               </div>
-              <div
-                className="card-actions"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              >
+              <div className="card-actions">
                 <Switch
                   checked={row.is_active}
                   onChange={(e) => {

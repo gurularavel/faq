@@ -45,6 +45,8 @@ const EditUser = Loadable(
   lazy(() => import("@pages/admin/users/edit/EditUser"))
 );
 
+const Quiz = Loadable(lazy(() => import("@pages/admin/quiz/Quiz")));
+
 const Admins = Loadable(lazy(() => import("@pages/admin/admins/Admins")));
 const AddAdmin = Loadable(
   lazy(() => import("@pages/admin/admins/add/AddAdmin"))
@@ -54,6 +56,9 @@ const EditAdmin = Loadable(
 );
 
 const Translations = Loadable(lazy(() => import("@pages/admin/translations")));
+const Languages = Loadable(
+  lazy(() => import("@pages/admin/languages/Languages"))
+);
 const Tags = Loadable(lazy(() => import("@pages/admin/tags/Tags")));
 
 const DifficultyLevels = Loadable(
@@ -78,15 +83,19 @@ export default function App() {
             <Route path="users-list/add" element={<AddUser />} />
             <Route path="users-list/edit/:id" element={<EditUser />} />
 
-            <Route path="admins-list" element={<Admins />} />
-            <Route path="admins-list/add" element={<AddAdmin />} />
-            <Route path="admins-list/edit/:id" element={<EditAdmin />} />
-
             <Route path="users-group" element={<UsersGroup />} />
             <Route path="users-group/:id" element={<UsersSubGroup />} />
 
             <Route path="tags" element={<Tags />} />
+
+            <Route path="quiz" element={<Quiz />} />
+
+            <Route path="admins-list" element={<Admins />} />
+            <Route path="admins-list/add" element={<AddAdmin />} />
+            <Route path="admins-list/edit/:id" element={<EditAdmin />} />
+
             <Route path="translations" element={<Translations />} />
+            <Route path="languages" element={<Languages />} />
 
             <Route path="difficulty-levels" element={<DifficultyLevels />} />
           </Route>

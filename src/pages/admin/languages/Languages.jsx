@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from "react";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Typography,
+  Stack,
   Switch,
   IconButton,
   Pagination,
   Select,
   MenuItem,
   FormControl,
+  useMediaQuery,
   useTheme,
   Box,
   Button,
@@ -26,9 +34,8 @@ import DeleteModal from "@components/modal/DeleteModal";
 import SearchInput from "@components/filterOptions/SearchInput";
 import Add from "./popups/Add";
 import Edit from "./popups/Edit";
-import { useNavigate } from "react-router-dom";
 
-export default function QuestionGroup() {
+export default function Languages() {
   const t = useTranslate();
   const { setContent } = useHeader();
   const [isLoading, setIsLoading] = useState(true);
@@ -43,11 +50,14 @@ export default function QuestionGroup() {
     limit: 10,
   });
 
-  const getData = async (url) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const getData = async (queryParams) => {
     setIsLoading(true);
 
     try {
-      const res = await controlPrivateApi.get(url);
+      const res = await controlPrivateApi.get(`/languages/load?${queryParams}`);
 
       setData({
         list: res.data.data,
@@ -55,7 +65,7 @@ export default function QuestionGroup() {
       });
     } catch (error) {
       if (isAxiosError(error)) {
-        notify(error.response?.data?.message || "Error fetching data", "error");
+        notify("error", error.response?.data?.message || "An error occurred");
       }
     } finally {
       setIsLoading(false);
@@ -63,16 +73,13 @@ export default function QuestionGroup() {
   };
 
   useEffect(() => {
-    let url = `/categories/load?`;
-
-    for (const key in filters) {
-      if (filters[key]) {
-        url += `${key}=${filters[key]}&`;
+    const queryParams = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== "") {
+        queryParams.append(key, value);
       }
-    }
-    url = url.slice(0, -1);
-
-    getData(url);
+    });
+    getData(queryParams);
   }, [filters]);
 
   const handlePageChange = (event, newPage) => {
@@ -93,7 +100,7 @@ export default function QuestionGroup() {
   const toggleStatus = async (id, currentStatus) => {
     try {
       const res = await controlPrivateApi.post(
-        `/categories/change-active-status/${id}`,
+        `/languages/change-active-status/${id}`,
         {
           is_active: !currentStatus,
         }
@@ -126,7 +133,7 @@ export default function QuestionGroup() {
           size="small"
           onClick={() => setModal(1)}
         >
-          {t("new_question_group")}
+          {t("new_languages")}
         </Button>
       </Box>
     );
@@ -142,7 +149,7 @@ export default function QuestionGroup() {
   const deleteRow = async () => {
     try {
       const res = await controlPrivateApi.delete(
-        `/categories/delete/${draftData?.id}`
+        `/languages/delete/${draftData?.id}`
       );
       setData((prev) => ({
         ...prev,
@@ -161,11 +168,11 @@ export default function QuestionGroup() {
   const popups = [
     "",
     {
-      title: t("new_category"),
+      title: t("new_language"),
       element: <Add close={() => setModal(0)} setList={setData} />,
     },
     {
-      title: t("edit_category"),
+      title: t("edit_language"),
       element: (
         <Edit id={draftData?.id} close={() => setModal(0)} setList={setData} />
       ),
@@ -185,21 +192,26 @@ export default function QuestionGroup() {
     }
   }, [open]);
 
-  const nav = useNavigate();
-  const handleCardClick = (row) => {
-    nav(`${row.id}`);
-  };
-
   const LoadingSkeleton = () => (
-    <>
+    <Stack spacing={2}>
       {[...Array(5)].map((_, index) => (
-        <Box key={index} className="data-list-card">
-          <Box sx={{ mt: 1 }} display="flex" justifyContent="flex-end">
-            <Skeleton variant="rectangular" width={250} height={36} />
+        <Box key={index} padding={2} borderBottom={"1px solid #E6E9ED"}>
+          <Skeleton variant="text" width="70%" height={24} />
+          <Box sx={{ mt: 2 }} display="flex" justifyContent="space-between">
+            <Skeleton variant="rectangular" width={40} height={20} />
+            <Box display={"flex"}>
+              <Skeleton
+                variant="circular"
+                width={32}
+                height={32}
+                sx={{ mr: 1 }}
+              />
+              <Skeleton variant="circular" width={32} height={32} />
+            </Box>
           </Box>
         </Box>
       ))}
-    </>
+    </Stack>
   );
 
   const NoData = () => (
@@ -216,74 +228,135 @@ export default function QuestionGroup() {
     </Box>
   );
 
-  const DataList = () => {
-    return (
-      <div className="data-list">
-        {isLoading ? (
-          <LoadingSkeleton />
-        ) : data.list.length > 0 ? (
-          data.list.map((row, i) => (
-            <div
-              key={row.id}
-              className="data-list-card"
-              onClick={() => handleCardClick(row)}
-            >
-              <div className="title-wrapper">
-                <Typography variant="h6">{row.title}</Typography>
-              </div>
-
-              <div className="progress-bar">
-                <div className="line"></div>
-              </div>
-              <div
-                className="card-actions"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              >
-                <Switch
-                  checked={row.is_active}
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    toggleStatus(row.id, row.is_active);
-                  }}
-                  size="small"
-                />
-                <Box>
+  const DesktopView = () => (
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell></TableCell>
+            <TableCell sx={{ width: "50%" }} colSpan={3}>
+              {t("title")}
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {isLoading ? (
+            [...Array(5)].map((_, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <Skeleton width={20} />
+                </TableCell>
+                <TableCell width="100%">
+                  <Skeleton />
+                </TableCell>
+                <TableCell>
+                  <Skeleton width={40} />
+                </TableCell>
+                <TableCell>
+                  <Box display="flex" gap={1}>
+                    <Skeleton variant="circular" width={32} height={32} />
+                    <Skeleton variant="circular" width={32} height={32} />
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : data.list.length > 0 ? (
+            data.list.map((row, i) => (
+              <TableRow key={row.id}>
+                <TableCell>
+                  {filters.page * filters.limit - filters.limit + i + 1}
+                </TableCell>
+                <TableCell width="100%">{row.title}</TableCell>
+                <TableCell>
+                  <Switch
+                    checked={row.is_active}
+                    onChange={() => toggleStatus(row.id, row.is_active)}
+                  />
+                </TableCell>
+                <TableCell sx={{ minWidth: "120px" }}>
                   <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onClick={() => {
                       setDraftData(row);
                       setModal(2);
                     }}
                   >
-                    <img src={EditIcon} alt="edit" />
+                    <img src={EditIcon} alt="edit icon" />
                   </IconButton>
                   <IconButton
-                    size="small"
                     color="error"
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onClick={() => {
                       setDraftData(row);
                       setModal(3);
                     }}
                   >
-                    <img src={DeleteIcon} alt="delete" />
+                    <img src={DeleteIcon} />
                   </IconButton>
-                </Box>
-              </div>
-            </div>
-          ))
-        ) : (
-          <NoData />
-        )}
-      </div>
-    );
-  };
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={4}>
+                <NoData />
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
+  const MobileView = () => (
+    <Stack spacing={2}>
+      {isLoading ? (
+        <LoadingSkeleton />
+      ) : data.list.length > 0 ? (
+        data.list.map((row, i) => (
+          <Box key={row.id} padding={2} borderBottom={"1px solid #E6E9ED"}>
+            <Typography variant="body1">
+              {filters.page * filters.limit - filters.limit + i + 1}.{" "}
+              {row.title}
+            </Typography>
+            <Box
+              sx={{ mt: 2 }}
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Switch
+                checked={row.is_active}
+                onChange={() => toggleStatus(row.id, row.is_active)}
+              />
+              <Box>
+                <IconButton
+                  onClick={() => {
+                    setDraftData(row);
+                    setModal(2);
+                  }}
+                >
+                  <img src={EditIcon} alt="edit icon" />
+                </IconButton>
+                <IconButton
+                  color="error"
+                  onClick={() => {
+                    setDraftData(row);
+                    setModal(3);
+                  }}
+                >
+                  <img src={DeleteIcon} />
+                </IconButton>
+              </Box>
+            </Box>
+          </Box>
+        ))
+      ) : (
+        <NoData />
+      )}
+    </Stack>
+  );
 
   return (
-    <MainCard title={t("question_group")}>
+    <MainCard title={t("languages")}>
       <Modal
         open={open}
         fullScreenOnMobile={false}
@@ -303,7 +376,7 @@ export default function QuestionGroup() {
               searchIcon={true}
             />
           </Box>
-          <DataList />{" "}
+          {isMobile ? <MobileView /> : <DesktopView />}
         </Box>
 
         {!isLoading && data.list.length > 0 && (

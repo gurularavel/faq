@@ -49,6 +49,7 @@ export default function Sidebar({
     { path: "/quiz", text: t("quiz"), icon: QuizIcon },
     { path: "/admins-list", text: t("admins"), icon: UserIcon },
     { path: "/translations", text: t("translations"), icon: UserIcon },
+    { path: "/languages", text: t("languages"), icon: UserIcon },
     {
       path: "/difficulty-levels",
       text: t("difficulty_levels"),

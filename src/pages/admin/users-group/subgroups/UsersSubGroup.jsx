@@ -246,7 +246,12 @@ export default function UsersSubGroup() {
               <div className="progress-bar">
                 <div className="line"></div>
               </div>
-              <div className="card-actions">
+              <div
+                className="card-actions"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
                 <Switch
                   checked={row.is_active}
                   onChange={(e) => {

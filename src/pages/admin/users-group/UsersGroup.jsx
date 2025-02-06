@@ -92,7 +92,7 @@ export default function UsersGroup() {
   const toggleStatus = async (id, currentStatus) => {
     try {
       const res = await controlPrivateApi.post(
-        `/categories/change-active-status/${id}`,
+        `/departments/change-active-status/${id}`,
         {
           is_active: !currentStatus,
         }
@@ -234,7 +234,12 @@ export default function UsersGroup() {
               <div className="progress-bar">
                 <div className="line"></div>
               </div>
-              <div className="card-actions">
+              <div
+                className="card-actions"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
                 <Switch
                   checked={row.is_active}
                   onChange={(e) => {
