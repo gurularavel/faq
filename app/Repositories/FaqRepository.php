@@ -37,7 +37,12 @@ class FaqRepository
                 });
             })
             ->when($validated['category'] ?? null, function (Builder $builder) use ($validated) {
-                $builder->where('category_id', $validated['category']);
+                $builder->where(function (Builder $query) use ($validated) {
+                    $query->where('category_id', $validated['category']);
+                    $query->orWhereHas('category', function (Builder $q) use ($validated) {
+                        $q->where('categories.category_id', $validated['category']);
+                    });
+                });
             })
             ->when($validated['status'] ?? null, function (Builder $builder) use ($validated) {
                 $builder->where('is_active', ((int) $validated['status']) === 1);
