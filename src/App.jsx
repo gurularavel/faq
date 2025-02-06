@@ -56,6 +56,10 @@ const EditAdmin = Loadable(
 const Translations = Loadable(lazy(() => import("@pages/admin/translations")));
 const Tags = Loadable(lazy(() => import("@pages/admin/tags/Tags")));
 
+const DifficultyLevels = Loadable(
+  lazy(() => import("@pages/admin/difficulty-levels/DifficultyLevels"))
+);
+
 export default function App() {
   const { isAdmin, isUser } = usePermissions();
   return (
@@ -83,6 +87,8 @@ export default function App() {
 
             <Route path="tags" element={<Tags />} />
             <Route path="translations" element={<Translations />} />
+
+            <Route path="difficulty-levels" element={<DifficultyLevels />} />
           </Route>
         ) : isUser ? (
           <Route path="/" element={<MainLayout />}>
