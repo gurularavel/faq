@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Admin\Admins;
 
+use App\Http\Resources\Admin\Roles\RolesListResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Annotations as OA;
@@ -44,7 +45,10 @@ class AdminResource extends JsonResource
             'email' => $this->email,
             'name' => $this->name,
             'surname' => $this->surname,
-            'roles' => data_get($this->roles, '*.id'),
+            'roles' => RolesListResource::collection($this->whenLoaded('roles')),
+            'role_ids' => $this->whenLoaded('roles', function () {
+                return data_get($this->roles, '*.id');
+            }),
         ];
     }
 }

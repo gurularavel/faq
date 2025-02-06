@@ -80,6 +80,8 @@ class AdminController extends Controller
      */
     public function show(Admin $admin): AdminResource
     {
+        $this->repo->show($admin);
+
         return AdminResource::make($admin);
     }
 

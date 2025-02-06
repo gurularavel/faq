@@ -19,6 +19,13 @@ class AdminRepository
             ->paginate($validated['limit'] ?? 10);
     }
 
+    public function show(Admin $admin): void
+    {
+        $admin->load([
+            'roles',
+        ]);
+    }
+
     public function store(array $validated): Admin
     {
         $roles = $validated['roles'] ?? [];
