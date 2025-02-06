@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Faq;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -21,6 +22,26 @@ class FaqRepository
                 'category.parent',
                 'category.parent.translatable',
             ])
+            ->when($validated['search'] ?? null, function (Builder $builder) use ($validated) {
+                $builder->where(function (Builder $builder) use ($validated) {
+                    $builder->whereHas('translatable', function (Builder $query) use ($validated) {
+                        $query->where(function (Builder $q) use ($validated) {
+                            $q->where('column', 'question');
+                            $q->where('text', 'like', '%' . $validated['search'] . '%');
+                        });
+                        $query->orWhere(function (Builder $q) use ($validated) {
+                            $q->where('column', 'answer');
+                            $q->where('text', 'like', '%' . $validated['search'] . '%');
+                        });
+                    });
+                });
+            })
+            ->when($validated['category'] ?? null, function (Builder $builder) use ($validated) {
+                $builder->where('category_id', $validated['category']);
+            })
+            ->when($validated['status'] ?? null, function (Builder $builder) use ($validated) {
+                $builder->where('is_active', ((int) $validated['status']) === 1);
+            })
             ->orderByDesc('id')
             ->paginate($validated['limit'] ?? 10);
     }
