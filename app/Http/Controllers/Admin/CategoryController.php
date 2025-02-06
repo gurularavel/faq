@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Categories\CategoriesListRequest;
 use App\Http\Requests\Admin\Categories\CategoryStoreRequest;
 use App\Http\Requests\Admin\Categories\CategoryUpdateRequest;
+use App\Http\Requests\GeneralListRequest;
 use App\Http\Resources\Admin\Categories\CategoriesListResource;
 use App\Http\Resources\Admin\Categories\CategoriesResource;
 use App\Http\Resources\Admin\Categories\CategoryResource;
@@ -112,7 +113,7 @@ class CategoryController extends Controller
      *           in="query",
      *           description="List request parameters",
      *           required=false,
-     *           @OA\Schema(ref="#/components/schemas/CategoriesListRequest")
+     *           @OA\Schema(ref="#/components/schemas/GeneralListRequest")
      *       ),
      *     @OA\Response(
      *         response=200,
@@ -121,7 +122,7 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function loadSubs(CategoriesListRequest $request, Category $category): AnonymousResourceCollection
+    public function loadSubs(GeneralListRequest $request, Category $category): AnonymousResourceCollection
     {
         return CategoriesResource::collection($this->repo->loadSubs($category, $request->validated()));
     }

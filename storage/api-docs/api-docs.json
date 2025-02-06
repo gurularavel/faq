@@ -640,7 +640,7 @@
                         "description": "List request parameters",
                         "required": false,
                         "schema": {
-                            "$ref": "#/components/schemas/CategoriesListRequest"
+                            "$ref": "#/components/schemas/GeneralListRequest"
                         }
                     }
                 ],
@@ -966,7 +966,7 @@
                         "description": "List request parameters",
                         "required": false,
                         "schema": {
-                            "$ref": "#/components/schemas/DepartmentsListRequest"
+                            "$ref": "#/components/schemas/GeneralListRequest"
                         }
                     }
                 ],

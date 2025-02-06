@@ -68,6 +68,16 @@ class DepartmentRepository
                 'translatable',
                 'creatable',
             ])
+            ->when($validated['search'] ?? null, function (Builder $builder) use ($validated) {
+                $builder->where(function (Builder $builder) use ($validated) {
+                    $builder->whereHas('translatable', function (Builder $query) use ($validated) {
+                        $query->where(function (Builder $q) use ($validated) {
+                            $q->where('column', 'title');
+                            $q->where('text', 'like', '%' . $validated['search'] . '%');
+                        });
+                    });
+                });
+            })
             ->orderByDesc('id')
             ->paginate($validated['limit'] ?? 10);
     }

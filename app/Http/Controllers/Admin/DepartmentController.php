@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Departments\DepartmentsListRequest;
 use App\Http\Requests\Admin\Departments\DepartmentStoreRequest;
 use App\Http\Requests\Admin\Departments\DepartmentUpdateRequest;
+use App\Http\Requests\GeneralListRequest;
 use App\Http\Resources\Admin\Departments\DepartmentsListResource;
 use App\Http\Resources\Admin\Departments\DepartmentsResource;
 use App\Http\Resources\Admin\Departments\DepartmentResource;
@@ -112,7 +113,7 @@ class DepartmentController extends Controller
      *           in="query",
      *           description="List request parameters",
      *           required=false,
-     *           @OA\Schema(ref="#/components/schemas/DepartmentsListRequest")
+     *           @OA\Schema(ref="#/components/schemas/GeneralListRequest")
      *       ),
      *     @OA\Response(
      *         response=200,
@@ -121,7 +122,7 @@ class DepartmentController extends Controller
      *     )
      * )
      */
-    public function loadSubs(DepartmentsListRequest $request, Department $department): AnonymousResourceCollection
+    public function loadSubs(GeneralListRequest $request, Department $department): AnonymousResourceCollection
     {
         return DepartmentsResource::collection($this->repo->loadSubs($department, $request->validated()));
     }
