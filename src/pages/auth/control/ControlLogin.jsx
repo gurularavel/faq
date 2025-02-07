@@ -20,7 +20,7 @@ import { isAxiosError } from "axios";
 import useLanguage from "@hooks/useLanguage";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
-import { authenticate } from "../../../store/auth";
+import { authenticate } from "@sr/store/auth";
 
 export default function Login() {
   useLanguage("control");

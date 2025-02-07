@@ -14,14 +14,17 @@ import {
   IconButton,
   InputAdornment,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslate } from "@utils/translations/useTranslate";
 import { isAxiosError } from "axios";
 import useLanguage from "@hooks/useLanguage";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-
+import { useDispatch } from "react-redux";
+import { authenticate } from "@src/store/auth";
 export default function Login() {
   useLanguage("app");
+  const nav = useNavigate();
+  const dispatch = useDispatch();
 
   const t = useTranslate();
   const schema = yup.object().shape({
@@ -54,7 +57,9 @@ export default function Login() {
         ...data,
         device_type: "web",
       });
-      console.log(res.data);
+      dispatch(authenticate(res.data));
+
+      nav("/user");
     } catch (error) {
       if (isAxiosError(error)) {
         notify(error.response.data?.message, "error");

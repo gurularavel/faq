@@ -11,7 +11,7 @@ export const usePermissions = () => {
     );
   };
   const isAdmin = roles.includes(1);
-  const isUser = roles.includes(2);
+  const isUser = roles.includes(0);
 
   return { hasPermission, roles, isAdmin, isUser };
 };

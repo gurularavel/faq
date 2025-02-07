@@ -127,6 +127,7 @@ export default function App() {
         ) : (
           <Route path="/" element={<></>} />
         )}
+
         <Route path="/*" element={<DetectLayout />} />
       </Route>
 

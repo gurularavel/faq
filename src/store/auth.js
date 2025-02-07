@@ -43,8 +43,8 @@ export const authSlice = createSlice({
         email: data.email,
         name: data.name,
         surname: data.surname,
-        role_ids: data.role_ids,
-        roles: data.roles,
+        role_ids: data?.role_ids ?? [0],
+        roles: data.roles ?? [],
       };
 
       state.isLoggedIn = true;
