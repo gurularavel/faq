@@ -32,6 +32,12 @@ class UserService
             ->first();
 
         if (!$user || !LDAPService::instance()->check($user, $fields['password'])) {
+            if ($user) {
+                LoggerService::instance()->log('APP: invalid_username_or_password. UserId: ' . $user->id);
+            } else {
+                LoggerService::instance()->log('APP: invalid_username_or_password. UserNotFound: ' . $fields['email']);
+            }
+
             throw new HttpResponseException(response()->json([
                 'message' => LangService::instance()
                     ->setDefault('Invalid username or password!')
