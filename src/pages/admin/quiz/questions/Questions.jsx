@@ -189,7 +189,7 @@ export default function Questions() {
           startIcon={<AddIcon />}
           size="small"
           component={Link}
-          to={`/quiz/${quizId}/add`}
+          to={`/control/quiz/${quizId}/add`}
           sx={{
             "& .MuiButton-startIcon": {
               mr: { xs: 0, sm: 1 },

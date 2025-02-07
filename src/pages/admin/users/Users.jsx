@@ -172,7 +172,7 @@ export default function Users() {
           startIcon={<AddIcon />}
           size="small"
           component={Link}
-          to={"/users-list/add"}
+          to={"users-list/add"}
           sx={{
             "& .MuiButton-startIcon": {
               mr: { xs: 0, sm: 1 },

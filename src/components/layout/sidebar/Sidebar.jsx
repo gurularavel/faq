@@ -33,32 +33,32 @@ export default function Sidebar({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const menuItems = [
-    { path: "/", text: t("questions"), icon: QuestionIcon },
+    { path: "/control", text: t("questions"), icon: QuestionIcon },
     {
-      path: "/questions-group",
+      path: "/control/questions-group",
       text: t("question_group"),
       icon: QuestionCategoryIcon,
     },
-    { path: "/users-list", text: t("users"), icon: UserIcon },
+    { path: "/control/users-list", text: t("users"), icon: UserIcon },
     {
-      path: "/users-group",
+      path: "/control/users-group",
       text: t("users_group"),
       icon: UsersIcon,
     },
-    { path: "/tags", text: t("tags"), icon: TagIcon },
-    { path: "/quiz", text: t("quiz"), icon: QuizIcon },
-    { path: "/admins-list", text: t("admins"), icon: UserIcon },
-    { path: "/translations", text: t("translations"), icon: UserIcon },
-    { path: "/languages", text: t("languages"), icon: UserIcon },
+    { path: "/control/tags", text: t("tags"), icon: TagIcon },
+    { path: "/control/quiz", text: t("quiz"), icon: QuizIcon },
+    { path: "/control/admins-list", text: t("admins"), icon: UserIcon },
+    { path: "/control/translations", text: t("translations"), icon: UserIcon },
+    { path: "/control/languages", text: t("languages"), icon: UserIcon },
     {
-      path: "/difficulty-levels",
+      path: "/control/difficulty-levels",
       text: t("difficulty_levels"),
       icon: UserIcon,
     },
   ];
   const isActiveRoute = (itemPath) => {
-    if (itemPath === "/") {
-      return pathname === "/";
+    if (itemPath === "/control") {
+      return pathname === "/control";
     }
     return pathname.startsWith(itemPath);
   };

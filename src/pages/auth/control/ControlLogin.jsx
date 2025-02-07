@@ -59,7 +59,7 @@ export default function Login() {
         device_type: "web",
       });
       dispatch(authenticate(res.data));
-      nav("/");
+      nav("/control");
     } catch (error) {
       if (isAxiosError(error)) {
         notify(error.response.data?.message, "error");

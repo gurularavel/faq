@@ -134,7 +134,7 @@ export default function Admins() {
           startIcon={<AddIcon />}
           size="small"
           component={Link}
-          to={"/admins-list/add"}
+          to={"admins-list/add"}
           sx={{
             "& .MuiButton-startIcon": {
               mr: { xs: 0, sm: 1 },
@@ -427,7 +427,7 @@ export default function Admins() {
   );
 
   return (
-    <MainCard title={t("users")}>
+    <MainCard title={t("admins")}>
       <Modal
         open={open}
         fullScreenOnMobile={false}

@@ -8,6 +8,7 @@ import { usePermissions } from "@utils/rbac";
 import AuthLayout from "@layouts/AuthLayout";
 import MainLayout from "@layouts/MainLayout";
 import ControlLayout from "@layouts/ControlLayout";
+import DetectLayout from "./layouts/DetectLayout";
 
 const Login = Loadable(lazy(() => import("@pages/auth/login/Login")));
 const ControlLogin = Loadable(
@@ -74,13 +75,18 @@ const DifficultyLevels = Loadable(
   lazy(() => import("@pages/admin/difficulty-levels/DifficultyLevels"))
 );
 
+// user's pages
+const Dashboard = Loadable(
+  lazy(() => import("@pages/user/dashboard/Dashboard"))
+);
+
 export default function App() {
   const { isAdmin, isUser } = usePermissions();
   return (
     <Routes>
       <Route element={<AuthGuard />}>
         {isAdmin ? (
-          <Route path="/" element={<ControlLayout />}>
+          <Route path="/control" element={<ControlLayout />}>
             <Route index element={<Questions />} />
             <Route path="add-question" element={<AddQuestion />} />
             <Route path="edit-question/:id" element={<EditQuestion />} />
@@ -115,12 +121,13 @@ export default function App() {
             <Route path="difficulty-levels" element={<DifficultyLevels />} />
           </Route>
         ) : isUser ? (
-          <Route path="/" element={<MainLayout />}>
+          <Route path="/user" element={<MainLayout />}>
             <Route index element={<Dashboard />} />
           </Route>
         ) : (
           <Route path="/" element={<></>} />
         )}
+        <Route path="/" element={<DetectLayout />} />
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>
