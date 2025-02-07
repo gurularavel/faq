@@ -185,7 +185,7 @@ export default function Questions() {
           startIcon={<AddIcon />}
           size="small"
           component={Link}
-          to={"/add-question"}
+          to={"add-question"}
           sx={{
             "& .MuiButton-startIcon": {
               mr: { xs: 0, sm: 1 },

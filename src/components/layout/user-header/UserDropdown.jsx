@@ -22,7 +22,7 @@ const UserDropdown = () => {
   const nav = useNavigate();
   const hanleLogout = () => {
     dispatch(deAuthenticate());
-    nav("/auth/control");
+    nav("/auth/login");
   };
 
   return (
