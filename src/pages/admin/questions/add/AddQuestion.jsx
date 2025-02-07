@@ -85,6 +85,9 @@ export default function AddQuestion() {
   const { langs } = useSelector((state) => state.lang);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
+  const [selectedParent, setSelectedParent] = useState(null);
+  const [subCategories, setSubCategories] = useState([]);
+
   const [loading, setLoading] = useState({
     categories: false,
     tags: false,
@@ -92,6 +95,8 @@ export default function AddQuestion() {
   });
 
   const schema = yup.object({
+    parent_category_id: yup.number().required(t("required_field")),
+
     category_id: yup.number().required(t("required_field")),
     translations: yup.array().of(
       yup.object({
@@ -107,10 +112,13 @@ export default function AddQuestion() {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
+      parent_category_id: null,
+
       category_id: null,
       translations: langs.map((lang) => ({
         language_id: lang.id,
@@ -139,10 +147,23 @@ export default function AddQuestion() {
     fetchTags();
   }, []);
 
+  // Update subcategories when parent category changes
+  useEffect(() => {
+    if (selectedParent) {
+      const parent = categories.find((cat) => cat.id === selectedParent.id);
+      setSubCategories(parent?.subs || []);
+      // Reset category_id when parent changes
+      setValue("category_id", null);
+    } else {
+      setSubCategories([]);
+      setValue("category_id", null);
+    }
+  }, [selectedParent, categories]);
+
   const fetchCategories = async () => {
     setLoading((prev) => ({ ...prev, categories: true }));
     try {
-      const res = await controlPrivateApi.get("/categories/list");
+      const res = await controlPrivateApi.get("/categories/list?with_subs=yes");
       setCategories(res.data.data);
     } catch (error) {
       notify(
@@ -196,31 +217,29 @@ export default function AddQuestion() {
                 <Grid2 container spacing={2} alignItems="center">
                   <Grid2 size={{ xs: 12, md: 3 }}>
                     <Typography variant="body1">
-                      {t("question_category")}
+                      {t("parent_category")}
                     </Typography>
                   </Grid2>
                   <Grid2 size={{ xs: 12, md: 9 }}>
                     <Controller
-                      name="category_id"
+                      name="parent_category_id"
                       control={control}
                       render={({ field }) => (
                         <Autocomplete
-                          value={
-                            categories.find((cat) => cat.id === field.value) ||
-                            null
-                          }
-                          onChange={(_, newValue) =>
-                            field.onChange(newValue?.id)
-                          }
-                          options={categories}
+                          value={selectedParent}
+                          onChange={(_, newValue) => {
+                            setSelectedParent(newValue);
+                            field.onChange(newValue?.id);
+                          }}
+                          options={categories.filter((e) => e.subs.length > 0)}
                           getOptionLabel={(option) => option.title}
                           loading={loading.categories}
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              error={!!errors.category_id}
-                              helperText={errors.category_id?.message}
-                              placeholder={t("select_category")}
+                              error={!!errors.parent_category_id}
+                              helperText={errors.parent_category_id?.message}
+                              placeholder={t("select_parent_category")}
                               InputProps={{
                                 ...params.InputProps,
                                 endAdornment: (
@@ -232,6 +251,46 @@ export default function AddQuestion() {
                                   </>
                                 ),
                               }}
+                            />
+                          )}
+                        />
+                      )}
+                    />
+                  </Grid2>
+                </Grid2>
+              </Grid2>
+
+              {/* Sub Category Selection */}
+              <Grid2 size={{ xs: 12 }}>
+                <Grid2 container spacing={2} alignItems="center">
+                  <Grid2 size={{ xs: 12, md: 3 }}>
+                    <Typography variant="body1">{t("sub_category")}</Typography>
+                  </Grid2>
+                  <Grid2 size={{ xs: 12, md: 9 }}>
+                    <Controller
+                      name="category_id"
+                      control={control}
+                      render={({ field }) => (
+                        <Autocomplete
+                          value={
+                            subCategories.find(
+                              (cat) => cat.id === field.value
+                            ) || null
+                          }
+                          onChange={(_, newValue) =>
+                            field.onChange(newValue?.id)
+                          }
+                          options={subCategories}
+                          getOptionLabel={(option) => option.title}
+                          disabled={
+                            !selectedParent || subCategories.length === 0
+                          }
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              error={!!errors.category_id}
+                              helperText={errors.category_id?.message}
+                              placeholder={t("select_sub_category")}
                             />
                           )}
                         />

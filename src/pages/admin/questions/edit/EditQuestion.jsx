@@ -87,6 +87,8 @@ export default function EditQuestion() {
   const t = useTranslate();
   const { langs } = useSelector((state) => state.lang);
   const [categories, setCategories] = useState([]);
+  const [selectedParent, setSelectedParent] = useState(null);
+  const [subCategories, setSubCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState({
     categories: false,
@@ -96,6 +98,7 @@ export default function EditQuestion() {
   });
 
   const schema = yup.object({
+    parent_category_id: yup.number().required(t("required_field")),
     category_id: yup.number().required(t("required_field")),
     translations: yup.array().of(
       yup.object({
@@ -111,10 +114,12 @@ export default function EditQuestion() {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
+      parent_category_id: null,
       category_id: null,
       translations: langs.map((lang) => ({
         language_id: lang.id,
@@ -124,6 +129,15 @@ export default function EditQuestion() {
       tags: [],
     },
   });
+
+  useEffect(() => {
+    if (selectedParent) {
+      const parent = categories.find((cat) => cat.id === selectedParent.id);
+      setSubCategories(parent?.subs || []);
+    } else {
+      setSubCategories([]);
+    }
+  }, [selectedParent, categories]);
 
   const fetchQuestionData = async () => {
     setLoading((prev) => ({ ...prev, fetchingData: true }));
@@ -142,7 +156,18 @@ export default function EditQuestion() {
         answer: translationsMap[lang.id]?.answer || "",
       }));
 
+      if (questionData.category.parent) {
+        const parentCategory = categories.find(
+          (cat) => cat.id === questionData.category.parent.id
+        );
+        if (parentCategory) {
+          setSelectedParent(parentCategory);
+          setSubCategories(parentCategory.subs || []);
+        }
+      }
+
       reset({
+        parent_category_id: questionData.category.parent?.id || null,
         category_id: questionData.category.id,
         translations: formattedTranslations,
         tags: questionData.tags.map((tag) => tag.id),
@@ -158,10 +183,10 @@ export default function EditQuestion() {
   };
 
   useEffect(() => {
-    if (id && langs.length) {
+    if (id && langs.length && categories.length > 0) {
       fetchQuestionData();
     }
-  }, [id, langs]);
+  }, [id, langs, categories]);
 
   useEffect(() => {
     fetchCategories();
@@ -171,7 +196,7 @@ export default function EditQuestion() {
   const fetchCategories = async () => {
     setLoading((prev) => ({ ...prev, categories: true }));
     try {
-      const res = await controlPrivateApi.get("/categories/list");
+      const res = await controlPrivateApi.get("/categories/list?with_subs=yes");
       setCategories(res.data.data);
     } catch (error) {
       notify(
@@ -200,7 +225,11 @@ export default function EditQuestion() {
   const onSubmit = async (data) => {
     setPending(true);
     try {
-      const res = await controlPrivateApi.post(`/faqs/update/${id}`, data);
+      const { parent_category_id, ...submitData } = data;
+      const res = await controlPrivateApi.post(
+        `/faqs/update/${id}`,
+        submitData
+      );
       notify(res.data.message, "success");
       nav(-1);
     } catch (error) {
@@ -231,12 +260,60 @@ export default function EditQuestion() {
             onSubmit={handleSubmit(onSubmit)}
           >
             <Grid2 container spacing={2}>
+              {/* Parent Category Selection */}
               <Grid2 size={{ xs: 12 }}>
                 <Grid2 container spacing={2} alignItems="center">
                   <Grid2 size={{ xs: 12, md: 3 }}>
                     <Typography variant="body1">
-                      {t("question_category")}
+                      {t("parent_category")}
                     </Typography>
+                  </Grid2>
+                  <Grid2 size={{ xs: 12, md: 9 }}>
+                    <Controller
+                      name="parent_category_id"
+                      control={control}
+                      render={({ field }) => (
+                        <Autocomplete
+                          value={selectedParent}
+                          onChange={(_, newValue) => {
+                            setSelectedParent(newValue);
+                            field.onChange(newValue?.id);
+                            setValue("category_id", null);
+                          }}
+                          options={categories}
+                          getOptionLabel={(option) => option.title}
+                          loading={loading.categories}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              error={!!errors.parent_category_id}
+                              helperText={errors.parent_category_id?.message}
+                              placeholder={t("select_parent_category")}
+                              InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                  <>
+                                    {loading.categories && (
+                                      <CircularProgress size={20} />
+                                    )}
+                                    {params.InputProps.endAdornment}
+                                  </>
+                                ),
+                              }}
+                            />
+                          )}
+                        />
+                      )}
+                    />
+                  </Grid2>
+                </Grid2>
+              </Grid2>
+
+              {/* Sub Category Selection */}
+              <Grid2 size={{ xs: 12 }}>
+                <Grid2 container spacing={2} alignItems="center">
+                  <Grid2 size={{ xs: 12, md: 3 }}>
+                    <Typography variant="body1">{t("sub_category")}</Typography>
                   </Grid2>
                   <Grid2 size={{ xs: 12, md: 9 }}>
                     <Controller
@@ -245,21 +322,24 @@ export default function EditQuestion() {
                       render={({ field }) => (
                         <Autocomplete
                           value={
-                            categories.find((cat) => cat.id === field.value) ||
-                            null
+                            subCategories.find(
+                              (cat) => cat.id === field.value
+                            ) || null
                           }
                           onChange={(_, newValue) =>
                             field.onChange(newValue?.id)
                           }
-                          options={categories}
+                          options={subCategories}
                           getOptionLabel={(option) => option.title}
-                          loading={loading.categories}
+                          disabled={
+                            !selectedParent || subCategories.length === 0
+                          }
                           renderInput={(params) => (
                             <TextField
                               {...params}
                               error={!!errors.category_id}
                               helperText={errors.category_id?.message}
-                              placeholder={t("select_category")}
+                              placeholder={t("select_sub_category")}
                               InputProps={{
                                 ...params.InputProps,
                                 endAdornment: (

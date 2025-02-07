@@ -19,14 +19,17 @@ import { useNavigate, useParams } from "react-router-dom";
 export default function EditUser() {
   const { id } = useParams();
   const t = useTranslate();
-  const [categories, setCategories] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [selectedParent, setSelectedParent] = useState(null);
+  const [subDepartments, setSubDepartments] = useState([]);
   const [loading, setLoading] = useState({
-    categories: false,
+    departments: false,
     userData: false,
     submit: false,
   });
 
   const schema = yup.object({
+    parent_department_id: yup.number().required(t("required_field")),
     department_id: yup.number().required(t("required_field")),
     name: yup.string().required(t("required_field")),
     surname: yup.string().required(t("required_field")),
@@ -37,10 +40,12 @@ export default function EditUser() {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
+      parent_department_id: null,
       department_id: null,
       name: "",
       surname: "",
@@ -49,9 +54,19 @@ export default function EditUser() {
   });
 
   useEffect(() => {
-    fetchCategories();
+    fetchDepartments();
     fetchUserData();
   }, [id]);
+
+  // Update subdepartments when parent department changes
+  useEffect(() => {
+    if (selectedParent) {
+      const parent = departments.find((dept) => dept.id === selectedParent.id);
+      setSubDepartments(parent?.subs || []);
+    } else {
+      setSubDepartments([]);
+    }
+  }, [selectedParent, departments]);
 
   const fetchUserData = async () => {
     setLoading((prev) => ({ ...prev, userData: true }));
@@ -59,13 +74,29 @@ export default function EditUser() {
       const res = await controlPrivateApi.get(`/users/show/${id}`);
       const userData = res.data.data;
 
-      // Reset form with fetched data
-      reset({
-        department_id: userData.department.id,
-        name: userData.name,
-        surname: userData.surname,
-        email: userData.email,
-      });
+      // Get the parent department from the response
+      const parentDept = userData.department.parent;
+      const currentDept = userData.department;
+
+      if (parentDept) {
+        // Find the full parent department object from departments list
+        const fullParentDept = departments.find(
+          (dept) => dept.id === parentDept.id
+        );
+        if (fullParentDept) {
+          setSelectedParent(fullParentDept);
+          setSubDepartments(fullParentDept.subs || []);
+        }
+
+        // Reset form with fetched data
+        reset({
+          parent_department_id: parentDept.id,
+          department_id: currentDept.id,
+          name: userData.name,
+          surname: userData.surname,
+          email: userData.email,
+        });
+      }
     } catch (error) {
       notify(
         error.response?.data?.message || "Error fetching user data",
@@ -76,18 +107,20 @@ export default function EditUser() {
     }
   };
 
-  const fetchCategories = async () => {
-    setLoading((prev) => ({ ...prev, categories: true }));
+  const fetchDepartments = async () => {
+    setLoading((prev) => ({ ...prev, departments: true }));
     try {
-      const res = await controlPrivateApi.get("/departments/list");
-      setCategories(res.data.data);
+      const res = await controlPrivateApi.get(
+        "/departments/list?with_subs=yes"
+      );
+      setDepartments(res.data.data);
     } catch (error) {
       notify(
-        error.response?.data?.message || "Error fetching categories",
+        error.response?.data?.message || "Error fetching departments",
         "error"
       );
     } finally {
-      setLoading((prev) => ({ ...prev, categories: false }));
+      setLoading((prev) => ({ ...prev, departments: false }));
     }
   };
 
@@ -96,7 +129,12 @@ export default function EditUser() {
   const onSubmit = async (data) => {
     setPending(true);
     try {
-      const res = await controlPrivateApi.post(`/users/update/${id}`, data);
+      // Remove parent_department_id before submission
+      const { parent_department_id, ...submitData } = data;
+      const res = await controlPrivateApi.post(
+        `/users/update/${id}`,
+        submitData
+      );
       notify(res.data.message, "success");
       nav(-1);
     } catch (error) {
@@ -127,6 +165,48 @@ export default function EditUser() {
             onSubmit={handleSubmit(onSubmit)}
           >
             <Grid2 container spacing={2}>
+              {/* Parent Department Selection */}
+              <Grid2 size={{ xs: 12 }}>
+                <Controller
+                  name="parent_department_id"
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      value={selectedParent}
+                      onChange={(_, newValue) => {
+                        setSelectedParent(newValue);
+                        field.onChange(newValue?.id);
+                        // Reset department_id when parent changes
+                        setValue("department_id", null);
+                      }}
+                      options={departments}
+                      getOptionLabel={(option) => option.title}
+                      loading={loading.departments}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          error={!!errors.parent_department_id}
+                          helperText={errors.parent_department_id?.message}
+                          label={t("select_parent_department")}
+                          InputProps={{
+                            ...params.InputProps,
+                            endAdornment: (
+                              <>
+                                {loading.departments && (
+                                  <CircularProgress size={20} />
+                                )}
+                                {params.InputProps.endAdornment}
+                              </>
+                            ),
+                          }}
+                        />
+                      )}
+                    />
+                  )}
+                />
+              </Grid2>
+
+              {/* Sub Department Selection */}
               <Grid2 size={{ xs: 12 }}>
                 <Controller
                   name="department_id"
@@ -134,29 +214,20 @@ export default function EditUser() {
                   render={({ field }) => (
                     <Autocomplete
                       value={
-                        categories.find((cat) => cat.id === field.value) || null
+                        subDepartments.find(
+                          (dept) => dept.id === field.value
+                        ) || null
                       }
                       onChange={(_, newValue) => field.onChange(newValue?.id)}
-                      options={categories}
+                      options={subDepartments}
                       getOptionLabel={(option) => option.title}
-                      loading={loading.categories}
+                      disabled={!selectedParent || subDepartments.length === 0}
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          error={!!errors.category_id}
-                          helperText={errors.category_id?.message}
-                          label={t("select_category")}
-                          InputProps={{
-                            ...params.InputProps,
-                            endAdornment: (
-                              <>
-                                {loading.categories && (
-                                  <CircularProgress size={20} />
-                                )}
-                                {params.InputProps.endAdornment}
-                              </>
-                            ),
-                          }}
+                          error={!!errors.department_id}
+                          helperText={errors.department_id?.message}
+                          label={t("select_sub_department")}
                         />
                       )}
                     />
