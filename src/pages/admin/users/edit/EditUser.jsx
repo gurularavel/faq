@@ -53,10 +53,17 @@ export default function EditUser() {
     },
   });
 
+  // First, fetch departments
   useEffect(() => {
     fetchDepartments();
-    fetchUserData();
-  }, [id]);
+  }, []);
+
+  // Then, once departments are loaded, fetch user data
+  useEffect(() => {
+    if (departments.length > 0) {
+      fetchUserData();
+    }
+  }, [departments]);
 
   // Update subdepartments when parent department changes
   useEffect(() => {
@@ -74,29 +81,24 @@ export default function EditUser() {
       const res = await controlPrivateApi.get(`/users/show/${id}`);
       const userData = res.data.data;
 
-      // Get the parent department from the response
-      const parentDept = userData.department.parent;
-      const currentDept = userData.department;
+      // Find the parent department from the departments list
+      const parentDept = departments.find(
+        (dept) => dept.id === userData.department.parent.id
+      );
 
       if (parentDept) {
-        // Find the full parent department object from departments list
-        const fullParentDept = departments.find(
-          (dept) => dept.id === parentDept.id
-        );
-        if (fullParentDept) {
-          setSelectedParent(fullParentDept);
-          setSubDepartments(fullParentDept.subs || []);
-        }
-
-        // Reset form with fetched data
-        reset({
-          parent_department_id: parentDept.id,
-          department_id: currentDept.id,
-          name: userData.name,
-          surname: userData.surname,
-          email: userData.email,
-        });
+        setSelectedParent(parentDept);
+        setSubDepartments(parentDept.subs || []);
       }
+
+      // Reset form with fetched data
+      reset({
+        parent_department_id: userData.department.parent.id,
+        department_id: userData.department.id,
+        name: userData.name,
+        surname: userData.surname,
+        email: userData.email,
+      });
     } catch (error) {
       notify(
         error.response?.data?.message || "Error fetching user data",
@@ -129,7 +131,6 @@ export default function EditUser() {
   const onSubmit = async (data) => {
     setPending(true);
     try {
-      // Remove parent_department_id before submission
       const { parent_department_id, ...submitData } = data;
       const res = await controlPrivateApi.post(
         `/users/update/${id}`,
@@ -144,7 +145,7 @@ export default function EditUser() {
     }
   };
 
-  if (loading.userData) {
+  if (loading.userData || loading.departments) {
     return (
       <MainCard title={t("edit_user")} hasBackBtn={true}>
         <Box display="flex" justifyContent="center" alignItems="center" py={4}>
@@ -172,33 +173,23 @@ export default function EditUser() {
                   control={control}
                   render={({ field }) => (
                     <Autocomplete
-                      value={selectedParent}
+                      value={
+                        departments.find((dept) => dept.id === field.value) ||
+                        null
+                      }
                       onChange={(_, newValue) => {
                         setSelectedParent(newValue);
                         field.onChange(newValue?.id);
-                        // Reset department_id when parent changes
                         setValue("department_id", null);
                       }}
                       options={departments}
                       getOptionLabel={(option) => option.title}
-                      loading={loading.departments}
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           error={!!errors.parent_department_id}
                           helperText={errors.parent_department_id?.message}
                           label={t("select_parent_department")}
-                          InputProps={{
-                            ...params.InputProps,
-                            endAdornment: (
-                              <>
-                                {loading.departments && (
-                                  <CircularProgress size={20} />
-                                )}
-                                {params.InputProps.endAdornment}
-                              </>
-                            ),
-                          }}
                         />
                       )}
                     />
@@ -235,6 +226,7 @@ export default function EditUser() {
                 />
               </Grid2>
 
+              {/* Rest of the form fields */}
               <Grid2 size={{ xs: 12 }}>
                 <Controller
                   name="name"
