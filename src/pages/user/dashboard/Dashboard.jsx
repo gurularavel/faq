@@ -8,6 +8,8 @@ import {
 } from "@mui/material";
 import SearchIcon from "@assets/icons/search.svg";
 import FAQItem from "@components/faq-item/FAQItem";
+import { useTranslate } from "@src/utils/translations/useTranslate";
+
 const faqItems = [
   {
     id: 1,
@@ -192,6 +194,7 @@ const faqItems = [
   },
 ];
 const DashBoard = () => {
+  const t = useTranslate();
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredFaqItems = useMemo(() => {
@@ -210,14 +213,10 @@ const DashBoard = () => {
   return (
     <Box className="search-container">
       <Box>
-        <Typography variant="h4" component="h1" className="search-title">
-          Sualınızı daxil edin
-        </Typography>
-
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="Sual verin və ya açar sözlə axtarın"
+          placeholder={t("search_with_text_or_tag")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           InputProps={{
@@ -231,7 +230,7 @@ const DashBoard = () => {
         />
 
         <Typography variant="h6" component="h2" className="faq-title">
-          Ən çox axtarılan suallar
+          {searchQuery.length > 0 ? t("result") : t("mostly_searched_faq")}
         </Typography>
 
         <Box className="faq-list">
