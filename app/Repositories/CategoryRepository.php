@@ -3,10 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\Category;
+use App\Services\LangService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class CategoryRepository
 {
@@ -102,11 +105,22 @@ class CategoryRepository
             $translations = $validated['translations'];
             unset($validated['translations']);
 
+            $default = $translations[0];
+            $slug = Str::slug($default);
+
+            if (Category::query()->where('slug', $slug)->exists()) {
+                throw new BadRequestHttpException(
+                    LangService::instance()
+                        ->setDefault('This slug is already in use! Slug: @slug')
+                        ->getLang('slug_already_in_use', ['@slug' => $slug])
+                );
+            }
+
             $category = Category::query()->create([
                 'category_id' => $validated['parent_id'] ?? null,
+                'slug' => $slug,
             ]);
 
-            $default = $translations[0];
             foreach ($translations as $translation) {
                 $category->setLang('title', $translation['title'] ?? $default['title'], $translation['language_id']);
             }

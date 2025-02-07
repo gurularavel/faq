@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\DifficultyLevelController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\FaqExcelController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\QuestionGroupController;
@@ -108,6 +109,12 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
             Route::post('update/{faq}', [FaqController::class, 'update']);
             Route::post('change-active-status/{faq}', [FaqController::class, 'changeActiveStatus']);
             Route::delete('delete/{faq}', [FaqController::class, 'destroy']);
+
+            Route::group(['prefix' => 'excels'], static function () {
+                Route::get('load', [FaqExcelController::class, 'index']);
+                Route::post('import', [FaqExcelController::class, 'import']);
+                Route::post('rollback/{faqExcel}', [FaqExcelController::class, 'rollback']);
+            });
         });
 
         Route::group(['prefix' => 'departments'], static function () {

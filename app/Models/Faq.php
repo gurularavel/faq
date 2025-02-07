@@ -44,4 +44,9 @@ class Faq extends Model
     {
         return $this->belongsToMany(Tag::class, FaqTag::class);
     }
+
+    public function faqExcel(): BelongsTo
+    {
+        return $this->belongsTo(FaqExcel::class);
+    }
 }

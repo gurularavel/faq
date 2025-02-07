@@ -23,6 +23,7 @@ class Category extends Model
     use SoftDeletes, ActionBy, ActionUser, Translatable, CascadeSoftDeletes, SoftDeleteAcceptable;
 
     protected $fillable = [
+        'slug',
         'category_id',
         'is_active',
     ];
@@ -58,5 +59,10 @@ class Category extends Model
     public function faqs(): HasMany
     {
         return $this->hasMany(Faq::class);
+    }
+
+    public function faqExcel(): BelongsTo
+    {
+        return $this->belongsTo(FaqExcel::class);
     }
 }

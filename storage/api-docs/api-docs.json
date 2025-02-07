@@ -1684,6 +1684,110 @@
                 ]
             }
         },
+        "/api/control/faqs/excels/load": {
+            "get": {
+                "tags": [
+                    "FaqExcel"
+                ],
+                "summary": "Get list of last 10 FAQ excels",
+                "operationId": "f4aaf3a60ca70434847c3af546d94675",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FaqExcelsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/faqs/excels/import": {
+            "post": {
+                "tags": [
+                    "FaqExcel"
+                ],
+                "summary": "Import new items",
+                "operationId": "48778a2d80068735f7caec75c06b2f95",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FaqImportRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Resource created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/faqs/excels/rollback/{faqExcel}": {
+            "post": {
+                "tags": [
+                    "FaqExcel"
+                ],
+                "summary": "Rollback data",
+                "operationId": "41395cb8b8a43cebac72e325e2a118b0",
+                "parameters": [
+                    {
+                        "name": "faqExcel",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/languages/load": {
             "get": {
                 "tags": [
@@ -4159,6 +4263,18 @@
     },
     "components": {
         "schemas": {
+            "FaqExcelStatusEnum": {
+                "title": "Faq Excel Status Enum",
+                "description": "Enumeration of Faq Excel Statuses",
+                "type": "string",
+                "enum": [
+                    "pending",
+                    "processing",
+                    "imported",
+                    "failed",
+                    "rollback"
+                ]
+            },
             "TranslationGroupEnum": {
                 "title": "Translation Group Enum",
                 "description": "Enumeration of translation groups",
@@ -4484,6 +4600,19 @@
                             },
                             "type": "object"
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "FaqImportRequest": {
+                "title": "FAQ Import Request",
+                "description": "Request parameters for importing FAQs",
+                "properties": {
+                    "file": {
+                        "description": "File to be imported (xls, xlsx)",
+                        "type": "string",
+                        "format": "binary",
+                        "example": "example.xlsx"
                     }
                 },
                 "type": "object"
@@ -5626,6 +5755,49 @@
                 },
                 "type": "object"
             },
+            "FaqExcelsResource": {
+                "title": "Faq Excels Resource",
+                "description": "Faq Excels Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the FAQ Excel",
+                        "type": "integer"
+                    },
+                    "status": {
+                        "description": "Status of the FAQ Excel",
+                        "type": "string"
+                    },
+                    "file": {
+                        "description": "File associated with the FAQ Excel",
+                        "type": "string"
+                    },
+                    "messages": {
+                        "description": "Messages related to the FAQ Excel",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "categories_count": {
+                        "description": "Count of categories",
+                        "type": "integer"
+                    },
+                    "faqs_count": {
+                        "description": "Count of FAQs",
+                        "type": "integer"
+                    },
+                    "created_user": {
+                        "description": "User who created the FAQ Excel",
+                        "type": "string"
+                    },
+                    "created_date": {
+                        "description": "Date when the FAQ Excel was created",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "FaqResource": {
                 "title": "FAQ Resource",
                 "description": "FAQ Resource",
@@ -6280,6 +6452,10 @@
         {
             "name": "Faq",
             "description": "Faq"
+        },
+        {
+            "name": "FaqExcel",
+            "description": "FaqExcel"
         },
         {
             "name": "Language",
