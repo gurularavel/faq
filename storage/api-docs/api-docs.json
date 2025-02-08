@@ -5763,6 +5763,10 @@
                         "description": "ID of the FAQ Excel",
                         "type": "integer"
                     },
+                    "status_key": {
+                        "description": "Status key of the FAQ Excel",
+                        "type": "string"
+                    },
                     "status": {
                         "description": "Status of the FAQ Excel",
                         "type": "string"

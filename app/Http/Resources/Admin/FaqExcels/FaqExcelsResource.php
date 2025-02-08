@@ -19,6 +19,11 @@ use OpenApi\Annotations as OA;
  *         type="integer",
  *         description="ID of the FAQ Excel"
  *     ),
+ *          @OA\Property(
+ *          property="status_key",
+ *          type="string",
+ *          description="Status key of the FAQ Excel"
+ *      ),
  *     @OA\Property(
  *         property="status",
  *         type="string",
@@ -77,6 +82,7 @@ class FaqExcelsResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'status_key' => $this->status,
             'status' => LangService::instance()->setDefault(Str::title($this->status))->getLang($this->status),
             'file' => $this->file,
             'messages' => $this->messages ?? [],
