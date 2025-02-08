@@ -169,6 +169,8 @@ export default function Questions() {
           color="error"
           startIcon={<UploadFile />}
           size="small"
+          component={Link}
+          to={"import-question"}
           sx={{
             "& .MuiButton-startIcon": {
               mr: { xs: 0, sm: 1 },

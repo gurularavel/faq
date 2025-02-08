@@ -15,7 +15,7 @@ export default function MainCard({ children, title, hasBackBtn = false }) {
         {hasBackBtn && (
           <Button className="back-btn" onClick={() => nav(-1)}>
             <img src={LeftIcon} alt="left icon" />
-            {t("get_back")}
+            <span> {t("get_back")}</span>
           </Button>
         )}
       </Box>

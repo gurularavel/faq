@@ -415,4 +415,15 @@ body {
       font-size: 18px;
     }
   }
+
+  .main-card {
+    .main-card-title {
+      .back-btn {
+        padding: 1rem;
+        span {
+          display: none;
+        }
+      }
+    }
+  }
 }
