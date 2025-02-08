@@ -6,7 +6,7 @@ export default function SureModal({ close, onSuccess }) {
   const t = useTranslate();
   return (
     <Box
-      minWidth={{ xs: 300, md: 500 }}
+      minWidth={{ xs: 300, md: 400 }}
       display={"flex"}
       flexDirection={"column"}
       alignItems={"center"}
@@ -17,7 +17,7 @@ export default function SureModal({ close, onSuccess }) {
         textAlign={"center"}
         fontWeight={600}
       >
-        {t("are_you_sure_to_delete")}
+        {t("are_you_sure")}
       </Typography>
       <Box
         width={"100%"}
