@@ -14,9 +14,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property bool|mixed $is_active
- * @property mixed $departments
  * @property mixed $users
  * @property mixed $id
+ * @property mixed $exams
  */
 class QuestionGroup extends Model
 {
@@ -47,23 +47,13 @@ class QuestionGroup extends Model
         return $this->hasMany(Question::class);
     }
 
+    public function exams(): HasMany
+    {
+        return $this->hasMany(Exam::class);
+    }
+
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, QuestionGroupUser::class);
-    }
-
-    public function departments(): BelongsToMany
-    {
-        return $this->belongsToMany(Department::class, QuestionGroupDepartment::class);
-    }
-
-    public function usersRel(): HasMany
-    {
-        return $this->hasMany(QuestionGroupUser::class);
-    }
-
-    public function departmentsRel(): HasMany
-    {
-        return $this->hasMany(QuestionGroupDepartment::class);
+        return $this->belongsToMany(User::class, Exam::class);
     }
 }

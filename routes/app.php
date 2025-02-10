@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\App\Auth\LoginController;
 use App\Http\Controllers\App\Auth\LogoutController;
+use App\Http\Controllers\App\ExamController;
 use App\Http\Controllers\App\NotificationController;
 use App\Http\Controllers\LocalTranslationsController;
 use App\Http\Middleware\CheckUserExpiredMiddleware;
@@ -27,6 +28,12 @@ Route::middleware(['general_access:app', RouteLogMiddleware::class])->prefix('ap
         Route::group(['prefix' => 'notifications'], static function () {
             Route::get('list', [NotificationController::class, 'list']);
             Route::get('{notification}/show', [NotificationController::class, 'show']);
+        });
+
+        Route::group(['prefix' => 'exams'], static function () {
+            Route::get('list', [ExamController::class, 'list']);
+            Route::post('{exam}/start', [ExamController::class, 'start']);
+            Route::post('{exam}/choose-answer', [ExamController::class, 'chooseAnswer']);
         });
     });
 });

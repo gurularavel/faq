@@ -6,6 +6,7 @@ use App\Enum\NotificationTypeEnum;
 use App\Models\Notification;
 use App\Models\QuestionGroup;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -66,19 +67,6 @@ class NotificationService
         return $notification;
     }
 
-    public function sendToDepartments(array $departmentIds, NotificationTypeEnum $type, ?Model $typeableModel = null): void
-    {
-        if (empty($departmentIds)) {
-            return;
-        }
-
-        if ($this->notification === null) {
-            $this->createNotification($type, $typeableModel);
-        }
-
-        $this->notification->departments()->sync($departmentIds);
-    }
-
     public function sendToUsers(array $userIds, NotificationTypeEnum $type, ?Model $typeableModel = null): void
     {
         if (empty($userIds)) {
@@ -89,36 +77,37 @@ class NotificationService
             $this->createNotification($type, $typeableModel);
         }
 
-        $this->notification->users()->sync($userIds);
+        $now = Carbon::now();
+
+        $userPivotData = array_fill_keys($userIds, [
+            'created_at' => $now,
+        ]);
+
+        $this->notification->users()->sync($userPivotData);
     }
 
     public function getUserNotifications(): Collection
     {
         /** @var User $user */
         $user = auth('user')->user();
-        $user->load([
-            'department',
-        ]);
-
-        $subDepartment = $user->department;
-        $departmentId = $subDepartment->department_id;
 
         return Notification::query()
             ->with([
                 'translatable',
-            ])
-            ->withExists([
-                'reads' => static function ($query) use ($user) {
+                'usersRel' => static function ($query) use ($user) {
                     $query->where('user_id', $user->id);
+                    $query->orderByDesc('id');
+                    $query->limit(1);
                 },
             ])
-            ->where(static function ($builder) use ($departmentId, $user) {
-                $builder->whereHas('departmentsRel', static function ($query) use ($departmentId) {
-                    $query->where('department_id', $departmentId);
-                });
-                $builder->orWhereHas('usersRel', static function ($query) use ($user) {
+            ->withExists([
+                'usersRel' => static function ($query) use ($user) {
                     $query->where('user_id', $user->id);
-                });
+                    $query->whereNotNull('read_at');
+                },
+            ])
+            ->whereHas('usersRel', static function ($query) use ($user) {
+                $query->where('user_id', $user->id);
             })
             ->orderByDesc('id')
             ->get();
@@ -128,22 +117,18 @@ class NotificationService
     {
         /** @var User $user */
         $user = auth('user')->user();
-        $user->load([
-            'department',
-        ]);
-
-        $subDepartment = $user->department;
-        $departmentId = $subDepartment->department_id;
 
         $notification->load([
-            'departmentsRel',
-            'usersRel',
+            'usersRel' => static function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+                $query->orderByDesc('id');
+                $query->limit(1);
+            },
         ]);
 
-        $belongsToDepartment = $notification->departmentsRel->contains('department_id', $departmentId);
         $belongsToUser = $notification->usersRel->contains('user_id', $user->id);
 
-        if (!$belongsToDepartment && !$belongsToUser) {
+        if (!$belongsToUser) {
             throw new AccessDeniedHttpException(
                 LangService::instance()
                     ->setDefault('Access denied!')
@@ -158,8 +143,9 @@ class NotificationService
                 'translatable',
             ])
             ->loadExists([
-                'reads' => static function ($query) use ($user) {
+                'usersRel' => static function ($query) use ($user) {
                     $query->where('user_id', $user->id);
+                    $query->whereNotNull('read_at');
                 },
             ]);
 
@@ -171,8 +157,13 @@ class NotificationService
         /** @var User $user */
         $user = auth('user')->user();
 
-        $notification->reads()->firstOrCreate([
-            'user_id' => $user->id,
-        ]);
+        $rel = $notification->usersRel()->where('user_id', $user->id)->firstOrFail();
+
+        if ($rel->read_at !== null) {
+            return;
+        }
+
+        $rel->read_at = Carbon::now();
+        $rel->save();
     }
 }

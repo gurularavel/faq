@@ -34,33 +34,13 @@ class Notification extends Model
         return $this->belongsToMany(User::class, NotificationUser::class);
     }
 
-    public function departments(): BelongsToMany
-    {
-        return $this->belongsToMany(Department::class, NotificationDepartment::class);
-    }
-
     public function usersRel(): HasMany
     {
         return $this->hasMany(NotificationUser::class);
     }
 
-    public function departmentsRel(): HasMany
-    {
-        return $this->hasMany(NotificationDepartment::class);
-    }
-
     public function typeable(): MorphTo
     {
         return $this->morphTo('typeable');
-    }
-
-    public function reads(): HasMany
-    {
-        return $this->hasMany(NotificationRead::class);
-    }
-
-    public function readUsers(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, NotificationRead::class, 'notification_id', 'user_id');
     }
 }

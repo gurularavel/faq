@@ -1,0 +1,133 @@
+<?php
+
+namespace App\Http\Controllers\App;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\App\Exams\ExamChooseAnswerRequest;
+use App\Http\Resources\App\Exams\ExamsListResource;
+use App\Http\Resources\App\Exams\QuestionsListResource;
+use App\Models\Exam;
+use App\Services\ExamService;
+use App\Services\LangService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use OpenApi\Annotations as OA;
+
+class ExamController extends Controller
+{
+    /**
+     * @OA\Get(
+     *     path="/api/app/exams/list",
+     *     summary="Get list of exams",
+     *     tags={"Exams"},
+     *          security={
+     *           {
+     *               "AppApiToken": {},
+     *               "AppSanctumBearerToken": {}
+     *           }
+     *       },
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/ExamsListResource"))
+     *     )
+     * )
+     */
+    public function list(): AnonymousResourceCollection
+    {
+        return ExamsListResource::collection(ExamService::instance()->getUserExams());
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/app/exams/{exam}/start",
+     *     summary="Start an exam",
+     *     tags={"Exams"},
+     *     security={
+     *         {"AppApiToken": {}},
+     *         {"AppSanctumBearerToken": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="exam",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="percent", type="float"),
+     *             @OA\Property(property="next_question", ref="#/components/schemas/QuestionsListResource")
+     *         )
+     *     )
+     * )
+     */
+    public function start(Exam $exam): JsonResponse
+    {
+        ExamService::instance()->startExam($exam);
+        $question = ExamService::instance()->getNextQuestion($exam);
+
+        return response()->json([
+            'message' => LangService::instance()
+                ->setDefault('Exam started successfully!')
+                ->getLang('exam_started'),
+            'percent' => 0,
+            'next_question' => $question ? QuestionsListResource::make($question) : null,
+        ]);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/app/exams/{exam}/choose-answer",
+     *     summary="Choose an answer for a question in an exam",
+     *     tags={"Exams"},
+     *     security={
+     *         {"AppApiToken": {}},
+     *         {"AppSanctumBearerToken": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="exam",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/ExamChooseAnswerRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="is_correct", type="boolean"),
+     *             @OA\Property(property="is_finish", type="boolean"),
+     *             @OA\Property(property="percent", type="float"),
+     *             @OA\Property(property="next_question", ref="#/components/schemas/QuestionsListResource")
+     *         )
+     *     )
+     * )
+     */
+    public function chooseAnswer(ExamChooseAnswerRequest $request, Exam $exam): JsonResponse
+    {
+        $validated = $request->validated();
+
+        $isCorrect = ExamService::instance()->chooseAnswer($exam, $validated['question'], $validated['answer']);
+        $hasNextQuestion = ExamService::instance()->hasNextQuestion($exam);
+        $question = ExamService::instance()->getNextQuestion($exam, $hasNextQuestion);
+
+        return response()->json([
+            'message' => LangService::instance()
+                ->setDefault('Answer chosen successfully!')
+                ->getLang('answer_chosen'),
+            'is_correct' => $isCorrect,
+            'is_finish' => !$hasNextQuestion,
+            'percent' => ExamService::instance()->calculateExamPercent($exam),
+            'next_question' => $question ? QuestionsListResource::make($question) : null,
+        ]);
+    }
+}

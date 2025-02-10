@@ -3,8 +3,12 @@
 namespace App\Repositories;
 
 use App\Enum\NotificationTypeEnum;
+use App\Models\Admin;
+use App\Models\Exam;
 use App\Models\QuestionGroup;
+use App\Models\User;
 use App\Services\NotificationService;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -118,33 +122,73 @@ class QuestionGroupRepository
     public function getAssignedIds(QuestionGroup $questionGroup): array
     {
         $questionGroup->load([
-            'departments',
-            'users',
+            'exams' => static function ($query) {
+                $query->whereNull('start_date');
+            },
         ]);
 
         return [
-            'departments' => $questionGroup->departments->pluck('id')->toArray(),
-            'users' => $questionGroup->users->pluck('id')->toArray(),
+            'departments' => [],
+            'users' => $questionGroup->exams->pluck('user_id')->toArray(),
         ];
     }
 
     public function assign(QuestionGroup $questionGroup, array $validated): QuestionGroup
     {
-        $departments = $validated['departments'] ?? [];
-        $users = $validated['users'] ?? [];
+        $departmentIds = $validated['departments'] ?? [];
+        $userIds = $validated['users'] ?? [];
 
-        DB::transaction(static function () use ($questionGroup, $departments, $users) {
-            $existingDepartmentIds = $questionGroup->departments->pluck('id')->toArray();
-            $existingUserIds = $questionGroup->users->pluck('id')->toArray();
+        $users = User::query()
+            ->whereHas('department', static function (Builder $query) use ($departmentIds) {
+                $query->whereIn('department_id', $departmentIds);
+            })
+            ->select([
+                'id',
+            ])
+            ->get()
+            ->pluck('id')
+            ->toArray();
 
-            $questionGroup->departments()->sync($departments);
-            $questionGroup->users()->sync($users);
+        $userIds = array_unique(array_merge($userIds, $users));
 
-            $newDepartmentIds = array_diff($departments, $existingDepartmentIds);
-            $newUserIds = array_diff($users, $existingUserIds);
+        $questionGroup->load([
+            'exams' => static function ($query) {
+                $query->whereNull('start_date');
+            },
+        ]);
 
-            NotificationService::instance()->sendToDepartments($newDepartmentIds, NotificationTypeEnum::EXAM, $questionGroup);
-            NotificationService::instance()->sendToUsers($newUserIds, NotificationTypeEnum::EXAM, $questionGroup);
+        $existingUserIds = $questionGroup->exams->pluck('user_id')->toArray();
+
+        $notInUserIds = array_diff($existingUserIds, $userIds);
+        $userIds = array_diff($userIds, $existingUserIds);
+
+        $data = [];
+        foreach ($userIds as $userId) {
+            $data[] = [
+                'question_group_id' => $questionGroup->id,
+                'user_id' => $userId,
+            ];
+        }
+
+        DB::transaction(static function () use ($questionGroup, $userIds, $data, $notInUserIds) {
+            /** @var Admin $admin */
+            $admin = auth('admin')->user();
+
+            Exam::query()
+                ->whereIn('user_id', $notInUserIds)
+                ->where('question_group_id', $questionGroup->id)
+                ->update([
+                    'deletable_id' => $admin->id,
+                    'deletable_type' => $admin->getMorphClass(),
+                    'is_deleted' => DB::raw("CONCAT('deleted_', id)"),
+                    'deleted_at' => Carbon::now(),
+                ]);
+
+            if (!empty($data)) {
+                Exam::query()->insert($data);
+
+                NotificationService::instance()->sendToUsers($userIds, NotificationTypeEnum::EXAM, $questionGroup);
+            }
         });
 
         return $questionGroup;

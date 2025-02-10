@@ -87,12 +87,12 @@ class User extends Authenticatable
 
     public function questionGroups(): BelongsToMany
     {
-        return $this->belongsToMany(QuestionGroup::class, QuestionGroupUser::class);
+        return $this->belongsToMany(QuestionGroup::class, Exam::class);
     }
 
-    public function questionGroupsRel(): HasMany
+    public function exams(): HasMany
     {
-        return $this->hasMany(QuestionGroupUser::class);
+        return $this->hasMany(Exam::class);
     }
 
     public function notifications(): BelongsToMany

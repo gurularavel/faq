@@ -15,12 +15,14 @@ use OpenApi\Annotations as OA;
  *      @OA\Property(property="message", type="string"),
  *      @OA\Property(property="type", type="string"),
  *      @OA\Property(property="model_id", type="integer"),
+ *      @OA\Property(property="sent_date", type="string"),
  *      @OA\Property(property="is_seen", type="boolean")
  *  )
  * @property mixed $id
  * @property mixed $type
  * @property mixed $typeable_id
  * @property mixed $reads_exists
+ * @property mixed $usersRel
  * @method getLang(string $string)
  */
 class NotificationsListResource extends JsonResource
@@ -38,7 +40,10 @@ class NotificationsListResource extends JsonResource
             'message' => $this->getLang('message'),
             'type' => $this->type,
             'model_id' => $this->typeable_id,
-            'is_seen' => $this->whenExistsLoaded('reads'),
+            'sent_date' => $this->whenLoaded('usersRel', function () {
+                return $this->usersRel->first()->created_at?->toDateTimeString();
+            }),
+            'is_seen' => $this->whenExistsLoaded('usersRel'),
         ];
     }
 }
