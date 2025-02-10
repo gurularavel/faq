@@ -22,16 +22,18 @@ trait Translatable
         return $this->morphMany(ModelTranslation::class, 'translatable');
     }
 
-    public function getLang(string $column): string
+    public function getLang(string $column, int $languageId = null): string
     {
-        $default = $this->translatable_fields[$column][LangService::instance()->getCurrentLangId()] ?? null;
+        $currentLangId = $languageId ?? LangService::instance()->getCurrentLangId();
+
+        $default = $this->translatable_fields[$column][$currentLangId] ?? null;
 
         if ($default !== null) {
             return $default;
         }
 
         $text = $this->translatable
-            ->where('language_id', LangService::instance()->getCurrentLangId())
+            ->where('language_id', $currentLangId)
             ->where('column', $column)
             ->select('text')
             ->first()['text'] ?? null;
