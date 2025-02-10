@@ -12,6 +12,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property mixed $departmentsRel
+ * @property mixed $usersRel
+ */
 class Notification extends Model
 {
     use SoftDeletes, ActionBy, ActionUser, Translatable, CascadeSoftDeletes;
@@ -19,6 +23,8 @@ class Notification extends Model
     protected $fillable = [
         // message from translatable
         'type', // NotificationTypeEnum
+        'typeable_id',
+        'typeable_type',
     ];
 
     protected array $cascadeDeletes = ['translatable', 'usersRel', 'departmentsRel', 'reads'];

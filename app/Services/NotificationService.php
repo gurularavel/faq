@@ -5,7 +5,10 @@ namespace App\Services;
 use App\Enum\NotificationTypeEnum;
 use App\Models\Notification;
 use App\Models\QuestionGroup;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class NotificationService
 {
@@ -87,5 +90,89 @@ class NotificationService
         }
 
         $this->notification->users()->sync($userIds);
+    }
+
+    public function getUserNotifications(): Collection
+    {
+        /** @var User $user */
+        $user = auth('user')->user();
+        $user->load([
+            'department',
+        ]);
+
+        $subDepartment = $user->department;
+        $departmentId = $subDepartment->department_id;
+
+        return Notification::query()
+            ->with([
+                'translatable',
+            ])
+            ->withExists([
+                'reads' => static function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                },
+            ])
+            ->where(static function ($builder) use ($departmentId, $user) {
+                $builder->whereHas('departmentsRel', static function ($query) use ($departmentId) {
+                    $query->where('department_id', $departmentId);
+                });
+                $builder->orWhereHas('usersRel', static function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                });
+            })
+            ->orderByDesc('id')
+            ->get();
+    }
+
+    public function getNotification(Notification $notification): Notification
+    {
+        /** @var User $user */
+        $user = auth('user')->user();
+        $user->load([
+            'department',
+        ]);
+
+        $subDepartment = $user->department;
+        $departmentId = $subDepartment->department_id;
+
+        $notification->load([
+            'departmentsRel',
+            'usersRel',
+        ]);
+
+        $belongsToDepartment = $notification->departmentsRel->contains('department_id', $departmentId);
+        $belongsToUser = $notification->usersRel->contains('user_id', $user->id);
+
+        if (!$belongsToDepartment && !$belongsToUser) {
+            throw new AccessDeniedHttpException(
+                LangService::instance()
+                    ->setDefault('Access denied!')
+                    ->getLang('access_denied')
+            );
+        }
+
+        $this->setSeen($notification);
+
+        $notification
+            ->load([
+                'translatable',
+            ])
+            ->loadExists([
+                'reads' => static function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                },
+            ]);
+
+        return $notification;
+    }
+
+    public function setSeen(Notification $notification): void
+    {
+        /** @var User $user */
+        $user = auth('user')->user();
+
+        $notification->reads()->firstOrCreate([
+            'user_id' => $user->id,
+        ]);
     }
 }

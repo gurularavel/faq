@@ -4169,6 +4169,73 @@
                 ]
             }
         },
+        "/api/app/notifications/list": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Get list of notifications",
+                "operationId": "e365c0d414291968f07909722fc2dcf5",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/NotificationsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/app/notifications/{notification}/show": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Show a specific notification",
+                "operationId": "82f05b3724a93960a689ebd889ecac83",
+                "parameters": [
+                    {
+                        "name": "notification",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationsListResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/local-translations/languages/list": {
             "get": {
                 "tags": [
@@ -4273,6 +4340,14 @@
                     "imported",
                     "failed",
                     "rollback"
+                ]
+            },
+            "NotificationTypeEnum": {
+                "title": "Notification Type Enum",
+                "description": "Enumeration of Notification Types",
+                "type": "string",
+                "enum": [
+                    "exam"
                 ]
             },
             "TranslationGroupEnum": {
@@ -6391,6 +6466,29 @@
                 },
                 "type": "object"
             },
+            "NotificationsListResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "model_id": {
+                        "type": "integer"
+                    },
+                    "is_seen": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
             "GeneralResource": {
                 "title": "General Resource",
                 "description": "General resource representation",
@@ -6496,6 +6594,10 @@
         {
             "name": "AppAuthentication",
             "description": "AppAuthentication"
+        },
+        {
+            "name": "Notifications",
+            "description": "Notifications"
         },
         {
             "name": "LocalTranslations",

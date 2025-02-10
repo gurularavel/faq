@@ -20,6 +20,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property mixed|string $token
  * @property mixed $accountexpires
  * @property mixed $id
+ * @property Department|mixed $department
  */
 class User extends Authenticatable
 {

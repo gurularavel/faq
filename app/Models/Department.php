@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * @property array|mixed $translations
  * @property bool|mixed $is_active
+ * @property mixed $department_id
  * @method static active()
  */
 class Department extends Model

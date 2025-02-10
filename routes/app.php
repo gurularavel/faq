@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\App\Auth\LoginController;
 use App\Http\Controllers\App\Auth\LogoutController;
+use App\Http\Controllers\App\NotificationController;
 use App\Http\Controllers\LocalTranslationsController;
 use App\Http\Middleware\CheckUserExpiredMiddleware;
 use App\Http\Middleware\RouteLogMiddleware;
@@ -22,5 +23,10 @@ Route::middleware(['general_access:app', RouteLogMiddleware::class])->prefix('ap
 
         Route::post('logout', [LogoutController::class, 'logout']);
         Route::post('logout-all', [LogoutController::class, 'logoutAll']);
+
+        Route::group(['prefix' => 'notifications'], static function () {
+            Route::get('list', [NotificationController::class, 'list']);
+            Route::get('{notification}/show', [NotificationController::class, 'show']);
+        });
     });
 });
