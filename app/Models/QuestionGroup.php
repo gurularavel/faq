@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool|mixed $is_active
  * @property mixed $departments
  * @property mixed $users
+ * @property mixed $id
  */
 class QuestionGroup extends Model
 {

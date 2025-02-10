@@ -67,4 +67,14 @@ class Department extends Model
     {
         return $this->hasMany(QuestionGroupDepartment::class);
     }
+
+    public function notifications(): BelongsToMany
+    {
+        return $this->belongsToMany(Notification::class, NotificationDepartment::class);
+    }
+
+    public function notificationsRel(): HasMany
+    {
+        return $this->hasMany(NotificationDepartment::class);
+    }
 }

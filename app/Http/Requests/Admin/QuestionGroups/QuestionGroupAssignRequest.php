@@ -56,9 +56,9 @@ class QuestionGroupAssignRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'departments' => ['filled', 'array'],
+            'departments' => ['nullable', 'array'],
             'departments.*' => ['required', 'integer', 'distinct', Rule::exists(Department::class, 'id')->where('is_active', true)->whereNull('deleted_at')],
-            'users' => ['filled', 'array'],
+            'users' => ['nullable', 'array'],
             'users.*' => ['required', 'integer', 'distinct', Rule::exists(User::class, 'id')->whereNull('deleted_at')],
         ];
     }

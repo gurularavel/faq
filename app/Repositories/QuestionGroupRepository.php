@@ -2,7 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Enum\NotificationTypeEnum;
 use App\Models\QuestionGroup;
+use App\Services\NotificationService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -132,8 +134,17 @@ class QuestionGroupRepository
         $users = $validated['users'] ?? [];
 
         DB::transaction(static function () use ($questionGroup, $departments, $users) {
+            $existingDepartmentIds = $questionGroup->departments->pluck('id')->toArray();
+            $existingUserIds = $questionGroup->users->pluck('id')->toArray();
+
             $questionGroup->departments()->sync($departments);
             $questionGroup->users()->sync($users);
+
+            $newDepartmentIds = array_diff($departments, $existingDepartmentIds);
+            $newUserIds = array_diff($users, $existingUserIds);
+
+            NotificationService::instance()->sendToDepartments($newDepartmentIds, NotificationTypeEnum::EXAM, $questionGroup);
+            NotificationService::instance()->sendToUsers($newUserIds, NotificationTypeEnum::EXAM, $questionGroup);
         });
 
         return $questionGroup;

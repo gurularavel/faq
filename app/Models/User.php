@@ -93,4 +93,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(QuestionGroupUser::class);
     }
+
+    public function notifications(): BelongsToMany
+    {
+        return $this->belongsToMany(Notification::class, NotificationUser::class);
+    }
+
+    public function notificationsRel(): HasMany
+    {
+        return $this->hasMany(NotificationUser::class);
+    }
 }
