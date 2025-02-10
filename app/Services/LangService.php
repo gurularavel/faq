@@ -106,9 +106,9 @@ class LangService
     }
 
     // main method
-    public function getLang($key, $replace = [])
+    public function getLang($key, $replace = [], string $selectedLang = null)
     {
-        $lang = $this->getCurrentLang();
+        $lang = $selectedLang ?? $this->getCurrentLang();
 
         $translations = $this->getTranslations($lang);
 
