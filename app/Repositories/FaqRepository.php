@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Enum\FaqListTypeEnum;
 use App\Models\Faq;
 use App\Services\LangService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -153,12 +154,28 @@ class FaqRepository
         });
     }
 
+    public function getFaqFromList(FaqListTypeEnum $type, int $limit = 10)
+    {
+        return Faq::query()
+            ->active()
+            ->with([
+                'translatable',
+            ])
+            ->limit($limit)
+            ->inRandomOrder()
+            ->get();
+    }
+
     public function fuzzySearch(array $validated): LengthAwarePaginator
     {
         $search = $validated['search'];
         $languageId = LangService::instance()->getCurrentLangId();
 
         return Faq::query()
+            ->active()
+            ->with([
+                'translatable',
+            ])
             ->whereHas('translatable', function (Builder $query) use ($search, $languageId) {
                 $query->where('language_id', $languageId);
                 $query->where('column', 'question');

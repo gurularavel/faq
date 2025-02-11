@@ -4358,6 +4358,36 @@
                 ]
             }
         },
+        "/api/app/faqs/most-searched": {
+            "get": {
+                "tags": [
+                    "AppFAQ"
+                ],
+                "summary": "Most Searched FAQ",
+                "operationId": "bcecb428f2f8f9412a33765d7d79d905",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FaqsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/app/notifications/list": {
             "get": {
                 "tags": [
@@ -4529,6 +4559,14 @@
                     "imported",
                     "failed",
                     "rollback"
+                ]
+            },
+            "FaqListTypeEnum": {
+                "title": "FAQ List Type Enum",
+                "description": "Enumeration of FAQ List Types",
+                "type": "string",
+                "enum": [
+                    "search"
                 ]
             },
             "NotificationTypeEnum": {

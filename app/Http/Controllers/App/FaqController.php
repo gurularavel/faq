@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\App;
 
+use App\Enum\FaqListTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\App\Exams\ExamChooseAnswerRequest;
 use App\Http\Requests\App\Faqs\FaqSearchRequest;
@@ -55,5 +56,28 @@ class FaqController extends Controller
         $validated = $request->validated();
 
         return FaqsListResource::collection($this->repo->fuzzySearch($validated));
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/app/faqs/most-searched",
+     *     summary="Most Searched FAQ",
+     *     tags={"AppFAQ"},
+     *          security={
+     *           {
+     *               "AppApiToken": {},
+     *               "AppSanctumBearerToken": {}
+     *           }
+     *       },
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/FaqsListResource"))
+     *     )
+     * )
+     */
+    public function getMostSearchedItems(): AnonymousResourceCollection
+    {
+        return FaqsListResource::collection($this->repo->getFaqFromList(FaqListTypeEnum::SEARCH));
     }
 }
