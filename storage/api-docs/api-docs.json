@@ -4317,6 +4317,47 @@
                 ]
             }
         },
+        "/api/app/faqs/search": {
+            "get": {
+                "tags": [
+                    "AppFAQ"
+                ],
+                "summary": "Search FAQ",
+                "operationId": "5eeff1642df959a3d6f4b32dc1148cf5",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "Search request parameters",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/FaqSearchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FaqsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/app/notifications/list": {
             "get": {
                 "tags": [
@@ -5598,6 +5639,27 @@
                 },
                 "type": "object"
             },
+            "FaqSearchRequest": {
+                "title": "FAQ Search Request",
+                "description": "Request body for searching FAQs",
+                "required": [
+                    "search"
+                ],
+                "properties": {
+                    "search": {
+                        "description": "Search term for FAQs",
+                        "type": "string"
+                    },
+                    "limit": {
+                        "description": "Number of items per page",
+                        "type": "integer",
+                        "maximum": 100,
+                        "minimum": 5,
+                        "example": "10"
+                    }
+                },
+                "type": "object"
+            },
             "GeneralListRequest": {
                 "title": "General List Request",
                 "description": "Request parameters for listing resources",
@@ -6838,6 +6900,10 @@
         {
             "name": "Exams",
             "description": "Exams"
+        },
+        {
+            "name": "AppFAQ",
+            "description": "AppFAQ"
         },
         {
             "name": "Notifications",

@@ -3,6 +3,7 @@
 use App\Http\Controllers\App\Auth\LoginController;
 use App\Http\Controllers\App\Auth\LogoutController;
 use App\Http\Controllers\App\ExamController;
+use App\Http\Controllers\App\FaqController;
 use App\Http\Controllers\App\NotificationController;
 use App\Http\Controllers\LocalTranslationsController;
 use App\Http\Middleware\CheckUserExpiredMiddleware;
@@ -34,6 +35,10 @@ Route::middleware(['general_access:app', RouteLogMiddleware::class])->prefix('ap
             Route::get('list', [ExamController::class, 'list']);
             Route::post('{exam}/start', [ExamController::class, 'start']);
             Route::post('{exam}/choose-answer', [ExamController::class, 'chooseAnswer']);
+        });
+
+        Route::group(['prefix' => 'faqs'], static function () {
+            Route::get('search', [FaqController::class, 'search']);
         });
     });
 });

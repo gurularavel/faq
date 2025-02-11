@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Faq;
+use App\Services\LangService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -150,5 +151,24 @@ class FaqRepository
             $faq->is_active = !$faq->is_active;
             $faq->save();
         });
+    }
+
+    public function fuzzySearch(array $validated): LengthAwarePaginator
+    {
+        $search = $validated['search'];
+        $languageId = LangService::instance()->getCurrentLangId();
+
+        return Faq::query()
+            ->whereHas('translatable', function (Builder $query) use ($search, $languageId) {
+                $query->where('language_id', $languageId);
+                $query->where('column', 'question');
+                $query->where('text', 'like', '%' . $search . '%');
+            })
+            ->orWhereHas('translatable', function (Builder $query) use ($search, $languageId) {
+                $query->where('language_id', $languageId);
+                $query->where('column', 'answer');
+                $query->where('text', 'like', '%' . $search . '%');
+            })
+            ->paginate($validated['limit'] ?? 10);
     }
 }
