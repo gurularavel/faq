@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { userApi } from "@utils/axios/userApi";
 import { useDispatch, useSelector } from "react-redux";
 import { setLangs, setStaticWords } from "@src/store/lang";
@@ -8,6 +8,7 @@ const useLanguage = (type) => {
   const api = type == "app" ? userApi : controlApi;
   const dispatch = useDispatch();
   const { lang_version, lang_type } = useSelector((state) => state.lang);
+  const mountedRef = useRef(false);
 
   const getStaticWords = async (lang) => {
     try {
@@ -40,7 +41,14 @@ const useLanguage = (type) => {
   };
 
   useEffect(() => {
+    if (mountedRef.current) return;
+    mountedRef.current = true;
+
     getLangs();
+
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 };
 

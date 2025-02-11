@@ -1,6 +1,7 @@
 import { AppBar, Box, IconButton, Toolbar } from "@mui/material";
 import UserDropdown from "./UserDropdown";
 import Logo from "@assets/images/logo.svg";
+import Notifications from "./Notifications";
 export default function UserHeader() {
   return (
     <AppBar
@@ -23,7 +24,10 @@ export default function UserHeader() {
           <Box width={{ xs: 140, md: 220 }}>
             <img src={Logo} alt="logo" style={{ width: "100%" }} />
           </Box>
-          <UserDropdown />
+          <Box display={"flex"} alignItems={"center"}>
+            <Notifications />
+            <UserDropdown />
+          </Box>
         </Box>
       </Toolbar>
     </AppBar>

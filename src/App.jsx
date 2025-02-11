@@ -82,7 +82,13 @@ const DifficultyLevels = Loadable(
 const Dashboard = Loadable(
   lazy(() => import("@pages/user/dashboard/Dashboard"))
 );
-
+const Exams = Loadable(lazy(() => import("@pages/user/exam/Exams")));
+const StartExam = Loadable(
+  lazy(() => import("@pages/user/exam/start/StartExam"))
+);
+const ExamFinished = Loadable(
+  lazy(() => import("@pages/user/exam/finished/ExamFinished"))
+);
 export default function App() {
   const { isAdmin, isUser } = usePermissions();
   return (
@@ -127,6 +133,9 @@ export default function App() {
         ) : isUser ? (
           <Route path="/user" element={<MainLayout />}>
             <Route index element={<Dashboard />} />
+            <Route path="exams" element={<Exams />} />
+            <Route path="exams/:id" element={<StartExam />} />
+            <Route path="exams/:id/finished" element={<ExamFinished />} />
           </Route>
         ) : (
           <Route path="/" element={<></>} />

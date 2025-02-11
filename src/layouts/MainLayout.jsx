@@ -5,7 +5,7 @@ import UserHeader from "@components/layout/user-header/UserHeader";
 import useLanguage from "@hooks/useLanguage";
 
 export default function ControlLayout() {
-  useLanguage("control");
+  // useLanguage("app");
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -33,7 +33,7 @@ export default function ControlLayout() {
     <Box sx={{ display: "flex" }}>
       <UserHeader />
 
-      <Main open={!isMobile}>
+      <Main>
         <Toolbar />
         <Outlet />
       </Main>

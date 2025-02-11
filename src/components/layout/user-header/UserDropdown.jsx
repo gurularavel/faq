@@ -4,9 +4,11 @@ import UserImage from "@assets/icons/user.svg";
 import LogoutIcon from "@assets/icons/logout.svg";
 import { useDispatch } from "react-redux";
 import { deAuthenticate } from "@src/store/auth";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useTranslate } from "@src/utils/translations/useTranslate";
 
 const UserDropdown = () => {
+  const t = useTranslate();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -94,10 +96,13 @@ const UserDropdown = () => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem>Profil</MenuItem>
+        <MenuItem>{t("profile")}</MenuItem>
+        <MenuItem component={Link} to="/user/exams">
+          {t("exams")}
+        </MenuItem>
         <MenuItem className="logout-item" onClick={() => hanleLogout()}>
           <img src={LogoutIcon} alt="Logout" className="logout-icon" />
-          <span>Çıxış</span>
+          <span>{t("logout")}</span>
         </MenuItem>
       </Menu>
     </Box>

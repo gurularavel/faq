@@ -1,4 +1,5 @@
 import axios from "axios";
+import { userApi } from "./userApi";
 const clearData = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
@@ -6,9 +7,9 @@ const clearData = () => {
 const api = import.meta.env.VITE_APP_API_URL;
 const app_token = import.meta.env.VITE_APP_TOKEN;
 
-axios.defaults.baseURL = api;
+// axios.defaults.baseURL = api;
 
-axios.interceptors.request.use(
+userApi.interceptors.request.use(
   async (config) => {
     const access_token = localStorage.getItem("token");
 
@@ -27,7 +28,7 @@ axios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-axios.interceptors.response.use(
+userApi.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error?.response?.status === 401) {
@@ -39,4 +40,4 @@ axios.interceptors.response.use(
   }
 );
 
-export const userPrivateApi = axios;
+export const userPrivateApi = userApi;
