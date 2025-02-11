@@ -2,6 +2,7 @@ import { AppBar, Box, IconButton, Toolbar } from "@mui/material";
 import UserDropdown from "./UserDropdown";
 import Logo from "@assets/images/logo.svg";
 import Notifications from "./Notifications";
+import { Link } from "react-router-dom";
 export default function UserHeader() {
   return (
     <AppBar
@@ -22,7 +23,9 @@ export default function UserHeader() {
           alignItems={"center"}
         >
           <Box width={{ xs: 140, md: 220 }}>
-            <img src={Logo} alt="logo" style={{ width: "100%" }} />
+            <Link to={"/user"}>
+              <img src={Logo} alt="logo" style={{ width: "100%" }} />
+            </Link>
           </Box>
           <Box display={"flex"} alignItems={"center"}>
             <Notifications />

@@ -102,14 +102,16 @@ export default function Sidebar({
           },
         }}
       >
-        <Box
-          component={"img"}
-          src={Logo}
-          alt="logo"
-          width={"70%"}
-          marginTop={2}
-          marginLeft={2}
-        />
+        <Link to={"/control"}>
+          <Box
+            component={"img"}
+            src={Logo}
+            alt="logo"
+            width={"70%"}
+            marginTop={2}
+            marginLeft={2}
+          />
+        </Link>
 
         {drawer}
       </Drawer>
