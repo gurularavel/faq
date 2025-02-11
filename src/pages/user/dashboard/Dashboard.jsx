@@ -6,6 +6,7 @@ import {
   InputAdornment,
   Grid2,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@assets/icons/search.svg";
 import FAQItem from "@components/faq-item/FAQItem";
@@ -139,18 +140,22 @@ const DashBoard = () => {
         />
 
         <Typography variant="h6" component="h2" className="faq-title">
-          {searchQuery.length > 0 ? t("result") : t("mostly_searched_faq")}
+          {searchQuery.length >= 3 ? t("result") : t("mostly_searched_faq")}
         </Typography>
 
         <Box className="faq-list">
           <Grid2 container spacing={2}>
             {isLoading ? (
-              <Grid2 size={{ xs: 12 }}>
-                <Typography>{t("loading")}</Typography>
+              <Grid2
+                size={{ xs: 12 }}
+                display={"flex"}
+                justifyContent={"center"}
+              >
+                <CircularProgress />
               </Grid2>
             ) : faqItems.length === 0 ? (
               <Grid2 size={{ xs: 12 }}>
-                <Typography>{t("no_results_found")}</Typography>
+                <Typography align="center">{t("no_results_found")}</Typography>
               </Grid2>
             ) : (
               <>
@@ -168,6 +173,7 @@ const DashBoard = () => {
                   <Grid2 size={{ xs: 12 }}>
                     <Box display="flex" justifyContent="center" mt={2}>
                       <Button
+                        color="error"
                         variant="contained"
                         onClick={loadMore}
                         disabled={isLoadingMore}
