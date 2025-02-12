@@ -113,6 +113,33 @@ class ExamController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *     path="/api/app/exams/get-exam-from-notification/{questionGroup}",
+     *     summary="Get exam from a notification (by model_id)",
+     *     tags={"Exams"},
+     *     security={
+     *         {"AppApiToken": {}},
+     *         {"AppSanctumBearerToken": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="questionGroup",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *          @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/ExamsListResource"))
+     *      )
+     * )
+     */
+    public function getExamFromNotification(QuestionGroup $questionGroup): ExamsListResource
+    {
+        return ExamsListResource::make(ExamService::instance()->getUserLastActiveExamByQuestionGroup($questionGroup));
+    }
+
+    /**
      * @OA\Post(
      *     path="/api/app/exams/{exam}/choose-answer",
      *     summary="Choose an answer for a question in an exam",

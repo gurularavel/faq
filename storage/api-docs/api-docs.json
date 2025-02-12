@@ -4301,6 +4301,48 @@
                 ]
             }
         },
+        "/api/app/exams/get-exam-from-notification/{questionGroup}": {
+            "get": {
+                "tags": [
+                    "Exams"
+                ],
+                "summary": "Get exam from a notification (by model_id)",
+                "operationId": "2e36e99c788e66df02a5be67fdef11a8",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ExamsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": []
+                    },
+                    {
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/app/exams/{exam}/choose-answer": {
             "post": {
                 "tags": [
