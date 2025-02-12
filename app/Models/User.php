@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,6 +22,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property mixed $accountexpires
  * @property mixed $id
  * @property Department|mixed $department
+ * @property mixed $last_login_at
  */
 class User extends Authenticatable
 {
@@ -32,6 +34,7 @@ class User extends Authenticatable
         'email',
         'department_id',
         'is_active',
+        'last_login_at', // nullable
         // LDAP data
         'samaccountname',
         'objectguid',
@@ -45,6 +48,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'is_active' => 'boolean',
+        'last_login_at' => 'datetime',
     ];
 
     public function scopeActive(Builder $query): void
@@ -93,6 +97,18 @@ class User extends Authenticatable
     public function exams(): HasMany
     {
         return $this->hasMany(Exam::class);
+    }
+
+    public function questions(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ExamQuestion::class,
+            Exam::class,
+            'user_id',
+            'exam_id',
+            'id',
+            'id'
+        );
     }
 
     public function notifications(): BelongsToMany

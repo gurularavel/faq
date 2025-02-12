@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Resources\App\Auth\UserProfileResource;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UserService
@@ -50,6 +51,9 @@ class UserService
 
     public function createToken(User $user, string $deviceType): UserProfileResource
     {
+        $user->last_login_at = Carbon::now();
+        $user->save();
+
         $user->token = $user->createToken($deviceType, ['user'])->plainTextToken;
 
         $user->load([

@@ -6845,7 +6845,7 @@
                         "format": "date-time"
                     },
                     "score": {
-                        "description": "Score of the user",
+                        "description": "Total exam point score of the user",
                         "type": "integer"
                     },
                     "is_active": {
@@ -6886,6 +6886,11 @@
                     "is_expired": {
                         "description": "User account expiration status",
                         "type": "boolean"
+                    },
+                    "last_login_date": {
+                        "description": "Last Login Date",
+                        "type": "string",
+                        "format": "date-time"
                     },
                     "name": {
                         "description": "User first name",

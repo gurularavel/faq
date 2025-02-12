@@ -17,6 +17,12 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="email", type="string", description="User email"),
  *     @OA\Property(property="username", type="string", description="User username"),
  *     @OA\Property(property="is_expired", type="boolean", description="User account expiration status"),
+ *            @OA\Property(
+ *            property="last_login_date",
+ *            type="string",
+ *            format="date-time",
+ *            description="Last Login Date"
+ *        ),
  *     @OA\Property(property="name", type="string", description="User first name"),
  *     @OA\Property(property="surname", type="string", description="User last name"),
  *     @OA\Property(property="department", ref="#/components/schemas/DepartmentsListResource", description="User department details"),
@@ -29,6 +35,7 @@ use OpenApi\Annotations as OA;
  * @property mixed $token
  * @property mixed $samaccountname
  * @property mixed $accountexpires
+ * @property mixed $last_login_at
  * @method isExpired()
  */
 class UserProfileResource extends JsonResource
@@ -46,6 +53,7 @@ class UserProfileResource extends JsonResource
             'email' => $this->email,
             'username' => $this->samaccountname,
             'is_expired' => $this->isExpired(),
+            'last_login_date' => $this->last_login_at?->toDateTimeString(),
             'name' => $this->name,
             'surname' => $this->surname,
             'department' => DepartmentsListResource::make($this->whenLoaded('department')),

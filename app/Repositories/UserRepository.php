@@ -20,6 +20,7 @@ class UserRepository
                 'department.parent',
                 'department.parent.translatable',
             ])
+            ->withSum('questions', 'point')
             ->when($validated['search'] ?? null, function (Builder $builder) use ($validated) {
                 $builder->where(function (Builder $builder) use ($validated) {
                     $builder->whereLike('name', '%' . $validated['search'] . '%');

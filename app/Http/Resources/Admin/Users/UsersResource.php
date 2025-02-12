@@ -42,7 +42,7 @@ use OpenApi\Annotations as OA;
  *          @OA\Property(
  *          property="score",
  *          type="integer",
- *          description="Score of the user"
+ *          description="Total exam point score of the user"
  *      ),
  *      @OA\Property(
  *          property="is_active",
@@ -74,6 +74,8 @@ use OpenApi\Annotations as OA;
  * @property mixed $creatable
  * @property mixed $created_at
  * @property mixed $is_active
+ * @property mixed $questions_sum_point
+ * @property mixed $last_login_at
  */
 class UsersResource extends JsonResource
 {
@@ -91,8 +93,8 @@ class UsersResource extends JsonResource
             'email' => $this->email,
             'name' => $this->name,
             'surname' => $this->surname,
-            'last_login_date' => now()->toDateTimeString(),
-            'score' => 100,
+            'last_login_date' => $this->last_login_at?->toDateTimeString(),
+            'score' => (int) ($this->questions_sum_point ?? 0),
             'is_active' => $this->is_active,
             'department' => DepartmentsListResource::make($this->whenLoaded('department')),
             'created_user' => $this->whenLoaded('creatable', function () {
