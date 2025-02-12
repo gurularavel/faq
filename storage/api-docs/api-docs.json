@@ -4250,6 +4250,57 @@
                 ]
             }
         },
+        "/api/app/exams/start-from-notification/{questionGroup}": {
+            "post": {
+                "tags": [
+                    "Exams"
+                ],
+                "summary": "Start an exam from a notification (by model_id)",
+                "operationId": "1c3707e8412dc5cfd5b800cd7b58b897",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "percent": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "next_question": {
+                                            "$ref": "#/components/schemas/QuestionsListResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": []
+                    },
+                    {
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/app/exams/{exam}/choose-answer": {
             "post": {
                 "tags": [

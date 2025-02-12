@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Exam;
 use App\Models\ExamQuestion;
 use App\Models\Question;
+use App\Models\QuestionGroup;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
@@ -49,6 +50,18 @@ class ExamService
             ->paginate(10);
     }
 
+    public function getUserLastActiveExamByQuestionGroup(QuestionGroup $questionGroup)
+    {
+        /** @var User $user */
+        $user = auth('user')->user();
+
+        return $questionGroup->exams()
+            ->where('user_id', $user->id)
+            ->whereNull('start_date')
+            ->orderByDesc('id')
+            ->firstOrFail();
+    }
+
     public function startExam(Exam $exam): void
     {
         /** @var User $user */
@@ -89,6 +102,7 @@ class ExamService
 
         DB::transaction(static function () use ($exam, $user, $questions) {
             $exam->start_date = Carbon::now();
+            $exam->is_started = 'started_' . $exam->id;
             $exam->save();
 
             $data = [];

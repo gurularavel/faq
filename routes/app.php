@@ -34,6 +34,7 @@ Route::middleware(['general_access:app', RouteLogMiddleware::class])->prefix('ap
         Route::group(['prefix' => 'exams'], static function () {
             Route::get('list', [ExamController::class, 'list']);
             Route::post('{exam}/start', [ExamController::class, 'start']);
+            Route::post('start-from-notification/{questionGroup}', [ExamController::class, 'startFromNotification']);
             Route::post('{exam}/choose-answer', [ExamController::class, 'chooseAnswer']);
         });
 

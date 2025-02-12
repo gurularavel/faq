@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property mixed $questionGroup
  * @property mixed $id
  * @property mixed $questions
+ * @property mixed|string $is_started
  */
 class Exam extends Model
 {
@@ -25,6 +26,7 @@ class Exam extends Model
     protected $fillable = [
         'question_group_id',
         'user_id',
+        'is_started',
         'start_date',
         'end_date',
     ];

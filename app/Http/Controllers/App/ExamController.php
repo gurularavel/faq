@@ -7,6 +7,7 @@ use App\Http\Requests\App\Exams\ExamChooseAnswerRequest;
 use App\Http\Resources\App\Exams\ExamsListResource;
 use App\Http\Resources\App\Exams\QuestionsListResource;
 use App\Models\Exam;
+use App\Models\QuestionGroup;
 use App\Services\ExamService;
 use App\Services\LangService;
 use Illuminate\Http\JsonResponse;
@@ -77,6 +78,38 @@ class ExamController extends Controller
             'percent' => 0,
             'next_question' => $question ? QuestionsListResource::make($question) : null,
         ]);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/app/exams/start-from-notification/{questionGroup}",
+     *     summary="Start an exam from a notification (by model_id)",
+     *     tags={"Exams"},
+     *     security={
+     *         {"AppApiToken": {}},
+     *         {"AppSanctumBearerToken": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="questionGroup",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="percent", type="float"),
+     *             @OA\Property(property="next_question", ref="#/components/schemas/QuestionsListResource")
+     *         )
+     *     )
+     * )
+     */
+    public function startFromNotification(QuestionGroup $questionGroup): JsonResponse
+    {
+        return $this->start(ExamService::instance()->getUserLastActiveExamByQuestionGroup($questionGroup));
     }
 
     /**
