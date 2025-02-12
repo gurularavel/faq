@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property mixed $id
  * @property mixed $questions
  * @property mixed|string $is_started
+ * @property mixed $questions_count
  */
 class Exam extends Model
 {

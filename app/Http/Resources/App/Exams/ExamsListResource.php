@@ -41,6 +41,7 @@ class ExamsListResource extends JsonResource
             'is_active' => !$this->isStarted(),
             'start_date' => $this->start_date?->toDateTimeString(),
             'end_date' => $this->end_date?->toDateTimeString(),
+            'questions_count' => $this->whenCounted('questions'),
             'user' => UserProfileResource::make($this->whenLoaded('user')),
             'question_group' => QuestionsListResource::make($this->whenLoaded('questionGroup')),
         ];

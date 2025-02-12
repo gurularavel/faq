@@ -45,6 +45,9 @@ class ExamService
                 'questionGroup',
                 'questionGroup.translatable',
             ])
+            ->withCount([
+                'questions',
+            ])
             ->where('user_id', $user->id)
             ->orderByDesc('id')
             ->paginate(10);
@@ -144,6 +147,17 @@ class ExamService
             ->count();
 
         return $this->remainingQuestionsCount;
+    }
+
+    public function getAllQuestionsCount(Exam $exam): int
+    {
+        if ($exam->questions_count !== null) {
+            return $exam->questions_count;
+        }
+
+        $exam->loadCount('questions');
+
+        return $exam->questions_count ?? 0;
     }
 
     public function calculateExamPercent(Exam $exam): float

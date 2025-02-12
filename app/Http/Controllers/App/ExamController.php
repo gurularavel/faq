@@ -75,6 +75,7 @@ class ExamController extends Controller
             'message' => LangService::instance()
                 ->setDefault('Exam started successfully!')
                 ->getLang('exam_started'),
+            'questions_count' => ExamService::instance()->getAllQuestionsCount($exam),
             'percent' => 0,
             'next_question' => $question ? QuestionsListResource::make($question) : null,
         ]);
