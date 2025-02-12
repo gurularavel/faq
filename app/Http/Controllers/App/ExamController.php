@@ -186,7 +186,7 @@ class ExamController extends Controller
                 ->setDefault('Answer chosen successfully!')
                 ->getLang('answer_chosen'),
             'is_correct' => $isCorrect,
-            'is_finish' => !$hasNextQuestion,
+            'is_finish' => $exam->isEnded(),
             'percent' => ExamService::instance()->calculateExamPercent($exam),
             'next_question' => $question ? QuestionsListResource::make($question) : null,
         ]);

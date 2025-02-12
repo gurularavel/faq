@@ -47,6 +47,12 @@ class ExamService
             ])
             ->withCount([
                 'questions',
+                'questions as correct_questions_count' => static function ($query) {
+                    $query->where('is_correct', true);
+                },
+                'questions as incorrect_questions_count' => static function ($query) {
+                    $query->where('is_correct', false);
+                },
             ])
             ->where('user_id', $user->id)
             ->orderByDesc('id')
@@ -125,6 +131,19 @@ class ExamService
         });
     }
 
+    public function finishExam(Exam $exam): void
+    {
+        /** @var User $user */
+        $user = auth('user')->user();
+
+        $this->checkExamPermission($exam, $user);
+
+        DB::transaction(static function () use ($exam) {
+            $exam->end_date = Carbon::now();
+            $exam->save();
+        });
+    }
+
     public function hasNextQuestion(Exam $exam): bool
     {
         return $this->getRemainingQuestionsCount($exam) > 0;
@@ -173,6 +192,8 @@ class ExamService
     public function getNextQuestion(Exam $exam, bool $hasNextQuestion = true): ?Question
     {
         if (!$hasNextQuestion) {
+            $this->finishExam($exam);
+
             return null;
         }
 

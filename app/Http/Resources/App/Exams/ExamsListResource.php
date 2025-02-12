@@ -14,17 +14,22 @@ use OpenApi\Annotations as OA;
  *     type="object",
  *     title="Exams List Resource",
  *     description="Exams List Resource",
- *     @OA\Property(property="id", type="integer", description="ID of the exam"),
- *     @OA\Property(property="is_active", type="boolean", description="Active status of the exam"),
+ *     @OA\Property(property="id", type="integer", description="Exam ID"),
+ *     @OA\Property(property="is_active", type="boolean", description="Is the exam active"),
+ *     @OA\Property(property="is_ended", type="boolean", description="Is the exam ended"),
  *     @OA\Property(property="start_date", type="string", format="date-time", description="Start date of the exam"),
  *     @OA\Property(property="end_date", type="string", format="date-time", description="End date of the exam"),
- *     @OA\Property(property="user", ref="#/components/schemas/UserProfileResource", description="User profile details"),
- *     @OA\Property(property="question_group", ref="#/components/schemas/QuestionsListResource", description="Question group details")
+ *     @OA\Property(property="questions_count", type="integer", description="Total number of questions"),
+ *     @OA\Property(property="correct_questions_count", type="integer", description="Number of correct questions"),
+ *     @OA\Property(property="incorrect_questions_count", type="integer", description="Number of incorrect questions"),
+ *     @OA\Property(property="user", ref="#/components/schemas/UserProfileResource", description="User profile resource"),
+ *     @OA\Property(property="question_group", ref="#/components/schemas/QuestionsListResource", description="Question group resource")
  * )
  * @property mixed $start_date
  * @property mixed $end_date
  * @property mixed $id
  * @method isStarted()
+ * @method isEnded()
  */
 class ExamsListResource extends JsonResource
 {
@@ -39,9 +44,12 @@ class ExamsListResource extends JsonResource
         return [
             'id' => $this->id,
             'is_active' => !$this->isStarted(),
+            'is_ended' => $this->isEnded(),
             'start_date' => $this->start_date?->toDateTimeString(),
             'end_date' => $this->end_date?->toDateTimeString(),
             'questions_count' => $this->whenCounted('questions'),
+            'correct_questions_count' => $this->whenCounted('correct_questions'),
+            'incorrect_questions_count' => $this->whenCounted('incorrect_questions'),
             'user' => UserProfileResource::make($this->whenLoaded('user')),
             'question_group' => QuestionsListResource::make($this->whenLoaded('questionGroup')),
         ];

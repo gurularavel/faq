@@ -6848,11 +6848,15 @@
                 "description": "Exams List Resource",
                 "properties": {
                     "id": {
-                        "description": "ID of the exam",
+                        "description": "Exam ID",
                         "type": "integer"
                     },
                     "is_active": {
-                        "description": "Active status of the exam",
+                        "description": "Is the exam active",
+                        "type": "boolean"
+                    },
+                    "is_ended": {
+                        "description": "Is the exam ended",
                         "type": "boolean"
                     },
                     "start_date": {
@@ -6864,6 +6868,18 @@
                         "description": "End date of the exam",
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "questions_count": {
+                        "description": "Total number of questions",
+                        "type": "integer"
+                    },
+                    "correct_questions_count": {
+                        "description": "Number of correct questions",
+                        "type": "integer"
+                    },
+                    "incorrect_questions_count": {
+                        "description": "Number of incorrect questions",
+                        "type": "integer"
                     },
                     "user": {
                         "$ref": "#/components/schemas/UserProfileResource"
