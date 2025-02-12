@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\Users\ImageCast;
 use App\Traits\ActionBy;
 use App\Traits\ActionUser;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  * @property bool|mixed $is_active
@@ -24,9 +27,9 @@ use Laravel\Sanctum\HasApiTokens;
  * @property Department|mixed $department
  * @property mixed $last_login_at
  */
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
-    use HasApiTokens, Notifiable, SoftDeletes, ActionBy, ActionUser, CascadeSoftDeletes;
+    use HasApiTokens, Notifiable, SoftDeletes, ActionBy, ActionUser, CascadeSoftDeletes, InteractsWithMedia;
 
     protected $fillable = [
         'name',
@@ -44,12 +47,18 @@ class User extends Authenticatable
         'accountexpires',
     ];
 
-    protected array $cascadeDeletes = ['questionGroupsRel'];
+    protected array $cascadeDeletes = ['questionGroupsRel', 'media', 'notificationsRel'];
 
     protected $casts = [
         'is_active' => 'boolean',
         'last_login_at' => 'datetime',
+        'image' => ImageCast::class,
     ];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('profiles')->singleFile();
+    }
 
     public function scopeActive(Builder $query): void
     {

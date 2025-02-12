@@ -5,6 +5,7 @@ use App\Http\Controllers\App\Auth\LogoutController;
 use App\Http\Controllers\App\ExamController;
 use App\Http\Controllers\App\FaqController;
 use App\Http\Controllers\App\NotificationController;
+use App\Http\Controllers\App\ProfileController;
 use App\Http\Controllers\LocalTranslationsController;
 use App\Http\Middleware\CheckUserExpiredMiddleware;
 use App\Http\Middleware\RouteLogMiddleware;
@@ -20,6 +21,8 @@ Route::middleware(['general_access:app', RouteLogMiddleware::class])->prefix('ap
 
     Route::group(['middleware' => ['auth:user', CheckUserExpiredMiddleware::class]], static function () {
         Route::group(['prefix' => 'profile'], static function () {
+            Route::get('info', [ProfileController::class, 'getUserInfo']);
+            Route::post('update', [ProfileController::class, 'updateProfile']);
             Route::get('check-logged-in', [LoginController::class, 'checkLoggedIn']);
         });
 

@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Http\Requests\App\Profile\UpdateProfileRequest;
 use App\Http\Resources\App\Auth\UserProfileResource;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
 
 class UserService
 {
@@ -80,5 +82,38 @@ class UserService
         $user = auth("user")->user();
 
         $user->tokens()->delete();
+    }
+
+    public function getProfile(): UserProfileResource
+    {
+        /** @var User $user */
+        $user = auth('user')->user();
+
+        $user
+            ->load([
+                'media',
+                'department',
+                'department.translatable',
+                'department.parent',
+                'department.parent.translatable',
+            ])
+            ->loadSum('questions', 'point');
+
+        return new UserProfileResource($user);
+    }
+
+    public function updateProfile(UpdateProfileRequest $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = auth('user')->user();
+
+        FileUpload::upload($request, 'image', 'profiles', $user);
+
+        return response()->json([
+            'data' => $this->getProfile(),
+            'message' => LangService::instance()
+                ->setDefault('Profile updated successfully')
+                ->getLang('profile_updated_successfully'),
+        ]);
     }
 }

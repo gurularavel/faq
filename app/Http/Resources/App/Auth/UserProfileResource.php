@@ -23,8 +23,14 @@ use OpenApi\Annotations as OA;
  *            format="date-time",
  *            description="Last Login Date"
  *        ),
+ *           @OA\Property(
+ *           property="score",
+ *           type="integer",
+ *           description="Total exam point score of the user"
+ *       ),
  *     @OA\Property(property="name", type="string", description="User first name"),
  *     @OA\Property(property="surname", type="string", description="User last name"),
+ *     @OA\Property(property="image", type="string", description="User Profile Photo URL"),
  *     @OA\Property(property="department", ref="#/components/schemas/DepartmentsListResource", description="User department details"),
  *     @OA\Property(property="token", type="string", description="User authentication token")
  * )
@@ -36,6 +42,7 @@ use OpenApi\Annotations as OA;
  * @property mixed $samaccountname
  * @property mixed $accountexpires
  * @property mixed $last_login_at
+ * @property mixed $image
  * @method isExpired()
  */
 class UserProfileResource extends JsonResource
@@ -54,8 +61,12 @@ class UserProfileResource extends JsonResource
             'username' => $this->samaccountname,
             'is_expired' => $this->isExpired(),
             'last_login_date' => $this->last_login_at?->toDateTimeString(),
+            'score' => (int)($this->questions_sum_point ?? 0),
             'name' => $this->name,
             'surname' => $this->surname,
+            'image' => $this->whenLoaded('media', function () {
+                return $this->image;
+            }),
             'department' => DepartmentsListResource::make($this->whenLoaded('department')),
         ];
     }
