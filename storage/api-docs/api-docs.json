@@ -1418,6 +1418,46 @@
                 ]
             }
         },
+        "/api/control/users/{user}/exams/list": {
+            "get": {
+                "tags": [
+                    "UserExams"
+                ],
+                "summary": "Get list of user's exams",
+                "operationId": "cc50ff27417ea2aa800454cd24c8747a",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ExamsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/faqs/load": {
             "get": {
                 "tags": [
@@ -6918,6 +6958,22 @@
                         "description": "Number of incorrect questions",
                         "type": "integer"
                     },
+                    "success_rate": {
+                        "description": "Success rate",
+                        "type": "integer"
+                    },
+                    "point": {
+                        "description": "User point",
+                        "type": "integer"
+                    },
+                    "total_time_spent_formatted": {
+                        "description": "Total time spent formatted",
+                        "type": "string"
+                    },
+                    "total_time_spent_seconds": {
+                        "description": "Total time spent in seconds",
+                        "type": "integer"
+                    },
                     "user": {
                         "$ref": "#/components/schemas/UserProfileResource"
                     },
@@ -7036,6 +7092,10 @@
         {
             "name": "DifficultyLevel",
             "description": "DifficultyLevel"
+        },
+        {
+            "name": "UserExams",
+            "description": "UserExams"
         },
         {
             "name": "Faq",

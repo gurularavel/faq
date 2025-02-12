@@ -20,6 +20,7 @@ class ExamService
     private static ?ExamService $instance = null;
     private ?bool $hasPermission = null;
     private ?int $remainingQuestionsCount = null;
+    private ?User $user = null;
 
     private function __construct()
     {
@@ -35,13 +36,30 @@ class ExamService
         return self::$instance;
     }
 
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
+    }
+
+    public function getUser(): User
+    {
+        if ($this->user === null) {
+            /** @var User $user */
+            $user = auth('user')->user();
+
+            return $user;
+        }
+
+        return $this->user;
+    }
+
     public function getUserExams(): LengthAwarePaginator
     {
-        /** @var User $user */
-        $user = auth('user')->user();
+        $user = $this->getUser();
 
         return Exam::query()
             ->with([
+                'questions',
                 'questionGroup',
                 'questionGroup.translatable',
             ])
@@ -54,6 +72,7 @@ class ExamService
                     $query->where('is_correct', false);
                 },
             ])
+            ->withSum('questions', 'point')
             ->where('user_id', $user->id)
             ->orderByDesc('id')
             ->paginate(10);
@@ -61,8 +80,7 @@ class ExamService
 
     public function getUserLastActiveExamByQuestionGroup(QuestionGroup $questionGroup)
     {
-        /** @var User $user */
-        $user = auth('user')->user();
+        $user = $this->getUser();
 
         return $questionGroup->exams()
             ->where('user_id', $user->id)
@@ -73,8 +91,7 @@ class ExamService
 
     public function startExam(Exam $exam): void
     {
-        /** @var User $user */
-        $user = auth('user')->user();
+        $user = $this->getUser();
 
         if ($exam->user_id !== $user->id) {
             throw new AccessDeniedHttpException(
@@ -133,8 +150,7 @@ class ExamService
 
     public function finishExam(Exam $exam): void
     {
-        /** @var User $user */
-        $user = auth('user')->user();
+        $user = $this->getUser();
 
         $this->checkExamPermission($exam, $user);
 
@@ -155,8 +171,7 @@ class ExamService
             return $this->remainingQuestionsCount;
         }
 
-        /** @var User $user */
-        $user = auth('user')->user();
+        $user = $this->getUser();
 
         $this->checkExamPermission($exam, $user);
 
@@ -197,8 +212,7 @@ class ExamService
             return null;
         }
 
-        /** @var User $user */
-        $user = auth('user')->user();
+        $user = $this->getUser();
 
         $this->checkExamPermission($exam, $user);
 
@@ -241,8 +255,7 @@ class ExamService
 
     public function chooseAnswer(Exam $exam, string $questionUuid, string $answerUuid): bool
     {
-        /** @var User $user */
-        $user = auth('user')->user();
+        $user = $this->getUser();
 
         $this->checkExamPermission($exam, $user);
 
@@ -276,6 +289,16 @@ class ExamService
 
     public function getExamResult(Exam $exam, bool $hasNextQuestion): ?array
     {
+        $user = $this->getUser();
+
+        if ($exam->user_id !== $user->id) {
+            throw new AccessDeniedHttpException(
+                LangService::instance()
+                    ->setDefault('Access denied!')
+                    ->getLang('access_denied')
+            );
+        }
+
         if ($hasNextQuestion) {
             return null;
         }

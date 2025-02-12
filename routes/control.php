@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\Auth\LogoutController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\DifficultyLevelController;
+use App\Http\Controllers\Admin\ExamController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\FaqExcelController;
 use App\Http\Controllers\Admin\LanguageController;
@@ -136,6 +137,10 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
             Route::post('update/{user}', [UserController::class, 'update']);
             Route::post('change-active-status/{user}', [UserController::class, 'changeActiveStatus']);
             Route::delete('delete/{user}', [UserController::class, 'destroy']);
+
+            Route::group(['prefix' => '{user}/exams'], static function () {
+                Route::get('list', [ExamController::class, 'list']);
+            });
         });
 
         Route::group(['prefix' => 'difficulty-levels'], static function () {
