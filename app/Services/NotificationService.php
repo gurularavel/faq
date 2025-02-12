@@ -110,6 +110,7 @@ class NotificationService
                 $query->where('user_id', $user->id);
             })
             ->orderByDesc('id')
+            ->limit(50)
             ->get();
     }
 
