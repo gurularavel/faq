@@ -239,20 +239,15 @@ const ProfileModal = ({ open, onClose }) => {
             />
             <TextField
               fullWidth
-              value={userDetails.department || ""}
+              value={userDetails?.department?.parent?.title || ""}
               disabled
               sx={{ mb: 2 }}
             />
             <TextField
               fullWidth
-              value={userDetails.location || ""}
+              value={userDetails?.department?.title || ""}
               disabled
               sx={{ mb: 2 }}
-            />
-            <TextField
-              fullWidth
-              value={userDetails.lastActive || ""}
-              disabled
             />
           </Box>
         </Box>
@@ -313,7 +308,7 @@ const ProfileModal = ({ open, onClose }) => {
                 <img
                   ref={imageRef}
                   src={selectedImage}
-                  style={{ maxWidth: "100%" }}
+                  style={{ maxWidth: "100%", minWidth: "300px" }}
                   alt="Crop"
                 />
               </ReactCrop>
