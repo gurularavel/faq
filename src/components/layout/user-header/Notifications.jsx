@@ -7,6 +7,7 @@ import {
   Modal,
   Typography,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import NotificationImg from "@assets/icons/notification.svg";
 import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
@@ -16,6 +17,7 @@ import Badge from "@mui/material/Badge";
 import dayjs from "dayjs";
 import { useTranslate } from "@src/utils/translations/useTranslate";
 import { Link, useNavigate } from "react-router-dom";
+import { isAxiosError } from "axios";
 
 const getNotificationIcon = (type) => {
   switch (type) {
@@ -32,7 +34,7 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-
+  const [pending, setPending] = useState(false);
   const open = Boolean(anchorEl);
 
   const handleClick = (event) => {
@@ -90,10 +92,31 @@ const Notifications = () => {
     getNotifications();
   }, []);
   const nav = useNavigate();
+
+  const getExamDetails = async (item) => {
+    setPending(true);
+    try {
+      const res = await userPrivateApi.get(
+        `/exams/get-exam-from-notification/${item.model_id}`
+      );
+      if (res.data.data.is_active) {
+        nav(`/user/exams/${res.data.data.id}`);
+      } else {
+        nav(`/user/exams`);
+      }
+    } catch (error) {
+      if (isAxiosError(error)) {
+        nav("/user/exams");
+      }
+    } finally {
+      setPending(false);
+      setModalOpen(false);
+    }
+  };
+
   const handleNotificationItem = (item) => {
     if (item.type == "exam") {
-      nav(`/user/exams/${item.id}`);
-      handleModalClose();
+      getExamDetails(item);
     }
   };
 
@@ -249,9 +272,13 @@ const Notifications = () => {
                   variant={"contained"}
                   color="error"
                   size="small"
+                  disabled={pending}
                   onClick={() => handleNotificationItem(selectedNotification)}
                 >
                   {t("open")}
+                  {pending && (
+                    <CircularProgress size={14} sx={{ ml: 1 }} color="error" />
+                  )}
                 </Button>
               </Box>
             </>
