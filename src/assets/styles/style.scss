@@ -522,6 +522,26 @@ body {
   }
 }
 
+.sidebar > div > div {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cecece;
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #b1b1b1;
+  }
+}
+
 @media screen and (max-width: 992px) {
   .login-container {
     .auth-card {

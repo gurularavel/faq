@@ -7,9 +7,13 @@ import {
   ListItemText,
   useMediaQuery,
   useTheme,
+  Collapse,
 } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslate } from "@src/utils/translations/useTranslate";
+import { useState } from "react";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 import Logo from "@assets/images/logo.svg";
 
@@ -26,7 +30,7 @@ export default function Sidebar({
   mobileOpen,
 }) {
   const t = useTranslate();
-
+  const [openMenus, setOpenMenus] = useState({});
   const { pathname } = useLocation();
   const theme = useTheme();
 
@@ -47,44 +51,99 @@ export default function Sidebar({
     },
     { path: "/control/tags", text: t("tags"), icon: TagIcon },
     { path: "/control/quiz", text: t("quiz"), icon: QuizIcon },
-    { path: "/control/admins-list", text: t("admins"), icon: UserIcon },
-    { path: "/control/translations", text: t("translations"), icon: UserIcon },
-    { path: "/control/languages", text: t("languages"), icon: UserIcon },
     {
-      path: "/control/difficulty-levels",
-      text: t("difficulty_levels"),
+      text: t("others"),
       icon: UserIcon,
+      children: [
+        { path: "/control/admins-list", text: t("admins"), icon: UserIcon },
+        {
+          path: "/control/translations",
+          text: t("translations"),
+          icon: UserIcon,
+        },
+        { path: "/control/languages", text: t("languages"), icon: UserIcon },
+        {
+          path: "/control/difficulty-levels",
+          text: t("difficulty_levels"),
+          icon: UserIcon,
+        },
+      ],
     },
   ];
+
   const isActiveRoute = (itemPath) => {
     if (itemPath === "/control") {
       return pathname === "/control";
     }
-    return pathname.startsWith(itemPath);
+    return pathname?.startsWith(itemPath);
   };
+
+  const handleMenuClick = (index) => {
+    setOpenMenus((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
+
+  const renderMenuItem = (item, index, level = 1) => {
+    if (item.children) {
+      return (
+        <Box key={index}>
+          <ListItem
+            button
+            onClick={() => handleMenuClick(index)}
+            sx={{
+              pl: level * 2,
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <ListItemIcon>
+                <img src={item.icon} alt="" />
+              </ListItemIcon>
+              <ListItemText primary={item.text} />
+            </Box>
+            {openMenus[index] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+          </ListItem>
+          <Collapse in={openMenus[index]} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              {item.children.map((child, childIndex) =>
+                renderMenuItem(child, `${index}-${childIndex}`, level + 1)
+              )}
+            </List>
+          </Collapse>
+        </Box>
+      );
+    }
+
+    return (
+      <ListItem
+        button={"true"}
+        component={Link}
+        to={item.path}
+        key={index}
+        className={isActiveRoute(item.path) ? "active" : ""}
+        sx={{ pl: level * 2 }}
+      >
+        <ListItemIcon>
+          <img src={item.icon} alt="" />
+        </ListItemIcon>
+        <ListItemText primary={item.text} />
+      </ListItem>
+    );
+  };
+
   const drawer = (
     <Box mt={2}>
-      <List>
-        {menuItems.map((item, index) => (
-          <ListItem
-            button={"true"}
-            component={Link}
-            to={item.path}
-            key={index}
-            className={isActiveRoute(item.path) ? "active" : ""}
-          >
-            <ListItemIcon>
-              <img src={item.icon} alt="" />
-            </ListItemIcon>
-            <ListItemText primary={item.text} />
-          </ListItem>
-        ))}
-      </List>
+      <List>{menuItems.map((item, index) => renderMenuItem(item, index))}</List>
     </Box>
   );
+
   return (
     <Box
       component="nav"
+      className="sidebar"
       sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
     >
       <Drawer

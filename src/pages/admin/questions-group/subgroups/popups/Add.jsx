@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import {
-  TextField,
-  Button,
-  Grid2,
-  Box,
-  Autocomplete,
-  CircularProgress,
-  Typography,
-} from "@mui/material";
+import { TextField, Button, Grid2, Box } from "@mui/material";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { notify } from "@src/utils/toast/notify";
@@ -88,7 +80,9 @@ const AddCategory = ({ setList, close }) => {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label={`${t("title")} - ${lang.key}`}
+                    label={`${t("title")} ${
+                      langs.length > 1 ? ` - ${lang.key}` : ""
+                    }`}
                     fullWidth
                     error={
                       !!errors.translations &&

@@ -48,6 +48,9 @@ const AddUser = Loadable(lazy(() => import("@pages/admin/users/add/AddUser")));
 const EditUser = Loadable(
   lazy(() => import("@pages/admin/users/edit/EditUser"))
 );
+const ShowUser = Loadable(
+  lazy(() => import("@pages/admin/users/show/ShowUser"))
+);
 
 const Quiz = Loadable(lazy(() => import("@pages/admin/quiz/Quiz")));
 const QuizQuestions = Loadable(
@@ -107,6 +110,7 @@ export default function App() {
             <Route path="users-list" element={<Users />} />
             <Route path="users-list/add" element={<AddUser />} />
             <Route path="users-list/edit/:id" element={<EditUser />} />
+            <Route path="users-list/show/:id" element={<ShowUser />} />
 
             <Route path="users-group" element={<UsersGroup />} />
             <Route path="users-group/:id" element={<UsersSubGroup />} />

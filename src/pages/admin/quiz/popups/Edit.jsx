@@ -120,7 +120,9 @@ const EditQuiz = ({ id, setList, close }) => {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label={`${t("title")} - ${lang.key}`}
+                    label={`${t("title")} ${
+                      langs.length > 1 ? ` - ${lang.key}` : ""
+                    }`}
                     fullWidth
                     error={
                       !!errors.translations &&

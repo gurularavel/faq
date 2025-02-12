@@ -326,7 +326,7 @@ export default function QuestionGroup() {
   };
 
   return (
-    <MainCard title={t("question_group")}>
+    <MainCard title={t("quizzes")}>
       <Modal
         open={open}
         fullScreenOnMobile={false}

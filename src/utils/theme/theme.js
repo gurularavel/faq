@@ -228,8 +228,9 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           color: "#1F1F1F",
-          paddingTop: "24px",
-          paddingBottom: "24px",
+          paddingTop: "16px",
+          paddingBottom: "16px",
+          cursor: "pointer",
           "&:hover": {
             background: "#F5FAFF",
           },

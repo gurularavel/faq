@@ -23,15 +23,14 @@ const useLanguage = (type) => {
   const getLangs = async () => {
     try {
       const res = await api.get("/local-translations/languages/list");
-
+      const storedLang = JSON.parse(localStorage.getItem("lang"))?.key;
+      const defaultLang = res.data.versions.default_lang;
       if (
         res.data.versions.lang_version != lang_version ||
         res.data.versions.default_lang != storedLang ||
         type != lang_type
       ) {
         dispatch(setLangs(res.data.data));
-        const storedLang = JSON.parse(localStorage.getItem("lang"))?.key;
-        const defaultLang = res.data.versions.default_lang;
 
         getStaticWords(storedLang ?? defaultLang);
       }

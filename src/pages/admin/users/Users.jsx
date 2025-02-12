@@ -347,7 +347,17 @@ export default function Users() {
                   {row.name} {row.surname}
                 </TableCell>
                 <TableCell>{row.last_login_date}</TableCell>
-                <TableCell>{row.score}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    color="error"
+                    component={Link}
+                    to={`show/${row.id}`}
+                  >
+                    {row.score}
+                  </Button>
+                </TableCell>
 
                 <TableCell>{row.department.parent.title}</TableCell>
                 <TableCell>{row.department.title}</TableCell>
@@ -417,7 +427,17 @@ export default function Users() {
                   </Typography>
                 </Grid2>
                 <Grid2 size={6}>
-                  <Typography variant="body">{row.score}</Typography>
+                  <Typography variant="body">
+                    <Button
+                      variant="contained"
+                      size="small"
+                      color="error"
+                      component={Link}
+                      to={`show/${row.id}`}
+                    >
+                      {row.score}
+                    </Button>
+                  </Typography>
                 </Grid2>
 
                 <Grid2 size={6}>

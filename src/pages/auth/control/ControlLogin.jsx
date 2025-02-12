@@ -135,18 +135,13 @@ export default function Login() {
             )}
           />
 
-          <Box mb={1} display={"flex"} justifyContent={"flex-end"}>
-            <Link to={"/"} className="text-link">
-              {t("forgot_password")}
-            </Link>
-          </Box>
-
           <Button
             type="submit"
             fullWidth
             variant="contained"
             color="error"
             disabled={pending}
+            sx={{ mt: 2 }}
           >
             {t("sign_in")}
             {pending && (

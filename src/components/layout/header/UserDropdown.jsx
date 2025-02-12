@@ -5,9 +5,14 @@ import LogoutIcon from "@assets/icons/logout.svg";
 import { useDispatch } from "react-redux";
 import { deAuthenticate } from "@src/store/auth";
 import { useNavigate } from "react-router-dom";
+import PasswordChangeModal from "./PasswordChangeModal";
+import { useTranslate } from "@src/utils/translations/useTranslate";
 
 const UserDropdown = () => {
+  const t = useTranslate();
+
   const [anchorEl, setAnchorEl] = useState(null);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const open = Boolean(anchorEl);
 
   const handleClick = (event) => {
@@ -18,9 +23,14 @@ const UserDropdown = () => {
     setAnchorEl(null);
   };
 
+  const handleProfileClick = () => {
+    setIsPasswordModalOpen(true);
+    handleClose();
+  };
+
   const dispatch = useDispatch();
   const nav = useNavigate();
-  const hanleLogout = () => {
+  const handleLogout = () => {
     dispatch(deAuthenticate());
     nav("/auth/control");
   };
@@ -94,12 +104,17 @@ const UserDropdown = () => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem>Profil</MenuItem>
-        <MenuItem className="logout-item" onClick={() => hanleLogout()}>
+        <MenuItem onClick={handleProfileClick}>{t("profile")}</MenuItem>
+        <MenuItem className="logout-item" onClick={handleLogout}>
           <img src={LogoutIcon} alt="Logout" className="logout-icon" />
-          <span>Çıxış</span>
+          <span>{t("logout")}</span>
         </MenuItem>
       </Menu>
+
+      <PasswordChangeModal
+        open={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+      />
     </Box>
   );
 };
