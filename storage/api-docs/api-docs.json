@@ -4392,6 +4392,43 @@
                                         },
                                         "next_question": {
                                             "$ref": "#/components/schemas/QuestionsListResource"
+                                        },
+                                        "result": {
+                                            "description": "Exam result",
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "correct_questions_count": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "incorrect_questions_count": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "total_questions_count": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "success_rate": {
+                                                        "type": "integer",
+                                                        "example": 100
+                                                    },
+                                                    "point": {
+                                                        "type": "integer",
+                                                        "example": 100
+                                                    },
+                                                    "total_time_spent_formatted": {
+                                                        "type": "string",
+                                                        "example": "19:07"
+                                                    },
+                                                    "total_time_spent_seconds": {
+                                                        "type": "integer",
+                                                        "example": 180
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
                                         }
                                     },
                                     "type": "object"

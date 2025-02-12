@@ -274,6 +274,59 @@ class ExamService
         return $isCorrect;
     }
 
+    public function getExamResult(Exam $exam, bool $hasNextQuestion): ?array
+    {
+        if ($hasNextQuestion) {
+            return null;
+        }
+
+        if (!$exam->relationLoaded('questions')) {
+            $exam->load([
+                'questions',
+            ]);
+        }
+
+        $exam
+            ->loadCount([
+                'questions as correct_questions_count' => static function ($query) {
+                    $query->where('is_correct', true);
+                },
+                'questions as incorrect_questions_count' => static function ($query) {
+                    $query->where('is_correct', false);
+                },
+            ])
+            ->loadSum('questions', 'point');
+
+        $correctQuestionsCount = $exam->correct_questions_count ?? 0;
+        $incorrectQuestionsCount = $exam->incorrect_questions_count ?? 0;
+        $totalQuestionsCount = $correctQuestionsCount + $incorrectQuestionsCount;
+
+        $successRate = $totalQuestionsCount === 0 ? 0 : round(($correctQuestionsCount / $totalQuestionsCount) * 100);
+
+        $point = $exam->questions_sum_point ?? 0;
+
+        $firstSentDate = $exam->questions?->min('sent_date');
+        $lastAnsweredDate = $exam->questions?->max('answered_at');
+
+        $totalTimeSpent = 0;
+        if ($firstSentDate && $lastAnsweredDate) {
+            $totalTimeSpent = $firstSentDate->diffInSeconds($lastAnsweredDate);
+        }
+        $minutes = floor($totalTimeSpent / 60);
+        $seconds = $totalTimeSpent % 60;
+        $spentTimeFormatted = sprintf('%02d:%02d', $minutes, $seconds);
+
+        return [
+            'correct_questions_count' => $correctQuestionsCount,
+            'incorrect_questions_count' => $incorrectQuestionsCount,
+            'total_questions_count' => $totalQuestionsCount,
+            'success_rate' => $successRate,
+            'point' => (int) $point,
+            'total_time_spent_formatted' => $spentTimeFormatted,
+            'total_time_spent_seconds' => (int) $totalTimeSpent,
+        ];
+    }
+
     private function checkExamPermission(Exam $exam, User $user): void
     {
         if ($this->hasPermission === true) {

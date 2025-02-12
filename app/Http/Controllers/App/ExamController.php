@@ -168,7 +168,21 @@ class ExamController extends Controller
      *             @OA\Property(property="is_correct", type="boolean"),
      *             @OA\Property(property="is_finish", type="boolean"),
      *             @OA\Property(property="percent", type="float"),
-     *             @OA\Property(property="next_question", ref="#/components/schemas/QuestionsListResource")
+     *             @OA\Property(property="next_question", ref="#/components/schemas/QuestionsListResource"),
+     *             @OA\Property(
+     *                      property="result",
+     *                      type="array",
+     *                      description="Exam result",
+     *                      @OA\Items(
+     *                          @OA\Property(property="correct_questions_count", type="integer", example=1),
+     *                          @OA\Property(property="incorrect_questions_count", type="integer", example=1),
+     *                          @OA\Property(property="total_questions_count", type="integer", example=1),
+     *                          @OA\Property(property="success_rate", type="integer", example=100),
+     *                          @OA\Property(property="point", type="integer", example=100),
+     *                          @OA\Property(property="total_time_spent_formatted", type="string", example="19:07"),
+     *                          @OA\Property(property="total_time_spent_seconds", type="integer", example=180)
+     *                      )
+     *                  )
      *         )
      *     )
      * )
@@ -180,6 +194,7 @@ class ExamController extends Controller
         $isCorrect = ExamService::instance()->chooseAnswer($exam, $validated['question'], $validated['answer']);
         $hasNextQuestion = ExamService::instance()->hasNextQuestion($exam);
         $question = ExamService::instance()->getNextQuestion($exam, $hasNextQuestion);
+        $result = ExamService::instance()->getExamResult($exam, $hasNextQuestion);
 
         return response()->json([
             'message' => LangService::instance()
@@ -189,6 +204,7 @@ class ExamController extends Controller
             'is_finish' => $exam->isEnded(),
             'percent' => ExamService::instance()->calculateExamPercent($exam),
             'next_question' => $question ? QuestionsListResource::make($question) : null,
+            'result' => $result,
         ]);
     }
 }

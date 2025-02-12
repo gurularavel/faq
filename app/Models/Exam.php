@@ -19,6 +19,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property mixed $questions
  * @property mixed|string $is_started
  * @property mixed $questions_count
+ * @property mixed $correct_questions_count
+ * @property mixed $incorrect_questions_count
+ * @property mixed $questions_sum_point
  */
 class Exam extends Model
 {
