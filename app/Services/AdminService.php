@@ -8,12 +8,14 @@ use App\Models\Admin;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AdminService
 {
     private static ?AdminService $instance = null;
 
-    private function __construct() {
+    private function __construct()
+    {
 
     }
 
@@ -66,6 +68,12 @@ class AdminService
     {
         /** @var Admin $user */
         $user = auth("admin")->user();
+
+        Hash::check($validated['old_password'], $user->password) ?: throw new BadRequestHttpException(
+            LangService::instance()
+                ->setDefault('Invalid password')
+                ->getLang('invalid_password')
+        );
 
         $user->update($validated);
 

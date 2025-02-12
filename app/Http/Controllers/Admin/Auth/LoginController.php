@@ -176,24 +176,10 @@ class LoginController extends Controller
      *               "SanctumBearerToken": {}
      *           }
      *      },
-     *
-     *     @OA\RequestBody(
-     *         required=true,
-     *         description="New password",
-     *         @OA\JsonContent(
-     *             required={"password"},
-     *             @OA\Property(
-     *                 property="password",
-     *                 type="string",
-     *                 format="password",
-     *                 minLength=8,
-     *                 maxLength=100,
-     *                 description="New password",
-     *                 example="newpassword123"
-     *             )
-     *         )
-     *     ),
-     *
+     *          @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(ref="#/components/schemas/ChangePasswordRequest")
+     *      ),
      *     @OA\Response(
      *         response=200,
      *         description="Password changed successfully",

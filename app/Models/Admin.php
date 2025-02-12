@@ -13,6 +13,7 @@ use Spatie\Permission\Traits\HasRoles;
 /**
  * @property mixed $id
  * @property mixed $token
+ * @property mixed $password
  * @method createToken(string $deviceType, string[] $array)
  */
 class Admin extends Authenticatable
