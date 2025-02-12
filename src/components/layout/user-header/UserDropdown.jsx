@@ -6,11 +6,13 @@ import { useDispatch } from "react-redux";
 import { deAuthenticate } from "@src/store/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslate } from "@src/utils/translations/useTranslate";
+import ProfileModal from "./ProfileModal";
 
 const UserDropdown = () => {
   const t = useTranslate();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -26,9 +28,15 @@ const UserDropdown = () => {
     dispatch(deAuthenticate());
     nav("/auth/login");
   };
-
+  const handleProfileClick = () => {
+    setProfileModalOpen(true);
+  };
   return (
     <Box className="user-icon-button">
+      <ProfileModal
+        open={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+      />
       <IconButton
         onClick={handleClick}
         size="small"
@@ -96,7 +104,7 @@ const UserDropdown = () => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem>{t("profile")}</MenuItem>
+        <MenuItem onClick={handleProfileClick}>{t("profile")}</MenuItem>
         <MenuItem component={Link} to="/user/exams">
           {t("exams")}
         </MenuItem>

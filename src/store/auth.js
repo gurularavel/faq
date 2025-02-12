@@ -10,6 +10,7 @@ const initialState = {
         email: "",
         name: "",
         surname: "",
+        profileImage: "",
         role_ids: [],
         roles: [],
       },
@@ -27,6 +28,8 @@ export const authSlice = createSlice({
         email: "",
         name: "",
         surname: "",
+        profileImage: "",
+
         role_ids: [],
         roles: [],
       };
@@ -43,6 +46,8 @@ export const authSlice = createSlice({
         email: data.email,
         name: data.name,
         surname: data.surname,
+        profileImage: "",
+
         role_ids: data?.role_ids ?? [0],
         roles: data.roles ?? [],
       };
