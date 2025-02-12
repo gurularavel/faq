@@ -3,8 +3,11 @@
 namespace App\Repositories;
 
 use App\Enum\FaqListTypeEnum;
+use App\Models\Admin;
 use App\Models\Faq;
+use App\Models\FaqList;
 use App\Services\LangService;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -154,10 +157,50 @@ class FaqRepository
         });
     }
 
+    public function addToList(Faq $faq, FaqListTypeEnum $type): void
+    {
+        $faq->lists()->firstOrCreate([
+            'list_type' => $type->value,
+        ]);
+    }
+
+    public function bulkAddToList(array $faqIds, FaqListTypeEnum $type): void
+    {
+        /** @var Admin $user */
+        $user = auth('admin')->user();
+
+        $exists = FaqList::query()
+            ->whereIn('faq_id', $faqIds)
+            ->where('list_type', $type->value)
+            ->get()
+            ->pluck('faq_id')
+            ->toArray();
+
+        $faqIds = array_diff($faqIds, $exists);
+
+        $now = Carbon::now();
+        $data = [];
+
+        foreach ($faqIds as $faqId) {
+            $data[] = [
+                'faq_id' => $faqId,
+                'list_type' => $type->value,
+                'created_at' => $now,
+                'creatable_id' => $user->id,
+                'creatable_type' => $user->getMorphClass(),
+            ];
+        }
+
+        FaqList::query()->insert($data);
+    }
+
     public function getFaqFromList(FaqListTypeEnum $type, int $limit = 10)
     {
         return Faq::query()
             ->active()
+            ->whereHas('lists', function (Builder $query) use ($type) {
+                $query->where('list_type', $type->value);
+            })
             ->with([
                 'translatable',
             ])

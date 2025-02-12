@@ -1710,6 +1710,80 @@
                 ]
             }
         },
+        "/api/control/faqs/lists/add": {
+            "post": {
+                "tags": [
+                    "Faq"
+                ],
+                "summary": "Add to list",
+                "operationId": "ac0d9a2abcb1c690de0981ff889f418d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FaqAddToListRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Resource updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/faqs/lists/bulk-add": {
+            "post": {
+                "tags": [
+                    "Faq"
+                ],
+                "summary": "Add to list",
+                "operationId": "5b7476777a48c5793560a826227ea268",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FaqBulkAddToListRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Resource updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/faqs/excels/load": {
             "get": {
                 "tags": [
@@ -5937,6 +6011,49 @@
                         "description": "UUID of the answer",
                         "type": "string",
                         "format": "uuid"
+                    }
+                },
+                "type": "object"
+            },
+            "FaqAddToListRequest": {
+                "title": "FAQ Add To List Request",
+                "description": "Request body for adding FAQ to a list",
+                "properties": {
+                    "faq_id": {
+                        "description": "ID of the FAQ",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "list_type": {
+                        "description": "Type of the list",
+                        "type": "string",
+                        "enum": [
+                            "search"
+                        ],
+                        "example": "search"
+                    }
+                },
+                "type": "object"
+            },
+            "FaqBulkAddToListRequest": {
+                "title": "FAQ Bulk Add To List Request",
+                "description": "Request body for adding multiple FAQs to a list",
+                "properties": {
+                    "faq_ids": {
+                        "description": "Array of FAQ IDs",
+                        "type": "array",
+                        "items": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    "list_type": {
+                        "description": "Type of the list",
+                        "type": "string",
+                        "enum": [
+                            "search"
+                        ],
+                        "example": "search"
                     }
                 },
                 "type": "object"

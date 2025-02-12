@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -28,7 +29,7 @@ class Faq extends Model
         'is_active' => 'boolean',
     ];
 
-    protected array $cascadeDeletes = ['translatable', 'tags'];
+    protected array $cascadeDeletes = ['translatable', 'tags', 'lists'];
 
     public function scopeActive(Builder $query): void
     {
@@ -48,5 +49,10 @@ class Faq extends Model
     public function faqExcel(): BelongsTo
     {
         return $this->belongsTo(FaqExcel::class);
+    }
+
+    public function lists(): HasMany
+    {
+        return $this->hasMany(FaqList::class);
     }
 }

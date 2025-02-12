@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enum\FaqListTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Faqs\FaqsLoadRequest;
 use App\Http\Requests\Admin\Faqs\FaqStoreRequest;
 use App\Http\Requests\Admin\Faqs\FaqUpdateRequest;
+use App\Http\Requests\App\Faqs\FaqAddToListRequest;
+use App\Http\Requests\App\Faqs\FaqBulkAddToListRequest;
 use App\Http\Resources\Admin\Faqs\FaqsListResource;
 use App\Http\Resources\Admin\Faqs\FaqsResource;
 use App\Http\Resources\Admin\Faqs\FaqResource;
@@ -270,5 +273,77 @@ class FaqController extends Controller
                 ->setDefault('Status changed successfully!')
                 ->getLang('admin_status_changed_successfully'),
         ]));
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/control/faqs/lists/add",
+     *     summary="Add to list",
+     *               tags={"Faq"},
+     *       security={
+     *              {
+     *                  "ApiToken": {},
+     *                  "SanctumBearerToken": {}
+     *              }
+     *         },
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/FaqAddToListRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Resource updated successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GeneralResource")
+     *     )
+     * )
+     */
+    public function addToList(FaqAddToListRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+
+        $faq = Faq::query()->findOrFail($validated['faq_id']);
+
+        $this->repo->addToList($faq, FaqListTypeEnum::from($validated['list_type']));
+
+        return response()->json([
+            'message' => LangService::instance()
+                ->setDefault('FAQ added to list successfully!')
+                ->getLang('faq_added_to_list'),
+        ]);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/control/faqs/lists/bulk-add",
+     *     summary="Add to list",
+     *               tags={"Faq"},
+     *       security={
+     *              {
+     *                  "ApiToken": {},
+     *                  "SanctumBearerToken": {}
+     *              }
+     *         },
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/FaqBulkAddToListRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Resource updated successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GeneralResource")
+     *     )
+     * )
+     */
+    public function bulkAddToList(FaqBulkAddToListRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+
+        $this->repo->bulkAddToList($validated['faq_ids'], FaqListTypeEnum::from($validated['list_type']));
+
+        return response()->json([
+            'message' => LangService::instance()
+                ->setDefault('FAQs added to list successfully!')
+                ->getLang('faqs_added_to_list'),
+        ]);
     }
 }

@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests\Translations;
 
-use App\Enum\TranslationGroupEnum;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
 
 class SetDefaultTranslationRequest extends FormRequest
 {
