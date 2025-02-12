@@ -1,10 +1,11 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, List, ListItem, Typography } from "@mui/material";
 import React from "react";
 import { useTranslate } from "@src/utils/translations/useTranslate";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function ExamFinished() {
   const t = useTranslate();
+  const { state } = useLocation();
   return (
     <Box
       sx={{
@@ -35,6 +36,31 @@ export default function ExamFinished() {
         <Typography variant="body1" color="initial" align="center">
           {t("exam_finished_body")}
         </Typography>
+        <List>
+          {state?.total_questions_count && (
+            <ListItem sx={{ padding: 1 }}>
+              {t("total_questions_count")}: {state.total_questions_count}
+            </ListItem>
+          )}
+          {(state?.correct_questions_count ||
+            state?.correct_questions_count === 0) && (
+            <ListItem sx={{ padding: 1 }}>
+              {t("correct_questions_count")}: {state.correct_questions_count}
+            </ListItem>
+          )}
+          {(state?.incorrect_questions_count ||
+            state?.incorrect_questions_count === 0) && (
+            <ListItem sx={{ padding: 1 }}>
+              {t("incorrect_questions_count")}:{" "}
+              {state.incorrect_questions_count}
+            </ListItem>
+          )}
+          {state?.total_time_spent_formatted && (
+            <ListItem sx={{ padding: 1 }}>
+              {t("total_time_spent")}: {state.total_time_spent_formatted}
+            </ListItem>
+          )}
+        </List>
       </Box>
 
       <Button

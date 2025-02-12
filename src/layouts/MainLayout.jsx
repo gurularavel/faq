@@ -5,7 +5,7 @@ import UserHeader from "@components/layout/user-header/UserHeader";
 import useLanguage from "@hooks/useLanguage";
 
 export default function ControlLayout() {
-  // useLanguage("app");
+  useLanguage("app");
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));

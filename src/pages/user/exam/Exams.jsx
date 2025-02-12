@@ -174,10 +174,13 @@ export default function Exams() {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>{t("no")}</TableCell>
+            <TableCell></TableCell>
             <TableCell>{t("title")}</TableCell>
             <TableCell>{t("status")}</TableCell>
-            <TableCell>{t("actions")}</TableCell>
+            <TableCell>
+              {t("correct")}/{t("incorrect")}
+            </TableCell>
+            <TableCell></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -197,6 +200,9 @@ export default function Exams() {
                 <TableCell>
                   <Skeleton width={80} />
                 </TableCell>
+                <TableCell>
+                  <Skeleton width={80} />
+                </TableCell>
               </TableRow>
             ))
           ) : data.list.length > 0 ? (
@@ -206,12 +212,18 @@ export default function Exams() {
                   {filters.page * filters.limit - filters.limit + i + 1}
                 </TableCell>
                 <TableCell>{row.question_group.title}</TableCell>
+
                 <TableCell>
                   <Chip
-                    label={row.is_active ? t("active") : t("inactive")}
+                    label={row.is_active ? t("active") : t("finished")}
                     color={row.is_active ? "success" : "default"}
                     size="small"
                   />
+                </TableCell>
+                <TableCell>
+                  {!row.is_active
+                    ? `${row.correct_questions_count}/${row.incorrect_questions_count}`
+                    : "N/A"}
                 </TableCell>
                 <TableCell>
                   <Button

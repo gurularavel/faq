@@ -15,6 +15,7 @@ export default function Question({ data, selectedAnswer, setSelectedAnswer }) {
       <div className="answers">
         {data?.answers?.map((a, i) => (
           <div
+            key={i}
             className={`answer-item ${
               a.uuid === selectedAnswer ? "selected" : ""
             }`}

@@ -79,7 +79,9 @@ export default function StartExam() {
       } else {
         setCanRefreshPage(true);
         setTimeout(() => {
-          nav(`/user/exams/${id}/finished`);
+          nav(`/user/exams/${id}/finished`, {
+            state: res.data.result,
+          });
         }, 20);
       }
     } catch (error) {
