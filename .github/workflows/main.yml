@@ -1,10 +1,8 @@
 name: 🚀 Deploy via SSH with Incremental Updates
-
 on:
   push:
     branches:
       - master
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -13,13 +11,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Fetch all history for git commands
-
       - name: 🔍 Get changed files
         id: changed-files
         run: |
           # Get the list of changed files between the last successful deployment and current commit
           echo "files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | tr '\n' ' ')" >> $GITHUB_OUTPUT
-
       - name: 📂 Deploy using SSH
         uses: appleboy/ssh-action@master
         env:
@@ -35,7 +31,6 @@ jobs:
             
             # Create deployment directory if it doesn't exist
             mkdir -p .deployment
-
             # Initialize git if not already initialized
             if [ ! -d .git ]; then
               git init
@@ -90,10 +85,16 @@ jobs:
             # Set specific permissions for Laravel directories
             chmod -R 755 storage bootstrap/cache 2>/dev/null || true
             
+            # Run database migrations
+            echo "Running database migrations..."
+            php artisan migrate
+            
             # Create deployment log
             echo "Deployment completed at $(date)" > .deployment/deploy_log.txt
             echo "Changed files:" >> .deployment/deploy_log.txt
             echo "$CHANGED_FILES" >> .deployment/deploy_log.txt
+            echo "Migration status:" >> .deployment/deploy_log.txt
+            echo "- Migrations executed at $(date)" >> .deployment/deploy_log.txt
             
             echo "Deployment completed successfully"
             echo "Deployment log:"
