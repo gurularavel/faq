@@ -59,6 +59,7 @@ class UserService
         $user->token = $user->createToken($deviceType, ['user'])->plainTextToken;
 
         $user->load([
+            'media',
             'department',
             'department.translatable',
             'department.parent',
