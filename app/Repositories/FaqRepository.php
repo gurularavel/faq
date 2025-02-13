@@ -6,7 +6,6 @@ use App\Enum\FaqListTypeEnum;
 use App\Models\Admin;
 use App\Models\Faq;
 use App\Models\FaqList;
-use App\Services\LangService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -212,22 +211,10 @@ class FaqRepository
     public function fuzzySearch(array $validated): LengthAwarePaginator
     {
         $search = $validated['search'];
-        $languageId = LangService::instance()->getCurrentLangId();
 
-        return Faq::query()
-            ->active()
-            ->with([
-                'translatable',
-            ])
-            ->whereHas('translatable', function (Builder $query) use ($search, $languageId) {
-                $query->where('language_id', $languageId);
-                $query->where('column', 'question');
-                $query->where('text', 'like', '%' . $search . '%');
-            })
-            ->orWhereHas('translatable', function (Builder $query) use ($search, $languageId) {
-                $query->where('language_id', $languageId);
-                $query->where('column', 'answer');
-                $query->where('text', 'like', '%' . $search . '%');
+        return Faq::search($search)
+            ->query(function ($builder) {
+                $builder->with('translatable');
             })
             ->paginate($validated['limit'] ?? 10);
     }

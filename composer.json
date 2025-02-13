@@ -18,7 +18,8 @@
         "laravel/tinker": "^2.9",
         "maatwebsite/excel": "^3.1",
         "spatie/laravel-medialibrary": "^11.11",
-        "spatie/laravel-permission": "^6.10"
+        "spatie/laravel-permission": "^6.10",
+        "teamtnt/laravel-scout-tntsearch-driver": "^14.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

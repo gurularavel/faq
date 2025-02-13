@@ -12,13 +12,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 
 /**
  * @property bool|mixed $is_active
+ * @property mixed $id
  */
 class Faq extends Model
 {
-    use SoftDeletes, ActionBy, ActionUser, Translatable, CascadeSoftDeletes;
+    use SoftDeletes, ActionBy, ActionUser, Translatable, CascadeSoftDeletes, Searchable;
 
     protected $fillable = [
         'category_id', // sub category id
@@ -34,6 +36,24 @@ class Faq extends Model
     public function scopeActive(Builder $query): void
     {
         $query->where('is_active', true);
+    }
+
+    public function toSearchableArray(): array
+    {
+        $translation = $this->translatable()
+            //->where('language_id', LangService::instance()->getCurrentLangId())
+            ->pluck('text')
+            ->implode(' ');
+
+        return [
+            'id' => $this->id,
+            'content' => $translation,
+        ];
+    }
+
+    public function makeAllSearchableUsing($query)
+    {
+        return $query->with('translatable');
     }
 
     public function category(): BelongsTo
