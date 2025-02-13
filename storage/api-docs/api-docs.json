@@ -1747,6 +1747,43 @@
                 ]
             }
         },
+        "/api/control/faqs/lists/remove": {
+            "post": {
+                "tags": [
+                    "Faq"
+                ],
+                "summary": "Remove from list",
+                "operationId": "477eecbeb7f4203603857f2651a24949",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FaqAddToListRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Resource updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/faqs/lists/bulk-add": {
             "post": {
                 "tags": [

@@ -168,6 +168,15 @@ class FaqRepository
         ]);
     }
 
+    public function removeFromList(Faq $faq, FaqListTypeEnum $type): void
+    {
+        $list = $faq->lists()->where('list_type', $type->value)->first();
+
+        if ($list) {
+            $list->delete();
+        }
+    }
+
     public function bulkAddToList(array $faqIds, FaqListTypeEnum $type): void
     {
         /** @var Admin $user */

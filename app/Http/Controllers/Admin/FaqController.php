@@ -314,6 +314,43 @@ class FaqController extends Controller
 
     /**
      * @OA\Post(
+     *     path="/api/control/faqs/lists/remove",
+     *     summary="Remove from list",
+     *               tags={"Faq"},
+     *       security={
+     *              {
+     *                  "ApiToken": {},
+     *                  "SanctumBearerToken": {}
+     *              }
+     *         },
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/FaqAddToListRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Resource updated successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GeneralResource")
+     *     )
+     * )
+     */
+    public function removeFromList(FaqAddToListRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+
+        $faq = Faq::query()->findOrFail($validated['faq_id']);
+
+        $this->repo->removeFromList($faq, FaqListTypeEnum::from($validated['list_type']));
+
+        return response()->json([
+            'message' => LangService::instance()
+                ->setDefault('FAQ removed from list successfully!')
+                ->getLang('faq_removed_from_list'),
+        ]);
+    }
+
+    /**
+     * @OA\Post(
      *     path="/api/control/faqs/lists/bulk-add",
      *     summary="Add to list",
      *               tags={"Faq"},
