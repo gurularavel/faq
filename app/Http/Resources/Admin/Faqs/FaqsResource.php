@@ -57,6 +57,8 @@ use OpenApi\Annotations as OA;
  * @property mixed $id
  * @property mixed $creatable
  * @property mixed $is_active
+ * @property mixed $lists
+ * @property mixed $in_most_searched
  * @method getLang(string $string)
  */
 class FaqsResource extends JsonResource
@@ -74,6 +76,7 @@ class FaqsResource extends JsonResource
             'id' => $this->id,
             'question' => $this->getLang('question'),
             'is_active' => $this->is_active ?? true,
+            'in_most_searched' => $this->in_most_searched ?? false,
             'category' => CategoriesListResource::make($this->whenLoaded('category')),
             'tags' => TagsListResource::collection($this->whenLoaded('tags')),
             'created_user' => $this->whenLoaded('creatable', function () {

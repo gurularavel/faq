@@ -26,6 +26,11 @@ class FaqRepository
                 'category.parent',
                 'category.parent.translatable',
             ])
+            ->withExists([
+                'lists as in_most_searched' => static function (Builder $query) {
+                    $query->where('list_type', FaqListTypeEnum::SEARCH->value);
+                },
+            ])
             ->when($validated['search'] ?? null, function (Builder $builder) use ($validated) {
                 $builder->where(function (Builder $builder) use ($validated) {
                     $builder->whereHas('translatable', function (Builder $query) use ($validated) {
