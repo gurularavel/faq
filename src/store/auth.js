@@ -10,9 +10,9 @@ const initialState = {
         email: "",
         name: "",
         surname: "",
-        profileImage: "",
+        image: "",
         department: null,
-
+        score: 0,
         role_ids: [],
         roles: [],
       },
@@ -30,8 +30,9 @@ export const authSlice = createSlice({
         email: "",
         name: "",
         surname: "",
-        profileImage: "",
+        image: "",
         department: null,
+        score: 0,
 
         role_ids: [],
         roles: [],
@@ -49,8 +50,10 @@ export const authSlice = createSlice({
         email: data.email,
         name: data.name,
         surname: data.surname,
-        profileImage: "",
+        image: data?.image || null,
         department: data?.department || null,
+        score: data?.score || 0,
+
         role_ids: data?.role_ids ?? [0],
         roles: data.roles ?? [],
       };
@@ -60,9 +63,16 @@ export const authSlice = createSlice({
 
       localStorage.setItem("user", JSON.stringify(userDetails));
     },
+    updateUserInfo: (state, action) => {
+      const newData = { ...state.user, ...action.payload };
+      state.user = newData;
+
+      localStorage.setItem("user", JSON.stringify(newData));
+    },
   },
 });
 
-export const { deAuthenticate, authenticate } = authSlice.actions;
+export const { deAuthenticate, authenticate, updateUserInfo } =
+  authSlice.actions;
 
 export default authSlice.reducer;

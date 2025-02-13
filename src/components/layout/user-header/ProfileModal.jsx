@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Modal,
   Box,
@@ -16,9 +16,11 @@ import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import UserImage from "@assets/icons/user.svg";
 import ImgImage from "@assets/icons/image.svg";
+import { updateUserInfo } from "../../../store/auth";
 
 const ProfileModal = ({ open, onClose }) => {
   const t = useTranslate();
+  const dispatch = useDispatch();
   const userDetails = useSelector((state) => state.auth.user);
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -95,16 +97,12 @@ const ProfileModal = ({ open, onClose }) => {
       const formData = new FormData();
       formData.append("image", blob, "profile.jpg");
 
-      const res = await userPrivateApi.post(
-        "/users/update-profile-image",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
+      const res = await userPrivateApi.post("/profile/update", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      dispatch(updateUserInfo(res.data.data));
       notify(
         res.data.message || "Profile image updated successfully",
         "success"
@@ -180,9 +178,9 @@ const ProfileModal = ({ open, onClose }) => {
                   overflow: "hidden",
                 }}
               >
-                {userDetails.profileImage ? (
+                {userDetails.image ? (
                   <img
-                    src={userDetails.profileImage}
+                    src={userDetails.image}
                     alt="Profile"
                     style={{
                       width: "100%",
@@ -233,7 +231,7 @@ const ProfileModal = ({ open, onClose }) => {
             />
             <TextField
               fullWidth
-              value={userDetails.xai || ""}
+              value={`${t("score")}:` + userDetails?.score?.toString() || ""}
               disabled
               sx={{ mb: 2 }}
             />
