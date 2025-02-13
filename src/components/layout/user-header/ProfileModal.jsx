@@ -207,7 +207,7 @@ const ProfileModal = ({ open, onClose }) => {
                 sx={{ py: 1 }}
               >
                 <img src={ImgImage} />
-                {t("Upload Image")}
+                {t("upload_image")}
                 <input
                   type="file"
                   hidden

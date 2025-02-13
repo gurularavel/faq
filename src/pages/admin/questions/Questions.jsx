@@ -138,6 +138,32 @@ export default function Questions() {
     }
   };
 
+  const toggleMostSearch = async (id, currentStatus) => {
+    try {
+      const res = await controlPrivateApi.post(
+        currentStatus ? "/faqs/lists/remove" : `/faqs/lists/add`,
+        {
+          faq_id: id,
+          list_type: "search",
+        }
+      );
+      setData((prevData) => ({
+        ...prevData,
+        list: prevData.list.map((item) =>
+          item.id === id ? { ...item, in_most_searched: !currentStatus } : item
+        ),
+      }));
+      notify(res.data.message, "success");
+    } catch (error) {
+      if (isAxiosError(error)) {
+        notify(
+          error.response?.data?.message || "Failed to update status",
+          "error"
+        );
+      }
+    }
+  };
+
   // get filter options list
   const [categories, setCategories] = useState([]);
 
@@ -271,12 +297,16 @@ export default function Questions() {
                 <Grid2 size={6}>
                   <Skeleton variant="rectangular" width={100} height={20} />
                 </Grid2>
+                <Grid2 size={6}>
+                  <Skeleton variant="rectangular" width={100} height={20} />
+                </Grid2>
+                <Grid2 size={6}>
+                  <Skeleton variant="rectangular" width={100} height={20} />
+                </Grid2>
               </Grid2>
             </Box>
           </Box>
-          <Box sx={{ mt: 2 }} display="flex" justifyContent="space-between">
-            <Skeleton variant="rectangular" width={60} height={20} />
-
+          <Box sx={{ mt: 2 }} display="flex" justifyContent="flex-end">
             <Box display={"flex"}>
               <Skeleton
                 variant="circular"
@@ -314,7 +344,10 @@ export default function Questions() {
             <TableCell></TableCell>
             <TableCell sx={{ width: "50%" }}>{t("title")}</TableCell>
             <TableCell>{t("category")}</TableCell>
-            <TableCell colSpan={3}>{t("sub_category")}</TableCell>
+            <TableCell>{t("sub_category")}</TableCell>
+            <TableCell>{t("status")}</TableCell>
+            <TableCell>{t("in_most_searched")}</TableCell>
+            <TableCell></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -332,6 +365,9 @@ export default function Questions() {
                 </TableCell>
                 <TableCell>
                   <Skeleton width={100} />
+                </TableCell>
+                <TableCell>
+                  <Skeleton width={40} />
                 </TableCell>
                 <TableCell>
                   <Skeleton width={40} />
@@ -357,6 +393,14 @@ export default function Questions() {
                   <Switch
                     checked={row.is_active}
                     onChange={() => toggleStatus(row.id, row.is_active)}
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <Switch
+                    checked={row.in_most_searched}
+                    onChange={() =>
+                      toggleMostSearch(row.id, row.in_most_searched)
+                    }
                   />
                 </TableCell>
                 <TableCell sx={{ minWidth: "120px" }}>
@@ -423,18 +467,33 @@ export default function Questions() {
                 <Grid2 size={6}>
                   <Typography variant="body">{row.category.title}</Typography>
                 </Grid2>
+
+                <Grid2 size={12} display={"flex"} gap={1} alignItems={"center"}>
+                  <Typography variant="body">{t("status")}</Typography>
+                  <Switch
+                    checked={row.is_active === 1}
+                    onChange={() => toggleStatus(row.id, row.is_active)}
+                  />
+                </Grid2>
+                <Grid2 size={12} display={"flex"} gap={1} alignItems={"center"}>
+                  <Typography variant="body">
+                    {t("in_most_searched")}
+                  </Typography>
+                  <Switch
+                    checked={row.in_most_searched}
+                    onChange={() =>
+                      toggleMostSearch(row.id, row.in_most_searched)
+                    }
+                  />
+                </Grid2>
               </Grid2>
             </Box>
             <Box
               sx={{ mt: 2 }}
               display="flex"
-              justifyContent="space-between"
+              justifyContent="flex-end"
               alignItems="center"
             >
-              <Switch
-                checked={row.is_active === 1}
-                onChange={() => toggleStatus(row.id, row.is_active)}
-              />
               <Box>
                 <IconButton
                   onClick={() => {

@@ -24,6 +24,12 @@ import UserIcon from "@assets/icons/menu-icons/user.svg";
 import TagIcon from "@assets/icons/menu-icons/hashtag.svg";
 import QuizIcon from "@assets/icons/menu-icons/quiz.svg";
 
+import OthersIcon from "@assets/icons/menu-icons/others.svg";
+import AdminIcon from "@assets/icons/menu-icons/admin.svg";
+import LangIcon from "@assets/icons/menu-icons/languages.svg";
+import TranslationIcon from "@assets/icons/menu-icons/translations.svg";
+import DiffIcon from "@assets/icons/menu-icons/difficulties.svg";
+
 export default function Sidebar({
   drawerWidth,
   handleDrawerToggle,
@@ -53,19 +59,19 @@ export default function Sidebar({
     { path: "/control/quiz", text: t("quiz"), icon: QuizIcon },
     {
       text: t("others"),
-      icon: UserIcon,
+      icon: OthersIcon,
       children: [
-        { path: "/control/admins-list", text: t("admins"), icon: UserIcon },
+        { path: "/control/admins-list", text: t("admins"), icon: AdminIcon },
         {
           path: "/control/translations",
           text: t("translations"),
-          icon: UserIcon,
+          icon: TranslationIcon,
         },
-        { path: "/control/languages", text: t("languages"), icon: UserIcon },
+        { path: "/control/languages", text: t("languages"), icon: LangIcon },
         {
           path: "/control/difficulty-levels",
           text: t("difficulty_levels"),
-          icon: UserIcon,
+          icon: DiffIcon,
         },
       ],
     },
