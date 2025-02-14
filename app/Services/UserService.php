@@ -58,13 +58,16 @@ class UserService
 
         $user->token = $user->createToken($deviceType, ['user'])->plainTextToken;
 
-        $user->load([
-            'media',
-            'department',
-            'department.translatable',
-            'department.parent',
-            'department.parent.translatable',
-        ]);
+        $user
+            ->load([
+                'media',
+                'department',
+                'department.translatable',
+                'department.parent',
+                'department.parent.translatable',
+            ])
+            ->loadSum('questions', 'point');
+
 
         return new UserProfileResource($user);
     }
