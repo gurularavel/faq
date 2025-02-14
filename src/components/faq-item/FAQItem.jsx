@@ -8,10 +8,11 @@ import {
   Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { stripHtmlTags } from "../../utils/helpers/stripHtmlTags";
+import { stripHtmlTags } from "@src/utils/helpers/stripHtmlTags";
+import { levenshtein } from "@src/utils/helpers/levenshtein";
 
 const HighlightText = ({ text, highlight }) => {
-  const highlightHtml = (htmlContent, searchText) => {
+  const fuzzyHighlightHtml = (htmlContent, searchText, maxDistance = 2) => {
     if (!searchText?.trim()) {
       return { __html: htmlContent };
     }
@@ -22,13 +23,24 @@ const HighlightText = ({ text, highlight }) => {
       return "§TAG§";
     });
 
-    const regex = new RegExp(`(${searchText})`, "gi");
-    cleanText = cleanText.replace(
-      regex,
-      '<span style="background-color: #ffeb3b">$1</span>'
-    );
+    const parts = cleanText.split(/(\s+|[.,!?;])/);
 
-    let finalHtml = cleanText;
+    const processedParts = parts.map((part) => {
+      const trimmedPart = part.trim();
+      if (!trimmedPart) return part;
+
+      const distance = levenshtein(
+        trimmedPart.toLowerCase(),
+        searchText.toLowerCase()
+      );
+
+      return distance <= maxDistance
+        ? `<span style="background-color: #ffeb3b">${part}</span>`
+        : part;
+    });
+
+    let finalHtml = processedParts.join("");
+
     tags.reverse().forEach(({ tag, position }) => {
       const parts = finalHtml.split("§TAG§");
       finalHtml = parts[0] + tag + parts.slice(1).join("§TAG§");
@@ -37,7 +49,7 @@ const HighlightText = ({ text, highlight }) => {
     return { __html: finalHtml };
   };
 
-  return <span dangerouslySetInnerHTML={highlightHtml(text, highlight)} />;
+  return <span dangerouslySetInnerHTML={fuzzyHighlightHtml(text, highlight)} />;
 };
 
 const FAQItem = ({ question, answer, searchQuery, showHighLight }) => {

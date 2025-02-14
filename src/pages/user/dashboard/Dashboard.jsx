@@ -43,7 +43,7 @@ const DashBoard = () => {
         };
       } else {
         setShowHighLight(false);
-        setMostSearchedFaqs(data.data || []); // Store most-searched results
+        setMostSearchedFaqs(data.data || []);
         return {
           items: data.data || [],
           pagination: null,
