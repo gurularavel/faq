@@ -217,7 +217,7 @@ export default function Translations() {
                 <TableRow>
                   <TableCell>{t("key")}</TableCell>
                   {languages.map((lang) => (
-                    <TableCell key={lang.id}>
+                    <TableCell sx={{ maxWidth: "300px" }} key={lang.id}>
                       {t("translation")} {lang.key}
                     </TableCell>
                   ))}
@@ -236,7 +236,12 @@ export default function Translations() {
                     <TableCell>{item.key}</TableCell>
                     {languages.map((lang) => (
                       <TableCell key={lang.id}>
-                        {item[`lang_${lang.key}`]}
+                        <Typography
+                          variant="body1"
+                          sx={{ maxWidth: "400px", whiteSpace: "wrap" }}
+                        >
+                          {item[`lang_${lang.key}`]}
+                        </Typography>
                       </TableCell>
                     ))}
                     <TableCell>{item.group}</TableCell>
