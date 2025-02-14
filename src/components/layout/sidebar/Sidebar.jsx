@@ -67,7 +67,7 @@ export default function Sidebar({
           text: t("translations"),
           icon: TranslationIcon,
         },
-        { path: "/control/languages", text: t("languages"), icon: LangIcon },
+        // { path: "/control/languages", text: t("languages"), icon: LangIcon },
         {
           path: "/control/difficulty-levels",
           text: t("difficulty_levels"),
