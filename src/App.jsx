@@ -130,7 +130,7 @@ export default function App() {
             <Route path="admins-list/edit/:id" element={<EditAdmin />} />
 
             <Route path="translations" element={<Translations />} />
-            {/* <Route path="languages" element={<Languages />} /> */}
+            <Route path="languages" element={<Languages />} />
 
             <Route path="difficulty-levels" element={<DifficultyLevels />} />
           </Route>

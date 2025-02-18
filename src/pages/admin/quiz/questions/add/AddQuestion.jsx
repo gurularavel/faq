@@ -374,6 +374,7 @@ export default function AddQuestion() {
                         container
                         spacing={2}
                         key={`answer-${answerIndex}-${langIndex}`}
+                        mt={1}
                       >
                         <Grid2 size={{ xs: 12, md: 3 }}>
                           <Typography variant="body1">

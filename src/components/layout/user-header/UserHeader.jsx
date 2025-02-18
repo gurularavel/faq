@@ -3,6 +3,7 @@ import UserDropdown from "./UserDropdown";
 import Logo from "@assets/images/logo.svg";
 import Notifications from "./Notifications";
 import { Link } from "react-router-dom";
+import LanguageSwitcher from "./LanguageSwitcher";
 export default function UserHeader() {
   return (
     <AppBar
@@ -28,6 +29,7 @@ export default function UserHeader() {
             </Link>
           </Box>
           <Box display={"flex"} alignItems={"center"}>
+            <LanguageSwitcher />
             <Notifications />
             <UserDropdown />
           </Box>

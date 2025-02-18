@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  langs: [],
+  langs: JSON.parse(localStorage.getItem("langs")) ?? [],
   currentLang: JSON.parse(localStorage.getItem("lang"))?.key ?? "az",
   static_words: JSON.parse(localStorage.getItem("static_words")) ?? {},
   lang_version: localStorage.getItem("lang_version") ?? null,
@@ -14,6 +14,7 @@ export const langSlice = createSlice({
   reducers: {
     setLangs: (state, action) => {
       state.langs = action.payload;
+      localStorage.setItem("langs", JSON.stringify(action.payload));
       if (!localStorage.getItem("lang")) {
         localStorage.setItem("lang", JSON.stringify(action.payload[0]));
       }
