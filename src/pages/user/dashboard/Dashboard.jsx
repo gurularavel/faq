@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -23,7 +23,7 @@ const DashBoard = () => {
   const [showHighLight, setShowHighLight] = useState(false);
   const [mostSearchedFaqs, setMostSearchedFaqs] = useState([]);
 
-  const fetchFAQs = async (search = "", page = 1, limit = 10) => {
+  const fetchFAQs = useCallback(async (search = "", page = 1, limit = 10) => {
     try {
       const isSearchMode = search.length >= 3;
       const endpoint = isSearchMode ? "/faqs/search" : "/faqs/most-searched";
@@ -56,22 +56,25 @@ const DashBoard = () => {
         pagination: null,
       };
     }
-  };
+  }, []);
 
-  const fetchInitialData = async (search) => {
-    setIsLoading(true);
-    try {
-      const response = await fetchFAQs(search, 1);
-      setFaqItems(response.items);
-      setPagination(response.pagination);
-    } catch (error) {
-      console.error("Error fetching FAQs:", error);
-      setFaqItems([]);
-      setPagination(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const fetchInitialData = useCallback(
+    async (search) => {
+      setIsLoading(true);
+      try {
+        const response = await fetchFAQs(search, 1);
+        setFaqItems(response.items);
+        setPagination(response.pagination);
+      } catch (error) {
+        console.error("Error fetching FAQs:", error);
+        setFaqItems([]);
+        setPagination(null);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [fetchFAQs]
+  );
 
   const loadMore = async () => {
     if (
@@ -96,13 +99,14 @@ const DashBoard = () => {
     }
   };
 
+  // Handle search query changes
   useEffect(() => {
     const trimmedQuery = searchQuery.trim();
     const timeoutId = setTimeout(() => {
       if (trimmedQuery.length >= 3) {
         fetchInitialData(trimmedQuery);
-      } else {
-        // When text is less than 3 characters, show most-searched FAQs
+      } else if (trimmedQuery.length === 0 && mostSearchedFaqs.length > 0) {
+        // Use cached most-searched FAQs if available
         setFaqItems(mostSearchedFaqs);
         setShowHighLight(false);
         setPagination(null);
@@ -110,12 +114,12 @@ const DashBoard = () => {
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
+  }, [searchQuery, fetchInitialData, mostSearchedFaqs]);
 
-  // Fetch most-searched FAQs on initial load
+  // Fetch most-searched FAQs only on initial load
   useEffect(() => {
     fetchInitialData("");
-  }, []);
+  }, [fetchInitialData]);
 
   const showLoadMore =
     pagination && pagination.currentPage < pagination.lastPage;

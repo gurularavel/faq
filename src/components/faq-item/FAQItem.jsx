@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Paper,
   Typography,
@@ -12,29 +12,42 @@ import { stripHtmlTags } from "@src/utils/helpers/stripHtmlTags";
 import { levenshtein } from "@src/utils/helpers/levenshtein";
 
 const HighlightText = ({ text, highlight }) => {
-  const fuzzyHighlightHtml = (htmlContent, searchText, maxDistance = 2) => {
-    if (!searchText?.trim()) {
-      return { __html: htmlContent };
+  const fuzzyHighlightHtml = useMemo(() => {
+    if (!highlight?.trim()) {
+      return { __html: text };
     }
 
     const tags = [];
-    let cleanText = htmlContent.replace(/<[^>]+>/g, (match, offset) => {
+    let cleanText = text.replace(/<[^>]+>/g, (match, offset) => {
       tags.push({ tag: match, position: offset });
       return "§TAG§";
     });
 
+    const searchWords = highlight.toLowerCase().split(/\s+/).filter(Boolean);
+
+    const wordBoundary = /([^\w]|$)/;
+
     const parts = cleanText.split(/(\s+|[.,!?;])/);
+    const maxDistance = Math.min(2, Math.floor(highlight.length / 3));
 
     const processedParts = parts.map((part) => {
       const trimmedPart = part.trim();
       if (!trimmedPart) return part;
 
-      const distance = levenshtein(
-        trimmedPart.toLowerCase(),
-        searchText.toLowerCase()
-      );
+      const shouldHighlight = searchWords.some((searchWord) => {
+        if (trimmedPart.toLowerCase().includes(searchWord)) {
+          return true;
+        }
 
-      return distance <= maxDistance
+        const lengthDiff = Math.abs(trimmedPart.length - searchWord.length);
+        if (lengthDiff <= 2) {
+          const distance = levenshtein(trimmedPart.toLowerCase(), searchWord);
+          return distance <= maxDistance;
+        }
+        return false;
+      });
+
+      return shouldHighlight
         ? `<span style="background-color: #ffeb3b">${part}</span>`
         : part;
     });
@@ -47,15 +60,18 @@ const HighlightText = ({ text, highlight }) => {
     });
 
     return { __html: finalHtml };
-  };
+  }, [text, highlight]);
 
-  return <span dangerouslySetInnerHTML={fuzzyHighlightHtml(text, highlight)} />;
+  return <span dangerouslySetInnerHTML={fuzzyHighlightHtml} />;
 };
 
 const FAQItem = ({ question, answer, searchQuery, showHighLight }) => {
-  const [isExpanded, setIsExpanded] = useState(
-    searchQuery && stripHtmlTags(answer).includes(searchQuery)
-  );
+  const [isExpanded, setIsExpanded] = useState(() => {
+    if (!searchQuery) return false;
+    const normalizedQuery = searchQuery.toLowerCase();
+    const normalizedAnswer = stripHtmlTags(answer).toLowerCase();
+    return normalizedAnswer.includes(normalizedQuery);
+  });
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);

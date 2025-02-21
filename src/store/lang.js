@@ -20,6 +20,7 @@ export const langSlice = createSlice({
       }
     },
     setCurrentLang: (state, action) => {
+      localStorage.setItem("oldLang", state.currentLang);
       state.currentLang = action.payload;
       let l = state.langs.find((e) => e.key == action.payload);
       localStorage.setItem("lang", JSON.stringify(l));

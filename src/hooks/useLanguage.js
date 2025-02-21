@@ -25,14 +25,15 @@ const useLanguage = (type) => {
       const res = await api.get("/local-translations/languages/list");
       const storedLang = JSON.parse(localStorage.getItem("lang"))?.key;
       const defaultLang = res.data.versions.default_lang;
+      const oldLang = localStorage.getItem("oldLang");
       if (
         res.data.versions.lang_version != lang_version ||
-        res.data.versions.default_lang != storedLang ||
-        type != lang_type
+        type != lang_type ||
+        oldLang != storedLang
       ) {
         dispatch(setLangs(res.data.data));
-
         getStaticWords(storedLang ?? defaultLang);
+        localStorage.setItem("oldLang", storedLang ?? defaultLang);
       }
     } catch (error) {
       console.error("Error fetching languages:", error);
