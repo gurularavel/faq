@@ -46,6 +46,7 @@ Route::middleware(['general_access:app', RouteLogMiddleware::class])->prefix('ap
             Route::get('search', [FaqController::class, 'search']);
             Route::get('most-searched', [FaqController::class, 'getMostSearchedItems']);
             Route::get('find/{faq}', [FaqController::class, 'findById']);
+            Route::post('open/{faq}', [FaqController::class, 'open']);
         });
     });
 });

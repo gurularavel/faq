@@ -17,6 +17,7 @@ use Laravel\Scout\Searchable;
 /**
  * @property bool|mixed $is_active
  * @property mixed $id
+ * @property mixed $seen_count
  */
 class Faq extends Model
 {
@@ -24,11 +25,13 @@ class Faq extends Model
 
     protected $fillable = [
         'category_id', // sub category id
+        'seen_count',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'seen_count' => 'integer',
     ];
 
     protected array $cascadeDeletes = ['translatable', 'tags', 'lists'];
@@ -36,6 +39,11 @@ class Faq extends Model
     public function scopeActive(Builder $query): void
     {
         $query->where('is_active', true);
+    }
+
+    public function isActive()
+    {
+        return $this->is_active;
     }
 
     public function toSearchableArray(): array

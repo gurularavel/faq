@@ -8,12 +8,14 @@ use App\Models\Admin;
 use App\Models\Faq;
 use App\Models\FaqList;
 use App\Models\User;
+use App\Services\LangService;
 use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class FaqRepository
 {
@@ -57,7 +59,7 @@ class FaqRepository
                 });
             })
             ->when($validated['status'] ?? null, function (Builder $builder) use ($validated) {
-                $builder->where('is_active', ((int) $validated['status']) === 1);
+                $builder->where('is_active', ((int)$validated['status']) === 1);
             })
             ->orderByDesc('id')
             ->paginate($validated['limit'] ?? 10);
@@ -235,14 +237,46 @@ class FaqRepository
             ->get();
     }
 
+    public function getMostSearchedItems(int $limit = 10)
+    {
+        return Faq::query()
+            ->active()
+            ->with([
+                'translatable',
+            ])
+            ->limit($limit)
+            ->orderByDesc('seen_count')
+            ->orderBy('id')
+            ->get();
+    }
+
+    public function open(Faq $faq): void
+    {
+        $faq->update([
+            'seen_count' => $faq->seen_count + 1,
+        ]);
+    }
+
     public function fuzzySearch(array $validated): LengthAwarePaginator
     {
         $search = $validated['search'];
 
         return Faq::search($search)
             ->query(function ($builder) {
+                $builder->active();
                 $builder->with('translatable');
             })
             ->paginate($validated['limit'] ?? 10);
+    }
+
+    public function checkIsActive(Faq $faq): void
+    {
+        if (!$faq->isActive()) {
+            throw new BadRequestHttpException(
+                LangService::instance()
+                    ->setDefault('FAQ is not active')
+                    ->getLang('faq_is_not_active')
+            );
+        }
     }
 }

@@ -4661,7 +4661,7 @@
                     "AppFAQ"
                 ],
                 "summary": "Find by ID",
-                "operationId": "578426b8b5bb08c19c34467b644b26a5",
+                "operationId": "4e66c4a09be4b6d1864e01c31703f53f",
                 "parameters": [
                     {
                         "name": "faq",
@@ -4679,6 +4679,43 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/FaqsListResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/app/faqs/open/{faq}": {
+            "post": {
+                "tags": [
+                    "AppFAQ"
+                ],
+                "summary": "Increase seen count",
+                "operationId": "f5c8e4d92856b85f9d1e7b0489127389",
+                "parameters": [
+                    {
+                        "name": "faq",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Seen count increased",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
                                 }
                             }
                         }
