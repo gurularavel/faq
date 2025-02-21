@@ -10,6 +10,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { stripHtmlTags } from "@src/utils/helpers/stripHtmlTags";
 import { levenshtein } from "@src/utils/helpers/levenshtein";
+import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
 
 const HighlightText = ({ text, highlight }) => {
   const fuzzyHighlightHtml = useMemo(() => {
@@ -65,7 +66,7 @@ const HighlightText = ({ text, highlight }) => {
   return <span dangerouslySetInnerHTML={fuzzyHighlightHtml} />;
 };
 
-const FAQItem = ({ question, answer, searchQuery, showHighLight }) => {
+const FAQItem = ({ id, question, answer, searchQuery, showHighLight }) => {
   const [isExpanded, setIsExpanded] = useState(() => {
     if (!searchQuery) return false;
     const normalizedQuery = searchQuery.toLowerCase();
@@ -73,8 +74,19 @@ const FAQItem = ({ question, answer, searchQuery, showHighLight }) => {
     return normalizedAnswer.includes(normalizedQuery);
   });
 
+  const postFaqId = async (id) => {
+    try {
+      await userPrivateApi.post(`faqs/open/${id}`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
+    if (!isExpanded) {
+      postFaqId(id);
+    }
   };
 
   return (

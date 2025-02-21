@@ -166,6 +166,7 @@ const DashBoard = () => {
                 {faqItems.map((item) => (
                   <Grid2 key={item.id} size={{ xs: 12, md: 6 }}>
                     <FAQItem
+                      id={item.id}
                       question={item.question}
                       answer={item.answer}
                       searchQuery={searchQuery}
