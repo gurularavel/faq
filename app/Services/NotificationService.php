@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enum\NotificationTypeEnum;
+use App\Models\Faq;
 use App\Models\Notification;
 use App\Models\QuestionGroup;
 use App\Models\User;
@@ -54,6 +55,16 @@ class NotificationService
                 $message = LangService::instance()
                     ->setDefault('A new exam has been assigned for you: @exam')
                     ->getLang('new_exam_assigned_for_you', ['@exam' => $typeableModel->getLang('title', $language['id'])], $language['key']);
+            } else if ($type == NotificationTypeEnum::FAQ) {
+                /** @var Faq $typeableModel */
+
+                $title = LangService::instance()
+                    ->setDefault('FAQ updated!')
+                    ->getLang('notification_faq_updated_title', [], $language['key']);
+
+                $message = LangService::instance()
+                    ->setDefault('This FAQ was updated: @faq')
+                    ->getLang('notification_faq_updated_message', ['@faq' => $typeableModel->getLang('question', $language['id'])], $language['key']);
             }
 
             $notification->setLang('title', $title, $language['id']);

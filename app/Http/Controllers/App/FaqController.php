@@ -6,6 +6,7 @@ use App\Enum\FaqListTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\App\Faqs\FaqSearchRequest;
 use App\Http\Resources\Admin\Faqs\FaqsListResource;
+use App\Models\Faq;
 use App\Repositories\FaqRepository;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Annotations as OA;
@@ -72,5 +73,36 @@ class FaqController extends Controller
     public function getMostSearchedItems(): AnonymousResourceCollection
     {
         return FaqsListResource::collection($this->repo->getFaqFromList(FaqListTypeEnum::SEARCH));
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/app/faqs/find/{faq}",
+     *     summary="Find by ID",
+     *     tags={"AppFAQ"},
+     *          security={
+     *           {
+     *               "AppApiToken": {},
+     *               "AppSanctumBearerToken": {}
+     *           }
+     *       },
+     *     @OA\Parameter(
+     *         name="faq",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/FaqsListResource")
+     *     )
+     * )
+     */
+    public function findById(Faq $faq): FaqsListResource
+    {
+        $this->repo->loadTranslations($faq);
+
+        return FaqsListResource::make($faq);
     }
 }

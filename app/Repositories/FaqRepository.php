@@ -3,9 +3,12 @@
 namespace App\Repositories;
 
 use App\Enum\FaqListTypeEnum;
+use App\Enum\NotificationTypeEnum;
 use App\Models\Admin;
 use App\Models\Faq;
 use App\Models\FaqList;
+use App\Models\User;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -85,6 +88,13 @@ class FaqRepository
             ]);
     }
 
+    public function loadTranslations(Faq $faq): void
+    {
+        $faq->load([
+            'translatable',
+        ]);
+    }
+
     public function store(array $validated): Faq
     {
         return DB::transaction(static function () use ($validated) {
@@ -141,6 +151,9 @@ class FaqRepository
             $faq->saveLang();
 
             $faq->tags()->sync($tags);
+
+            $userIds = User::query()->pluck('id')->toArray();
+            NotificationService::instance()->sendToUsers($userIds, NotificationTypeEnum::FAQ, $faq);
 
             return $faq;
         });

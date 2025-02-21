@@ -4655,6 +4655,43 @@
                 ]
             }
         },
+        "/api/app/faqs/find/{faq}": {
+            "get": {
+                "tags": [
+                    "AppFAQ"
+                ],
+                "summary": "Find by ID",
+                "operationId": "578426b8b5bb08c19c34467b644b26a5",
+                "parameters": [
+                    {
+                        "name": "faq",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FaqsListResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/app/notifications/list": {
             "get": {
                 "tags": [
@@ -4925,7 +4962,8 @@
                 "description": "Enumeration of Notification Types",
                 "type": "string",
                 "enum": [
-                    "exam"
+                    "exam",
+                    "faq"
                 ]
             },
             "TranslationGroupEnum": {

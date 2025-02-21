@@ -11,13 +11,14 @@ use OpenApi\Annotations as OA;
  *     type="string",
  *     title="Notification Type Enum",
  *     description="Enumeration of Notification Types",
- *     enum={"exam"}
+ *     enum={"exam", "faq"}
  * )
  */
 enum NotificationTypeEnum: string
 {
     //case MESSAGE = 'message';
     case EXAM = 'exam';
+    case FAQ = 'faq';
 
     public static function getList(): array
     {

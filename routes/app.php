@@ -45,6 +45,7 @@ Route::middleware(['general_access:app', RouteLogMiddleware::class])->prefix('ap
         Route::group(['prefix' => 'faqs'], static function () {
             Route::get('search', [FaqController::class, 'search']);
             Route::get('most-searched', [FaqController::class, 'getMostSearchedItems']);
+            Route::get('find/{faq}', [FaqController::class, 'findById']);
         });
     });
 });
