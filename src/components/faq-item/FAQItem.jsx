@@ -76,7 +76,7 @@ const FAQItem = ({ id, question, answer, searchQuery, showHighLight }) => {
 
   const postFaqId = async (id) => {
     try {
-      await userPrivateApi.post(`faqs/open/${id}`);
+      await userPrivateApi.post(`/faqs/open/${id}`);
     } catch (error) {
       console.log(error);
     }
