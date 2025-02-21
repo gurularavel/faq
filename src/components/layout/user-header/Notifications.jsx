@@ -13,6 +13,7 @@ import NotificationImg from "@assets/icons/notification.svg";
 import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
 import { notify } from "@utils/toast/notify";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import LiveHelpIcon from "@mui/icons-material/LiveHelp";
 import Badge from "@mui/material/Badge";
 import dayjs from "dayjs";
 import { useTranslate } from "@src/utils/translations/useTranslate";
@@ -23,6 +24,8 @@ const getNotificationIcon = (type) => {
   switch (type) {
     case "exam":
       return <AssignmentIcon sx={{ mr: 2, color: "#1976d2" }} />;
+    case "faq":
+      return <LiveHelpIcon sx={{ mr: 2, color: "#1976d2" }} />;
     default:
       return <AssignmentIcon sx={{ mr: 2, color: "#1976d2" }} />;
   }
@@ -35,6 +38,8 @@ const Notifications = () => {
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [allNotificationsModal, setAllNotificationsModal] = useState(false);
+  const [faqModalOpen, setFaqModalOpen] = useState(false);
+  const [faqData, setFaqData] = useState(null);
   const [pending, setPending] = useState(false);
   const open = Boolean(anchorEl);
 
@@ -72,6 +77,31 @@ const Notifications = () => {
         "error"
       );
     }
+  };
+
+  const getFaqDetails = async (item) => {
+    setPending(true);
+    try {
+      const res = await userPrivateApi.get(`/faqs/find/${item.model_id}`);
+      setFaqData(res.data.data);
+      setFaqModalOpen(true);
+    } catch (error) {
+      if (isAxiosError(error)) {
+        notify(
+          error.response?.data?.message || "Failed to fetch FAQ details",
+          "error"
+        );
+      }
+    } finally {
+      setPending(false);
+      setModalOpen(false);
+      setAllNotificationsModal(false);
+    }
+  };
+
+  const handleFaqModalClose = () => {
+    setFaqModalOpen(false);
+    setFaqData(null);
   };
 
   const handleNotificationClick = async (notification) => {
@@ -131,6 +161,8 @@ const Notifications = () => {
   const handleNotificationItem = (item) => {
     if (item.type == "exam") {
       getExamDetails(item);
+    } else if (item.type == "faq") {
+      getFaqDetails(item);
     }
   };
 
@@ -317,7 +349,7 @@ const Notifications = () => {
                   disabled={pending}
                   onClick={() => handleNotificationItem(selectedNotification)}
                 >
-                  {t("start")}
+                  {selectedNotification.type == "exam" ? t("start") : t("show")}
                   {pending && (
                     <CircularProgress size={14} sx={{ ml: 1 }} color="error" />
                   )}
@@ -379,6 +411,67 @@ const Notifications = () => {
           <Box sx={{ overflow: "auto", p: 2 }}>
             {notifications.map(renderNotificationItem)}
           </Box>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={faqModalOpen}
+        onClose={handleFaqModalClose}
+        aria-labelledby="faq-modal"
+        aria-describedby="faq-details"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 600,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+            maxHeight: "80vh",
+            overflow: "auto",
+          }}
+        >
+          <Button
+            onClick={handleFaqModalClose}
+            sx={{
+              position: "absolute",
+              right: 8,
+              top: 8,
+              color: "grey.500",
+              minWidth: "auto",
+              p: 1,
+            }}
+          >
+            ✕
+          </Button>
+          {pending ? (
+            <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : faqData ? (
+            <>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <LiveHelpIcon sx={{ mr: 2, color: "#1976d2" }} />
+                <Typography variant="h6" component="h2">
+                  {faqData.question}
+                </Typography>
+              </Box>
+              <Typography sx={{ mt: 2 }}>{faqData.answer}</Typography>
+              <Typography
+                variant="caption"
+                display="block"
+                sx={{ color: "text.secondary", mt: 4 }}
+              >
+                {dayjs(faqData.created_at).format("DD.MM.YYYY HH:mm")}
+              </Typography>
+            </>
+          ) : (
+            <Typography>FAQ not found</Typography>
+          )}
         </Box>
       </Modal>
     </Box>
