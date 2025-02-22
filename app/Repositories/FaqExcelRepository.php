@@ -86,9 +86,7 @@ class FaqExcelRepository
 
     public function import(FaqImportRequest $request): void
     {
-        $faqExcelRepo = new FaqExcelRepository();
-
-        $faqExcel = $faqExcelRepo->store($request);
+        $faqExcel = $this->store($request);
 
         FaqImportJob::dispatch($faqExcel, auth('admin')->user());
     }

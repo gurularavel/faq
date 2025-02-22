@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Enum\NotificationTypeEnum;
+use App\Exports\ExamsExport;
 use App\Models\Admin;
 use App\Models\Exam;
 use App\Models\QuestionGroup;
@@ -13,6 +14,8 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class QuestionGroupRepository
 {
@@ -192,5 +195,10 @@ class QuestionGroupRepository
         });
 
         return $questionGroup;
+    }
+
+    public function exportExams(QuestionGroup $questionGroup): BinaryFileResponse
+    {
+        return Excel::download(new ExamsExport($questionGroup), 'exams.xlsx');
     }
 }

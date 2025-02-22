@@ -17,6 +17,7 @@ use App\Services\LangService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Annotations as OA;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class QuestionGroupController extends Controller
 {
@@ -374,5 +375,37 @@ class QuestionGroupController extends Controller
                 ->getLang('question_group_assigned_successfully'),
             'data' => $this->repo->getAssignedIds($questionGroup),
         ]);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/control/question-groups/{questionGroup}/exams/export",
+     *     summary="Export exams",
+     *               tags={"QuestionGroup"},
+     *       security={
+     *              {
+     *                  "ApiToken": {},
+     *                  "SanctumBearerToken": {}
+     *              }
+     *         },
+     *     @OA\Parameter(
+     *         name="questionGroup",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+ *          @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\MediaType(
+     *              mediaType="application/octet-stream",
+     *              @OA\Schema(type="string", format="binary")
+     *          )
+ *          )
+     * )
+     */
+    public function exportExams(QuestionGroup $questionGroup): BinaryFileResponse
+    {
+        return $this->repo->exportExams($questionGroup);
     }
 }

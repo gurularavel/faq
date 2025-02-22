@@ -2914,6 +2914,44 @@
                 ]
             }
         },
+        "/api/control/question-groups/{questionGroup}/exams/export": {
+            "get": {
+                "tags": [
+                    "QuestionGroup"
+                ],
+                "summary": "Export exams",
+                "operationId": "d27e63858f01ec801f8cdbe2ded55c44",
+                "parameters": [
+                    {
+                        "name": "questionGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/roles/list": {
             "get": {
                 "tags": [

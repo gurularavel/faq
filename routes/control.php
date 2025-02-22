@@ -166,6 +166,10 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
             Route::get('get-assigned-ids/{questionGroup}', [QuestionGroupController::class, 'getAssignedIds']);
             Route::post('assign/{questionGroup}', [QuestionGroupController::class, 'assign']);
 
+            Route::group(['prefix' => '{questionGroup}/exams'], static function () {
+                Route::get('export', [QuestionGroupController::class, 'exportExams']);
+            });
+
             Route::group(['prefix' => '{questionGroup}/questions'], static function () {
                 Route::get('load', [QuestionController::class, 'index']);
                 Route::get('list', [QuestionController::class, 'list']);
