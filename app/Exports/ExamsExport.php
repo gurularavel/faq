@@ -87,4 +87,9 @@ class ExamsExport implements FromArray, WithHeadings, ShouldAutoSize
             'Status',
         ];
     }
+
+    public function chunkSize(): int
+    {
+        return 100;
+    }
 }
