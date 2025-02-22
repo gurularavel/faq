@@ -11,6 +11,7 @@ import {
   Box,
   Button,
   Skeleton,
+  CircularProgress,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@assets/icons/delete.svg";
@@ -218,6 +219,37 @@ export default function QuestionGroup() {
     nav(`${row.id}`);
   };
 
+  const [pendingExport, setPendingExport] = useState(null);
+
+  const handleExport = async (row) => {
+    setPendingExport(row.id);
+
+    try {
+      const res = await controlPrivateApi.get(
+        `/question-groups/${row.id}/exams/export`,
+        {
+          responseType: "blob",
+        }
+      );
+      const downloadUrl = window.URL.createObjectURL(new Blob([res.data]));
+
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.setAttribute("download", `${row.title}.xlsx`);
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+      setPendingExport(null);
+    } catch (error) {
+      setPendingExport(null);
+      if (isAxiosError(error)) {
+        notify(error.response.data.message, "error");
+      }
+    }
+  };
   const LoadingSkeleton = () => (
     <>
       {[...Array(5)].map((_, index) => (
@@ -301,7 +333,23 @@ export default function QuestionGroup() {
                   </IconButton>
                 </Box>
               </div>
-              <div className="card-footer">
+              <div className="card-footer between">
+                <Button
+                  variant="contained"
+                  color="success"
+                  className="export-btn"
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleExport(row);
+                  }}
+                  disabled={pendingExport == row.id}
+                >
+                  {t("export")}
+                  {pendingExport == row.id && (
+                    <CircularProgress size={14} sx={{ ml: 1 }} color="error" />
+                  )}
+                </Button>
                 <Button
                   variant="outlined"
                   className="assign-btn"
