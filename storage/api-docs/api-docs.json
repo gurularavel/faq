@@ -6741,6 +6741,13 @@
                     "seen_count": {
                         "description": "Seen count",
                         "type": "integer"
+                    },
+                    "tags": {
+                        "description": "Tags associated with the FAQ",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TagsListResource"
+                        }
                     }
                 },
                 "type": "object"

@@ -243,6 +243,9 @@ class FaqRepository
             ->active()
             ->with([
                 'translatable',
+                'tags' => function ($builder) {
+                    $builder->limit(config('settings.faq.tags_limit'));
+                },
             ])
             ->limit($limit)
             ->orderByDesc('seen_count')
@@ -264,7 +267,12 @@ class FaqRepository
         return Faq::search($search)
             ->query(function ($builder) {
                 $builder->active();
-                $builder->with('translatable');
+                $builder->with([
+                    'translatable',
+                    'tags' => function ($builder) {
+                        $builder->limit(config('settings.faq.tags_limit'));
+                    },
+                ]);
             })
             ->paginate($validated['limit'] ?? 10);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Admin\Faqs;
 
+use App\Http\Resources\Admin\Tags\TagsListResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Annotations as OA;
@@ -31,6 +32,12 @@ use OpenApi\Annotations as OA;
  *          property="seen_count",
  *          type="integer",
  *          description="Seen count"
+ *      ),
+ *      @OA\Property(
+ *          property="tags",
+ *          type="array",
+ *          @OA\Items(ref="#/components/schemas/TagsListResource"),
+ *          description="Tags associated with the FAQ"
  *      )
  * )
  *
@@ -54,6 +61,7 @@ class FaqsListResource extends JsonResource
             'question' => $this->getLang('question'),
             'answer' => $this->getLang('answer'),
             'seen_count' => $this->seen_count,
+            'tags' => TagsListResource::collection($this->whenLoaded('tags')),
         ];
     }
 }
