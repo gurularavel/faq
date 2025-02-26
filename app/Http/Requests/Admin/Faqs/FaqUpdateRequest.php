@@ -71,7 +71,7 @@ class FaqUpdateRequest extends FormRequest
             'translations.*.language_id' => ['required', 'integer', 'distinct', Rule::in(data_get(LangService::instance()->getLanguages(), '*.id'))],
             'translations.*.question' => ['required'],
             'translations.*.answer' => ['required'],
-            'tags' => ['filled', 'array'],
+            'tags' => ['nullable', 'array'],
             'tags.*' => ['required', 'integer', Rule::exists(Tag::class, 'id')->where('is_active', true)->whereNull('deleted_at')],
         ];
     }

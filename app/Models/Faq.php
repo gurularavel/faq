@@ -18,6 +18,7 @@ use Laravel\Scout\Searchable;
  * @property bool|mixed $is_active
  * @property mixed $id
  * @property mixed $seen_count
+ * @property mixed $tags
  */
 class Faq extends Model
 {
@@ -53,9 +54,14 @@ class Faq extends Model
             ->pluck('text')
             ->implode(' ');
 
+        $tagTitles = $this->tags
+            ->pluck('title')
+            ->implode(' ');
+
         return [
             'id' => $this->id,
             'content' => $translation,
+            'tags' => $tagTitles,
         ];
     }
 
