@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Typography,
   Switch,
   IconButton,
@@ -7,11 +13,14 @@ import {
   Select,
   MenuItem,
   FormControl,
+  useMediaQuery,
   useTheme,
   Box,
   Button,
   Skeleton,
   CircularProgress,
+  Grid2,
+  Stack,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@assets/icons/delete.svg";
@@ -30,11 +39,13 @@ import Edit from "./popups/Edit";
 import { useNavigate } from "react-router-dom";
 import Assign from "./popups/Assign";
 import { Success } from "./popups/Success";
+import ResetIcon from "@assets/icons/reset.svg";
 
 export default function QuestionGroup() {
   const t = useTranslate();
   const { setContent } = useHeader();
   const [isLoading, setIsLoading] = useState(true);
+  const nav = useNavigate();
 
   const [data, setData] = useState({
     list: [],
@@ -44,8 +55,19 @@ export default function QuestionGroup() {
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
-    searh: null,
+    search: null,
   });
+
+  // reset filter
+  const resetFilter = () =>
+    setFilters({
+      page: 1,
+      limit: 10,
+      search: null,
+    });
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const getData = async (url) => {
     setIsLoading(true);
@@ -129,8 +151,15 @@ export default function QuestionGroup() {
           startIcon={<AddIcon />}
           size="small"
           onClick={() => setModal(1)}
+          sx={{
+            "& .MuiButton-startIcon": {
+              mr: { xs: 0, sm: 1 },
+            },
+          }}
         >
-          {t("new_quiz")}
+          <Box sx={{ display: { xs: "none", sm: "block" } }}>
+            {t("new_quiz")}
+          </Box>
         </Button>
       </Box>
     );
@@ -142,6 +171,8 @@ export default function QuestionGroup() {
   const [open, setOpen] = useState(false);
   const [modal, setModal] = useState(0);
   const [draftData, setDraftData] = useState(null);
+  const [successData, setSuccessData] = useState(null);
+  const [pendingExport, setPendingExport] = useState(null);
 
   const deleteRow = async () => {
     try {
@@ -161,7 +192,6 @@ export default function QuestionGroup() {
       }
     }
   };
-  const [successData, setSuccessData] = useState(null);
 
   const popups = [
     "",
@@ -214,12 +244,9 @@ export default function QuestionGroup() {
     }
   }, [open]);
 
-  const nav = useNavigate();
   const handleCardClick = (row) => {
     nav(`${row.id}`);
   };
-
-  const [pendingExport, setPendingExport] = useState(null);
 
   const handleExport = async (row) => {
     setPendingExport(row.id);
@@ -250,16 +277,36 @@ export default function QuestionGroup() {
       }
     }
   };
+
   const LoadingSkeleton = () => (
-    <>
+    <Stack spacing={2}>
       {[...Array(5)].map((_, index) => (
-        <Box key={index} className="data-list-card">
-          <Box sx={{ mt: 1 }} display="flex" justifyContent="flex-end">
-            <Skeleton variant="rectangular" width={250} height={36} />
+        <Box key={index} padding={2} borderBottom={"1px solid #E6E9ED"}>
+          <Skeleton variant="rectangular" width="70%" height={24} />
+          <Box
+            sx={{ mt: 2 }}
+            display="flex"
+            justifyContent="space-between"
+            flexDirection={"column"}
+          >
+            <Box width={"100%"}>
+              <Grid2 container spacing={2}>
+                <Grid2 size={6}>
+                  <Skeleton variant="rectangular" width={100} height={20} />
+                </Grid2>
+                <Grid2 size={6}>
+                  <Skeleton variant="rectangular" width={100} height={20} />
+                </Grid2>
+              </Grid2>
+            </Box>
+          </Box>
+          <Box sx={{ mt: 2 }} display="flex" justifyContent="space-between">
+            <Skeleton variant="rectangular" width={80} height={30} />
+            <Skeleton variant="rectangular" width={80} height={30} />
           </Box>
         </Box>
       ))}
-    </>
+    </Stack>
   );
 
   const NoData = () => (
@@ -276,52 +323,118 @@ export default function QuestionGroup() {
     </Box>
   );
 
-  const DataList = () => {
-    return (
-      <div className="data-list">
-        {isLoading ? (
-          <LoadingSkeleton />
-        ) : data.list.length > 0 ? (
-          data.list.map((row, i) => (
-            <div
-              key={row.id}
-              className="data-list-card"
-              onClick={() => handleCardClick(row)}
-            >
-              <div className="title-wrapper">
-                <Typography variant="h6">{row.title}</Typography>
-              </div>
+  const DesktopView = () => (
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell></TableCell>
+            <TableCell sx={{ width: "40%" }}>{t("title")}</TableCell>
+            <TableCell>{t("status")}</TableCell>
+            <TableCell>{t("export")}</TableCell>
+            <TableCell>{t("assign")}</TableCell>
+            <TableCell>{t("actions")}</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {isLoading ? (
+            [...Array(5)].map((_, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <Skeleton width={20} />
+                </TableCell>
+                <TableCell width="40%">
+                  <Skeleton />
+                </TableCell>
+                <TableCell>
+                  <Skeleton width={40} />
+                </TableCell>
 
-              <div className="progress-bar">
-                <div className="line"></div>
-              </div>
-              <div
-                className="card-actions"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
+                <TableCell>
+                  <Skeleton variant="rectangular" width={80} height={30} />
+                </TableCell>
+                <TableCell>
+                  <Skeleton variant="rectangular" width={80} height={30} />
+                </TableCell>
+                <TableCell>
+                  <Box display="flex" gap={1}>
+                    <Skeleton variant="circular" width={32} height={32} />
+                    <Skeleton variant="circular" width={32} height={32} />
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : data.list.length > 0 ? (
+            data.list.map((row, i) => (
+              <TableRow
+                key={row.id}
+                hover
+                onClick={() => handleCardClick(row)}
+                sx={{ cursor: "pointer" }}
               >
-                <Switch
-                  checked={row.is_active}
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    toggleStatus(row.id, row.is_active);
-                  }}
-                  size="small"
-                />
-                <Box>
-                  <IconButton
+                <TableCell>
+                  {filters.page * filters.limit - filters.limit + i + 1}
+                </TableCell>
+                <TableCell>{row.title}</TableCell>
+                <TableCell>
+                  <Switch
+                    onClick={(e) => e.stopPropagation()}
+                    checked={row.is_active}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      toggleStatus(row.id, row.is_active);
+                    }}
+                  />
+                </TableCell>
+
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    color="success"
                     size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleExport(row);
+                    }}
+                    disabled={pendingExport === row.id}
+                    sx={{ minWidth: "90px" }}
+                  >
+                    {t("export")}
+                    {pendingExport === row.id && (
+                      <CircularProgress
+                        size={14}
+                        sx={{ ml: 1 }}
+                        color="error"
+                      />
+                    )}
+                  </Button>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDraftData(row);
+                      setModal(4);
+                    }}
+                  >
+                    {t("assign")}
+                  </Button>
+                </TableCell>
+
+                <TableCell sx={{ minWidth: "120px" }}>
+                  <IconButton
                     onClick={(e) => {
                       e.stopPropagation();
                       setDraftData(row);
                       setModal(2);
                     }}
                   >
-                    <img src={EditIcon} alt="edit" />
+                    <img src={EditIcon} alt="edit icon" />
                   </IconButton>
                   <IconButton
-                    size="small"
                     color="error"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -329,49 +442,116 @@ export default function QuestionGroup() {
                       setModal(3);
                     }}
                   >
-                    <img src={DeleteIcon} alt="delete" />
+                    <img src={DeleteIcon} alt="delete icon" />
                   </IconButton>
-                </Box>
-              </div>
-              <div className="card-footer between">
-                <Button
-                  variant="contained"
-                  color="success"
-                  className="export-btn"
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={6}>
+                <NoData />
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
+  const MobileView = () => (
+    <Stack spacing={2}>
+      {isLoading ? (
+        <LoadingSkeleton />
+      ) : data.list.length > 0 ? (
+        data.list.map((row, i) => (
+          <Box
+            key={row.id}
+            padding={2}
+            borderBottom={"1px solid #E6E9ED"}
+            onClick={() => handleCardClick(row)}
+            sx={{ cursor: "pointer" }}
+          >
+            <Typography variant="body1" fontWeight="medium">
+              {filters.page * filters.limit - filters.limit + i + 1}.{" "}
+              {row.title}
+            </Typography>
+            <Box
+              sx={{ mt: 2 }}
+              display="flex"
+              justifyContent="space-between"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Button
+                variant="contained"
+                color="success"
+                size="small"
+                onClick={() => handleExport(row)}
+                disabled={pendingExport === row.id}
+              >
+                {t("export")}
+                {pendingExport === row.id && (
+                  <CircularProgress size={14} sx={{ ml: 1 }} color="error" />
+                )}
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                size="small"
+                onClick={() => {
+                  setDraftData(row);
+                  setModal(4);
+                }}
+              >
+                {t("assign")}
+              </Button>
+            </Box>
+            <Box
+              sx={{ mt: 2 }}
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Switch
+                checked={row.is_active}
+                onChange={() => toggleStatus(row.id, row.is_active)}
+                size="small"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <Box
+                display="flex"
+                alignItems="center"
+                gap={1}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <IconButton
                   size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleExport(row);
-                  }}
-                  disabled={pendingExport == row.id}
-                >
-                  {t("export")}
-                  {pendingExport == row.id && (
-                    <CircularProgress size={14} sx={{ ml: 1 }} color="error" />
-                  )}
-                </Button>
-                <Button
-                  variant="outlined"
-                  className="assign-btn"
-                  color="error"
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
+                  onClick={() => {
                     setDraftData(row);
-                    setModal(4);
+                    setModal(2);
                   }}
                 >
-                  {t("assign")}
-                </Button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <NoData />
-        )}
-      </div>
-    );
-  };
+                  <img src={EditIcon} alt="edit icon" />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={() => {
+                    setDraftData(row);
+                    setModal(3);
+                  }}
+                >
+                  <img src={DeleteIcon} alt="delete icon" />
+                </IconButton>
+              </Box>
+            </Box>
+          </Box>
+        ))
+      ) : (
+        <NoData />
+      )}
+    </Stack>
+  );
 
   return (
     <MainCard title={t("quizzes")}>
@@ -386,15 +566,24 @@ export default function QuestionGroup() {
       <Box className="main-card-body">
         <Box className="main-card-body-inner">
           <Box className={"filter-area"}>
-            <SearchInput
-              name="search"
-              data={filters}
-              setData={setFilters}
-              placeholder={t("search")}
-              searchIcon={true}
-            />
+            <Grid2 container spacing={1}>
+              <Grid2 size={{ xs: 9.5, lg: 11.5 }}>
+                <SearchInput
+                  name="search"
+                  data={filters}
+                  setData={setFilters}
+                  placeholder={t("search")}
+                  searchIcon={true}
+                />
+              </Grid2>
+              <Grid2 size={{ xs: 2.5, lg: 0.5 }}>
+                <Button className="filter-reset-btn" onClick={resetFilter}>
+                  <img src={ResetIcon} alt="reset" />
+                </Button>
+              </Grid2>
+            </Grid2>
           </Box>
-          <DataList />{" "}
+          {isMobile ? <MobileView /> : <DesktopView />}
         </Box>
 
         {!isLoading && data.list.length > 0 && (

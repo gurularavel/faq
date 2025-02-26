@@ -106,7 +106,6 @@ const DashBoard = () => {
       if (trimmedQuery.length >= 3) {
         fetchInitialData(trimmedQuery);
       } else if (trimmedQuery.length === 0 && mostSearchedFaqs.length > 0) {
-        // Use cached most-searched FAQs if available
         setFaqItems(mostSearchedFaqs);
         setShowHighLight(false);
         setPagination(null);
@@ -148,7 +147,7 @@ const DashBoard = () => {
         </Typography>
 
         <Box className="faq-list">
-          <Grid2 container spacing={2}>
+          <Grid2 container spacing={2} rowSpacing={5}>
             {isLoading ? (
               <Grid2
                 size={{ xs: 12 }}
@@ -171,6 +170,7 @@ const DashBoard = () => {
                       answer={item.answer}
                       searchQuery={searchQuery}
                       showHighLight={showHighLight}
+                      tags={item.tags}
                     />
                   </Grid2>
                 ))}

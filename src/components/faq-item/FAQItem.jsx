@@ -6,6 +6,7 @@ import {
   Box,
   Collapse,
   Divider,
+  Chip,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { stripHtmlTags } from "@src/utils/helpers/stripHtmlTags";
@@ -66,7 +67,14 @@ const HighlightText = ({ text, highlight }) => {
   return <span dangerouslySetInnerHTML={fuzzyHighlightHtml} />;
 };
 
-const FAQItem = ({ id, question, answer, searchQuery, showHighLight }) => {
+const FAQItem = ({
+  id,
+  question,
+  answer,
+  searchQuery,
+  showHighLight,
+  tags,
+}) => {
   const [isExpanded, setIsExpanded] = useState(() => {
     if (!searchQuery) return false;
     const normalizedQuery = searchQuery.toLowerCase();
@@ -90,43 +98,66 @@ const FAQItem = ({ id, question, answer, searchQuery, showHighLight }) => {
   };
 
   return (
-    <Paper
-      className={`faq-item ${isExpanded ? "expanded" : ""}`}
-      elevation={0}
-      onClick={!isExpanded ? toggleExpand : undefined}
-    >
-      <Box className="faq-header">
-        <Typography variant="body1" className="faq-question">
-          <HighlightText
-            text={question}
-            highlight={showHighLight ? searchQuery : ""}
-          />
-        </Typography>
-        {isExpanded && (
-          <IconButton
-            className="close-button"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleExpand();
-            }}
-            size="small"
-          >
-            <CloseIcon />
-          </IconButton>
-        )}
-      </Box>
+    <Box position="relative">
+      {tags && tags.length > 0 && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "-28px",
+            right: "16px",
+            zIndex: 1,
+            display: "flex",
+            gap: "4px",
+          }}
+        >
+          {tags.map((tag) => (
+            <Chip
+              key={tag.id}
+              label={tag.title}
+              size="small"
+              sx={{ fontSize: "0.7rem" }}
+            />
+          ))}
+        </Box>
+      )}
+      <Paper
+        className={`faq-item ${isExpanded ? "expanded" : ""}`}
+        elevation={0}
+        onClick={!isExpanded ? toggleExpand : undefined}
+      >
+        <Box className="faq-header">
+          <Typography variant="body1" className="faq-question">
+            <HighlightText
+              text={question}
+              highlight={showHighLight ? searchQuery : ""}
+            />
+          </Typography>
+          {isExpanded && (
+            <IconButton
+              className="close-button"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleExpand();
+              }}
+              size="small"
+            >
+              <CloseIcon />
+            </IconButton>
+          )}
+        </Box>
 
-      {isExpanded && <Divider className="question-divider" />}
+        {isExpanded && <Divider className="question-divider" />}
 
-      <Collapse in={isExpanded}>
-        <Typography variant="body2" className="faq-answer">
-          <HighlightText
-            text={answer}
-            highlight={showHighLight ? searchQuery : ""}
-          />
-        </Typography>
-      </Collapse>
-    </Paper>
+        <Collapse in={isExpanded}>
+          <Typography variant="body2" className="faq-answer">
+            <HighlightText
+              text={answer}
+              highlight={showHighLight ? searchQuery : ""}
+            />
+          </Typography>
+        </Collapse>
+      </Paper>
+    </Box>
   );
 };
 

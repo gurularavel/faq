@@ -20,6 +20,7 @@ import {
   Button,
   Skeleton,
   Grid2,
+  Chip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@assets/icons/delete.svg";
@@ -129,32 +130,6 @@ export default function Questions() {
       notify(res.data.message, "success");
     } catch (error) {
       console.log(error);
-      if (isAxiosError(error)) {
-        notify(
-          error.response?.data?.message || "Failed to update status",
-          "error"
-        );
-      }
-    }
-  };
-
-  const toggleMostSearch = async (id, currentStatus) => {
-    try {
-      const res = await controlPrivateApi.post(
-        currentStatus ? "/faqs/lists/remove" : `/faqs/lists/add`,
-        {
-          faq_id: id,
-          list_type: "search",
-        }
-      );
-      setData((prevData) => ({
-        ...prevData,
-        list: prevData.list.map((item) =>
-          item.id === id ? { ...item, in_most_searched: !currentStatus } : item
-        ),
-      }));
-      notify(res.data.message, "success");
-    } catch (error) {
       if (isAxiosError(error)) {
         notify(
           error.response?.data?.message || "Failed to update status",
@@ -346,7 +321,7 @@ export default function Questions() {
             <TableCell>{t("category")}</TableCell>
             <TableCell>{t("sub_category")}</TableCell>
             <TableCell>{t("status")}</TableCell>
-            <TableCell>{t("in_most_searched")}</TableCell>
+            <TableCell align="center">{t("search_count")}</TableCell>
             <TableCell></TableCell>
           </TableRow>
         </TableHead>
@@ -396,13 +371,9 @@ export default function Questions() {
                   />
                 </TableCell>
                 <TableCell align="center">
-                  <Switch
-                    checked={row.in_most_searched}
-                    onChange={() =>
-                      toggleMostSearch(row.id, row.in_most_searched)
-                    }
-                  />
+                  <Chip color="error" label={row.seen_count} />
                 </TableCell>
+
                 <TableCell sx={{ minWidth: "120px" }}>
                   <IconButton
                     onClick={() => {
@@ -476,15 +447,8 @@ export default function Questions() {
                   />
                 </Grid2>
                 <Grid2 size={12} display={"flex"} gap={1} alignItems={"center"}>
-                  <Typography variant="body">
-                    {t("in_most_searched")}
-                  </Typography>
-                  <Switch
-                    checked={row.in_most_searched}
-                    onChange={() =>
-                      toggleMostSearch(row.id, row.in_most_searched)
-                    }
-                  />
+                  <Typography variant="body">{t("search_count")}</Typography>
+                  <Chip color="error" label={row.seen_count} />
                 </Grid2>
               </Grid2>
             </Box>

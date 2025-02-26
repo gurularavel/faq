@@ -231,7 +231,7 @@ export default function AddQuestion() {
                             setSelectedParent(newValue);
                             field.onChange(newValue?.id);
                           }}
-                          options={categories.filter((e) => e.subs.length > 0)}
+                          options={categories}
                           getOptionLabel={(option) => option.title}
                           loading={loading.categories}
                           renderInput={(params) => (
