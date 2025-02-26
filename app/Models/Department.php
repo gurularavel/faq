@@ -31,7 +31,7 @@ class Department extends Model
         'is_active' => 'boolean',
     ];
 
-    protected array $cascadeDeletes = ['subs', 'translatable', 'questionGroupsRel'];
+    protected array $cascadeDeletes = ['subs', 'translatable'];
 
     public function scopeActive(Builder $query): void
     {

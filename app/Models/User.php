@@ -47,7 +47,7 @@ class User extends Authenticatable implements HasMedia
         'accountexpires',
     ];
 
-    protected array $cascadeDeletes = ['questionGroupsRel', 'media', 'notificationsRel'];
+    protected array $cascadeDeletes = ['media', 'notificationsRel'];
 
     protected $casts = [
         'is_active' => 'boolean',
