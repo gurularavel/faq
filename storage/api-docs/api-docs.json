@@ -6698,6 +6698,10 @@
                         "description": "ID of the FAQ",
                         "type": "integer"
                     },
+                    "seen_count": {
+                        "description": "Seen count of the FAQ",
+                        "type": "integer"
+                    },
                     "category": {
                         "$ref": "#/components/schemas/CategoriesListResource"
                     },
@@ -6733,6 +6737,10 @@
                     "answer": {
                         "description": "Answer text",
                         "type": "string"
+                    },
+                    "seen_count": {
+                        "description": "Seen count",
+                        "type": "integer"
                     }
                 },
                 "type": "object"
@@ -6752,6 +6760,10 @@
                     "is_active": {
                         "description": "Status of the FAQ",
                         "type": "boolean"
+                    },
+                    "seen_count": {
+                        "description": "Seen count of the FAQ",
+                        "type": "integer"
                     },
                     "category": {
                         "$ref": "#/components/schemas/CategoriesListResource"

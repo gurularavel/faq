@@ -26,10 +26,16 @@ use OpenApi\Annotations as OA;
  *         property="answer",
  *         type="string",
  *         description="Answer text"
- *     )
+ *     ),
+ *          @OA\Property(
+ *          property="seen_count",
+ *          type="integer",
+ *          description="Seen count"
+ *      )
  * )
  *
  * @property mixed $id
+ * @property mixed $seen_count
  * @method getLang(string $string)
  */
 class FaqsListResource extends JsonResource
@@ -47,6 +53,7 @@ class FaqsListResource extends JsonResource
             'id' => $this->id,
             'question' => $this->getLang('question'),
             'answer' => $this->getLang('answer'),
+            'seen_count' => $this->seen_count,
         ];
     }
 }

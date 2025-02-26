@@ -29,6 +29,11 @@ use OpenApi\Annotations as OA;
  *         type="boolean",
  *         description="Status of the FAQ"
  *     ),
+ *          @OA\Property(
+ *          property="seen_count",
+ *          type="integer",
+ *          description="Seen count of the FAQ"
+ *      ),
  *     @OA\Property(
  *         property="category",
  *         ref="#/components/schemas/CategoriesListResource",
@@ -59,6 +64,7 @@ use OpenApi\Annotations as OA;
  * @property mixed $is_active
  * @property mixed $lists
  * @property mixed $in_most_searched
+ * @property mixed $seen_count
  * @method getLang(string $string)
  */
 class FaqsResource extends JsonResource
@@ -76,6 +82,7 @@ class FaqsResource extends JsonResource
             'id' => $this->id,
             'question' => $this->getLang('question'),
             'is_active' => $this->is_active ?? true,
+            'seen_count' => $this->seen_count,
             'in_most_searched' => $this->in_most_searched ?? false,
             'category' => CategoriesListResource::make($this->whenLoaded('category')),
             'tags' => TagsListResource::collection($this->whenLoaded('tags')),

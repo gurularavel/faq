@@ -19,6 +19,11 @@ use OpenApi\Annotations as OA;
  *         type="integer",
  *         description="ID of the FAQ"
  *     ),
+ *          @OA\Property(
+ *          property="seen_count",
+ *          type="integer",
+ *          description="Seen count of the FAQ"
+ *      ),
  *     @OA\Property(
  *         property="category",
  *         ref="#/components/schemas/CategoriesListResource",
@@ -40,6 +45,7 @@ use OpenApi\Annotations as OA;
  *
  * @property mixed $id
  * @property mixed $translations
+ * @property mixed $seen_count
  */
 class FaqResource extends JsonResource
 {
@@ -54,6 +60,7 @@ class FaqResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'seen_count' => $this->seen_count,
             'category' => CategoriesListResource::make($this->whenLoaded('category')),
             'tags' => TagsListResource::collection($this->whenLoaded('tags')),
             'translations' => $this->translations,
