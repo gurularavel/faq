@@ -106,7 +106,7 @@ class CategoryRepository
             unset($validated['translations']);
 
             $default = $translations[0];
-            $slug = Str::slug($default);
+            $slug = Str::slug($default['title']);
 
             if (Category::query()->where('slug', $slug)->exists()) {
                 throw new BadRequestHttpException(
