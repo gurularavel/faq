@@ -171,6 +171,7 @@ const DashBoard = () => {
                       searchQuery={searchQuery}
                       showHighLight={showHighLight}
                       tags={item.tags}
+                      seen_count={item.seen_count}
                     />
                   </Grid2>
                 ))}
