@@ -79,12 +79,7 @@ const FAQItem = ({
   tags,
   seen_count,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(() => {
-    if (!searchQuery) return false;
-    const normalizedQuery = searchQuery.toLowerCase();
-    const normalizedAnswer = stripHtmlTags(answer).toLowerCase();
-    return normalizedAnswer.includes(normalizedQuery);
-  });
+  const [isExpanded, setIsExpanded] = useState(false);
   const t = useTranslate();
 
   const [viewCount, setViewCount] = useState(seen_count || 0);
