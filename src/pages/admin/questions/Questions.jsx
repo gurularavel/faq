@@ -367,11 +367,9 @@ export default function Questions() {
               </TableRow>
             ))
           ) : data.list.length > 0 ? (
-            data.list.map((row, i) => (
+            data.list.map((row) => (
               <TableRow key={row.id}>
-                <TableCell>
-                  {filters.page * filters.limit - filters.limit + i + 1}
-                </TableCell>
+                <TableCell>{row.id}</TableCell>
                 <TableCell>{row.question}</TableCell>
                 <TableCell>{row.category.parent.title}</TableCell>
                 <TableCell>{row.category.title}</TableCell>
@@ -422,11 +420,10 @@ export default function Questions() {
       {isLoading ? (
         <LoadingSkeleton />
       ) : data.list.length > 0 ? (
-        data.list.map((row, i) => (
+        data.list.map((row) => (
           <Box key={row.id} padding={2} borderBottom={"1px solid #E6E9ED"}>
             <Typography variant="body1">
-              {filters.page * filters.limit - filters.limit + i + 1}.{" "}
-              {row.question}
+              {row.id}. {row.question}
             </Typography>
             <Box mt={1}>
               <Grid2 container spacing={1}>
