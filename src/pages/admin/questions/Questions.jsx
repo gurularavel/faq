@@ -38,6 +38,7 @@ import SearchDropdown from "@components/filterOptions/SearchDropdown";
 import { Link, useNavigate } from "react-router-dom";
 import { UploadFile } from "@mui/icons-material";
 import ResetIcon from "@assets/icons/reset.svg";
+import OrderBtn from "@components/filterOptions/OrderBtn";
 export default function Questions() {
   const t = useTranslate();
   const { setContent } = useHeader();
@@ -316,12 +317,22 @@ export default function Questions() {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell></TableCell>
-            <TableCell sx={{ width: "50%" }}>{t("title")}</TableCell>
+            <TableCell>
+              <OrderBtn column="id" data={filters} setData={setFilters} />
+            </TableCell>
+            <TableCell sx={{ width: "40%" }}>{t("title")}</TableCell>
             <TableCell>{t("category")}</TableCell>
             <TableCell>{t("sub_category")}</TableCell>
             <TableCell>{t("status")}</TableCell>
-            <TableCell align="center">{t("search_count")}</TableCell>
+            <TableCell align="center">
+              {t("search_count")}
+
+              <OrderBtn
+                column="seen_count"
+                data={filters}
+                setData={setFilters}
+              />
+            </TableCell>
             <TableCell></TableCell>
           </TableRow>
         </TableHead>

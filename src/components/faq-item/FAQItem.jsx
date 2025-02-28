@@ -7,14 +7,10 @@ import {
   Collapse,
   Divider,
   Chip,
-  Badge,
-  Tooltip,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { stripHtmlTags } from "@src/utils/helpers/stripHtmlTags";
 import { levenshtein } from "@src/utils/helpers/levenshtein";
 import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
-import { useTranslate } from "@src/utils/translations/useTranslate";
 
 const HighlightText = ({ text, highlight }) => {
   const fuzzyHighlightHtml = useMemo(() => {
@@ -77,17 +73,12 @@ const FAQItem = ({
   searchQuery,
   showHighLight,
   tags,
-  seen_count,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const t = useTranslate();
-
-  const [viewCount, setViewCount] = useState(seen_count || 0);
 
   const postFaqId = async (id) => {
     try {
       await userPrivateApi.post(`/faqs/open/${id}`);
-      setViewCount((prevCount) => prevCount + 1);
     } catch (error) {
       console.log(error);
     }
@@ -121,31 +112,6 @@ const FAQItem = ({
               sx={{ fontSize: "0.7rem" }}
             />
           ))}
-        </Box>
-      )}
-      {viewCount > 0 && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "-12px",
-            left: "4px",
-            zIndex: 1,
-          }}
-        >
-          <Tooltip title={t("opened_count")} placement="top" arrow>
-            <Badge
-              badgeContent={viewCount}
-              color="error"
-              sx={{
-                "& .MuiBadge-badge": {
-                  fontSize: "0.7rem",
-                  height: "22px",
-                  minWidth: "22px",
-                  borderRadius: "11px",
-                },
-              }}
-            />
-          </Tooltip>
         </Box>
       )}
 
