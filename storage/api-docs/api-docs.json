@@ -5525,6 +5525,16 @@
                     },
                     {
                         "properties": {
+                            "sort": {
+                                "description": "Sort column for FAQs (id, seen_count)",
+                                "type": "string",
+                                "example": "id"
+                            },
+                            "sort_type": {
+                                "description": "Sort type for FAQs (desc, asc)",
+                                "type": "string",
+                                "example": "desc"
+                            },
                             "category": {
                                 "description": "ID of the category",
                                 "type": "integer",

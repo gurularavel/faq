@@ -11,6 +11,18 @@ use OpenApi\Annotations as OA;
  *     type="object",
  *     title="FAQs Load Request",
  *     description="Request parameters for loading FAQs",
+ *          @OA\Property(
+ *          property="sort",
+ *          type="string",
+ *          description="Sort column for FAQs (id, seen_count)",
+ *          example="id"
+ *      ),
+ *          @OA\Property(
+ *          property="sort_type",
+ *          type="string",
+ *          description="Sort type for FAQs (desc, asc)",
+ *          example="desc"
+ *      ),
  *     @OA\Property(
  *         property="category",
  *         type="integer",
@@ -57,6 +69,8 @@ class FaqsLoadRequest extends GeneralListRequest
     public function rules(): array
     {
         return parent::rules() + [
+                'sort' => ['nullable', 'string', 'in:id,seen_count'],
+                'sort_type' => ['nullable', 'string', 'in:asc,desc'],
                 'category' => ['nullable', 'integer'],
                 'status' => ['nullable', 'integer', 'in:1,2'], // 1 - active, 2 - deactive
             ];

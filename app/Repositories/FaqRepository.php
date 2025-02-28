@@ -61,7 +61,10 @@ class FaqRepository
             ->when($validated['status'] ?? null, function (Builder $builder) use ($validated) {
                 $builder->where('is_active', ((int)$validated['status']) === 1);
             })
-            ->orderByDesc('id')
+            ->orderBy(
+                $validated['sort'] ?? 'id',
+                $validated['sort_type'] ?? 'desc'
+            )
             ->paginate($validated['limit'] ?? 10);
     }
 
