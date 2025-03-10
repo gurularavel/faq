@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\App\Auth\LoginController;
 use App\Http\Controllers\App\Auth\LogoutController;
+use App\Http\Controllers\App\CategoryController;
 use App\Http\Controllers\App\ExamController;
 use App\Http\Controllers\App\FaqController;
 use App\Http\Controllers\App\NotificationController;
@@ -47,6 +48,10 @@ Route::middleware(['general_access:app', RouteLogMiddleware::class])->prefix('ap
             Route::get('most-searched', [FaqController::class, 'getMostSearchedItems']);
             Route::get('find/{faq}', [FaqController::class, 'findById']);
             Route::post('open/{faq}', [FaqController::class, 'open']);
+        });
+
+        Route::group(['prefix' => 'categories'], static function () {
+            Route::get('list', [CategoryController::class, 'list']);
         });
     });
 });

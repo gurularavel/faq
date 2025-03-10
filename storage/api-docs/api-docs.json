@@ -4344,6 +4344,47 @@
                 ]
             }
         },
+        "/api/app/categories/list": {
+            "get": {
+                "tags": [
+                    "AppCategory"
+                ],
+                "summary": "List categories for app",
+                "operationId": "534b71442e7832e52c40414cde274b7c",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/CategoriesListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CategoriesListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/app/exams/list": {
             "get": {
                 "tags": [
@@ -7570,6 +7611,10 @@
         {
             "name": "AppAuthentication",
             "description": "AppAuthentication"
+        },
+        {
+            "name": "AppCategory",
+            "description": "AppCategory"
         },
         {
             "name": "Exams",
