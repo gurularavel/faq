@@ -136,13 +136,6 @@ body {
       width: 100%;
       padding: 20px 24px;
       box-sizing: border-box;
-      .filter-reset-btn {
-        width: 100%;
-        padding: 0;
-        height: 50px;
-        border: 1px solid #e6e9ed;
-        border-radius: 12px;
-      }
     }
     .main-card-body-inner {
       width: 100%;
@@ -155,6 +148,17 @@ body {
       padding: 20px 24px;
       border-top: 1px solid #a2adc8;
     }
+  }
+}
+.filter-reset-btn {
+  width: 100%;
+  padding: 0;
+  height: 50px !important;
+  border: 1px solid #e6e9ed !important;
+  border-radius: 12px !important;
+  &.dashboard-btn {
+    max-width: 100px;
+    height: 76px !important;
   }
 }
 .data-list {

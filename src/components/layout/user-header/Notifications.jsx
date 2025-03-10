@@ -457,10 +457,12 @@ const Notifications = () => {
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <LiveHelpIcon sx={{ mr: 2, color: "#1976d2" }} />
                 <Typography variant="h6" component="h2">
-                  {faqData.question}
+                  <div dangerouslySetInnerHTML={{ __html: faqData.question }} />
                 </Typography>
               </Box>
-              <Typography sx={{ mt: 2 }}>{faqData.answer}</Typography>
+              <Typography sx={{ mt: 2 }}>
+                <div dangerouslySetInnerHTML={{ __html: faqData.answer }} />
+              </Typography>
               <Typography
                 variant="caption"
                 display="block"

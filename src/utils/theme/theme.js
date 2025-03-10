@@ -85,6 +85,9 @@ const theme = createTheme({
               },
             },
           },
+          "&.dashboard-filter-input": {
+            height: "76px",
+          },
         },
       },
     },
@@ -99,6 +102,7 @@ const theme = createTheme({
               padding: "4px 14px",
             },
           },
+
           "& .MuiInputLabel-root": {
             position: "relative",
             transform: "none",

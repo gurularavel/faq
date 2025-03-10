@@ -7,14 +7,20 @@ import {
   Grid2,
   Button,
   CircularProgress,
+  Chip,
+  FormControl,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import SearchIcon from "@assets/icons/search.svg";
 import FAQItem from "@components/faq-item/FAQItem";
 import { useTranslate } from "@src/utils/translations/useTranslate";
 import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
+import ResetIcon from "@assets/icons/reset.svg";
 
 const DashBoard = () => {
   const t = useTranslate();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [faqItems, setFaqItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,46 +29,103 @@ const DashBoard = () => {
   const [showHighLight, setShowHighLight] = useState(false);
   const [mostSearchedFaqs, setMostSearchedFaqs] = useState([]);
 
-  const fetchFAQs = useCallback(async (search = "", page = 1, limit = 10) => {
+  const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedSubCategories, setSelectedSubCategories] = useState([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+
+  const fetchCategories = useCallback(async () => {
+    setIsLoadingCategories(true);
     try {
-      const isSearchMode = search.length >= 3;
-      const endpoint = isSearchMode ? "/faqs/search" : "/faqs/most-searched";
-      const params = isSearchMode ? { search, page, limit } : {};
+      const { data } = await userPrivateApi.get(
+        "/categories/list?with_subs=yes"
+      );
+      setCategories(data.data || []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    } finally {
+      setIsLoadingCategories(false);
+    }
+  }, []);
 
-      const { data } = await userPrivateApi.get(endpoint, { params });
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
-      if (isSearchMode) {
-        setShowHighLight(true);
+  const skipEffectApiCall = React.useRef(false);
+
+  const fetchFAQs = useCallback(
+    async (
+      search = "",
+      page = 1,
+      limit = 10,
+      categoryIds = [],
+      subCategoryIds = []
+    ) => {
+      try {
+        const isSearchMode = search.length >= 3;
+
+        if (isSearchMode) {
+          const endpoint = "/faqs/search";
+          const params = {
+            search,
+            page,
+            limit,
+            category_id: categoryIds,
+            sub_category_id: subCategoryIds,
+          };
+
+          const { data } = await userPrivateApi.get(endpoint, { params });
+
+          setShowHighLight(true);
+          return {
+            items: data.data || [],
+            pagination: {
+              currentPage: data.meta.current_page,
+              lastPage: data.meta.last_page,
+              total: data.meta.total,
+            },
+          };
+        } else if (mostSearchedFaqs.length === 0) {
+          const endpoint = "/faqs/most-searched";
+          const { data } = await userPrivateApi.get(endpoint);
+
+          setShowHighLight(false);
+          const items = data.data || [];
+          setMostSearchedFaqs(items);
+
+          return {
+            items,
+            pagination: null,
+          };
+        } else {
+          return {
+            items: mostSearchedFaqs,
+            pagination: null,
+          };
+        }
+      } catch (error) {
+        console.error("Error fetching FAQs:", error);
         return {
-          items: data.data || [],
-          pagination: {
-            currentPage: data.meta.current_page,
-            lastPage: data.meta.last_page,
-            total: data.meta.total,
-          },
-        };
-      } else {
-        setShowHighLight(false);
-        setMostSearchedFaqs(data.data || []);
-        return {
-          items: data.data || [],
+          items: [],
           pagination: null,
         };
       }
-    } catch (error) {
-      console.error("Error fetching FAQs:", error);
-      return {
-        items: [],
-        pagination: null,
-      };
-    }
-  }, []);
+    },
+    [mostSearchedFaqs]
+  );
 
   const fetchInitialData = useCallback(
     async (search) => {
       setIsLoading(true);
       try {
-        const response = await fetchFAQs(search, 1);
+        const response = await fetchFAQs(
+          search,
+          1,
+          10,
+          selectedCategories,
+          selectedSubCategories
+        );
         setFaqItems(response.items);
         setPagination(response.pagination);
       } catch (error) {
@@ -73,7 +136,7 @@ const DashBoard = () => {
         setIsLoading(false);
       }
     },
-    [fetchFAQs]
+    [fetchFAQs, selectedCategories, selectedSubCategories]
   );
 
   const loadMore = async () => {
@@ -88,7 +151,13 @@ const DashBoard = () => {
     setIsLoadingMore(true);
     try {
       const nextPage = pagination.currentPage + 1;
-      const response = await fetchFAQs(searchQuery.trim(), nextPage);
+      const response = await fetchFAQs(
+        searchQuery.trim(),
+        nextPage,
+        10,
+        selectedCategories,
+        selectedSubCategories
+      );
 
       setFaqItems((prevItems) => [...prevItems, ...response.items]);
       setPagination(response.pagination);
@@ -99,9 +168,14 @@ const DashBoard = () => {
     }
   };
 
-  // Handle search query changes
   useEffect(() => {
     const trimmedQuery = searchQuery.trim();
+
+    if (skipEffectApiCall.current) {
+      skipEffectApiCall.current = false;
+      return;
+    }
+
     const timeoutId = setTimeout(() => {
       if (trimmedQuery.length >= 3) {
         fetchInitialData(trimmedQuery);
@@ -115,13 +189,121 @@ const DashBoard = () => {
     return () => clearTimeout(timeoutId);
   }, [searchQuery, fetchInitialData, mostSearchedFaqs]);
 
-  // Fetch most-searched FAQs only on initial load
   useEffect(() => {
     fetchInitialData("");
   }, [fetchInitialData]);
 
+  const handleResetFilters = () => {
+    setSelectedCategories([]);
+    setSelectedSubCategories([]);
+    setSearchQuery("");
+
+    setFaqItems(mostSearchedFaqs);
+    setShowHighLight(false);
+    setPagination(null);
+  };
+
+  const handleCategoryChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+
+    const newCategories =
+      typeof value === "string" ? value.split(",").map(Number) : value;
+
+    let newSubCategories = [...selectedSubCategories];
+
+    if (newCategories.length === 0) {
+      newSubCategories = [];
+    } else {
+      const validSubCategories = categories
+        .filter((cat) => newCategories.includes(cat.id))
+        .flatMap((cat) => cat.subs || [])
+        .map((sub) => sub.id);
+
+      newSubCategories = selectedSubCategories.filter((id) =>
+        validSubCategories.includes(id)
+      );
+    }
+
+    const trimmedQuery = searchQuery.trim();
+    if (trimmedQuery.length >= 3) {
+      skipEffectApiCall.current = true;
+
+      setIsLoading(true);
+      fetchFAQs(trimmedQuery, 1, 10, newCategories, newSubCategories)
+        .then((response) => {
+          setFaqItems(response.items);
+          setPagination(response.pagination);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.error("Error fetching with new filters:", err);
+          setIsLoading(false);
+        });
+    }
+
+    setSelectedCategories(newCategories);
+    setSelectedSubCategories(newSubCategories);
+  };
+
+  const handleSubCategoryChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+
+    const newSubCategories =
+      typeof value === "string" ? value.split(",").map(Number) : value;
+
+    const trimmedQuery = searchQuery.trim();
+    if (trimmedQuery.length >= 3) {
+      skipEffectApiCall.current = true;
+
+      setIsLoading(true);
+      fetchFAQs(trimmedQuery, 1, 10, selectedCategories, newSubCategories)
+        .then((response) => {
+          setFaqItems(response.items);
+          setPagination(response.pagination);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.error("Error fetching with new filters:", err);
+          setIsLoading(false);
+        });
+    }
+
+    setSelectedSubCategories(newSubCategories);
+  };
+
+  const availableSubCategories = useMemo(() => {
+    if (selectedCategories.length === 0) {
+      return categories.flatMap((cat) => cat.subs || []);
+    }
+
+    return categories
+      .filter((cat) => selectedCategories.includes(cat.id))
+      .flatMap((cat) => cat.subs || []);
+  }, [categories, selectedCategories]);
+
+  const getCategoryLabel = (id) => {
+    const category = categories.find((cat) => cat.id === id);
+    return category ? category.title : id;
+  };
+
+  const getSubCategoryLabel = (id) => {
+    for (const cat of categories) {
+      if (cat.subs) {
+        const subCat = cat.subs.find((sub) => sub.id === id);
+        if (subCat) return subCat.title;
+      }
+    }
+    return id;
+  };
+
   const showLoadMore =
     pagination && pagination.currentPage < pagination.lastPage;
+
+  const showFilters = searchQuery.trim().length >= 3;
 
   return (
     <Box className="search-container">
@@ -142,7 +324,133 @@ const DashBoard = () => {
           className="search-input"
         />
 
-        <Typography variant="h6" component="h2" className="faq-title">
+        {/* Filter section */}
+        {showFilters && (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              gap: 2,
+            }}
+          >
+            <FormControl sx={{ minWidth: 200, flex: 1 }}>
+              <Select
+                multiple
+                displayEmpty
+                className="filter-input dashboard-filter-input"
+                value={selectedCategories}
+                onChange={handleCategoryChange}
+                renderValue={(selected) => {
+                  if (selected.length === 0) {
+                    return <>{t("categories")}</>;
+                  }
+                  return (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip
+                          key={value}
+                          label={getCategoryLabel(value)}
+                          onDelete={() => {
+                            setSelectedCategories(
+                              selectedCategories.filter((id) => id !== value)
+                            );
+                          }}
+                          onMouseDown={(event) => {
+                            event.stopPropagation();
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  );
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 300,
+                    },
+                  },
+                }}
+              >
+                <MenuItem disabled value="">
+                  {t("categories")}{" "}
+                </MenuItem>
+                {categories.map((category) => (
+                  <MenuItem key={category.id} value={category.id}>
+                    {category.title}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl sx={{ minWidth: 200, flex: 1 }}>
+              <Select
+                multiple
+                displayEmpty
+                className="filter-input dashboard-filter-input"
+                value={selectedSubCategories}
+                onChange={handleSubCategoryChange}
+                renderValue={(selected) => {
+                  if (selected.length === 0) {
+                    return <>{t("subcategories")}</>;
+                  }
+                  return (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip
+                          key={value}
+                          label={getSubCategoryLabel(value)}
+                          onDelete={() => {
+                            setSelectedSubCategories(
+                              selectedSubCategories.filter((id) => id !== value)
+                            );
+                          }}
+                          onMouseDown={(event) => {
+                            event.stopPropagation();
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  );
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 300,
+                    },
+                  },
+                }}
+              >
+                <MenuItem disabled value="">
+                  {t("subcategories")}
+                </MenuItem>
+                {availableSubCategories.map((subCategory) => (
+                  <MenuItem key={subCategory.id} value={subCategory.id}>
+                    {subCategory.title}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Button
+              onClick={handleResetFilters}
+              disabled={
+                selectedCategories.length === 0 &&
+                selectedSubCategories.length === 0 &&
+                searchQuery.trim().length === 0
+              }
+              className="filter-reset-btn dashboard-btn"
+            >
+              <img src={ResetIcon} alt="reset" />
+            </Button>
+          </Box>
+        )}
+
+        <Typography
+          variant="h6"
+          component="h2"
+          className="faq-title"
+          sx={{ mt: 3 }}
+        >
           {searchQuery.length >= 3 ? t("result") : t("mostly_searched_faq")}
         </Typography>
 
