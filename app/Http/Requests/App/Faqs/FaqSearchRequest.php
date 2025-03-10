@@ -13,7 +13,9 @@ use OpenApi\Annotations as OA;
  *     description="Request body for searching FAQs",
  *     required={"search"},
  *     @OA\Property(property="search", type="string", description="Search term for FAQs"),
- *      @OA\Property(property="limit", type="integer", minimum=5, maximum=100, description="Number of items per page", example="10"),
+ *     @OA\Property(property="limit", type="integer", minimum=5, maximum=100, description="Number of items per page", example=10),
+ *     @OA\Property(property="sub_category_id", type="array", @OA\Items(type="integer"), description="Sub-category IDs"),
+ *     @OA\Property(property="category_id", type="array", @OA\Items(type="integer"), description="Category IDs")
  * )
  */
 class FaqSearchRequest extends FormRequest
@@ -36,6 +38,10 @@ class FaqSearchRequest extends FormRequest
         return [
             'search' => ['required', 'string'],
             'limit' => ['filled', 'int', 'min:5', 'max:100'],
+            'sub_category_id' => ['filled', 'array', 'min:1'],
+            'sub_category_id.*' => ['required', 'int', 'min:1'],
+            'category_id' => ['filled', 'array', 'min:1'],
+            'category_id.*' => ['required', 'int', 'min:1'],
         ];
     }
 }

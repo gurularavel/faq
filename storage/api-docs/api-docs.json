@@ -6234,7 +6234,21 @@
                         "type": "integer",
                         "maximum": 100,
                         "minimum": 5,
-                        "example": "10"
+                        "example": 10
+                    },
+                    "sub_category_id": {
+                        "description": "Sub-category IDs",
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "category_id": {
+                        "description": "Category IDs",
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
                     }
                 },
                 "type": "object"

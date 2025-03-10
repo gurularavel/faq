@@ -265,11 +265,17 @@ class FaqRepository
 
     public function fuzzySearch(array $validated): LengthAwarePaginator
     {
-        $search = $validated['search'];
-
-        return Faq::search($search)
-            ->query(function ($builder) {
+        return Faq::search($validated['search'])
+            ->query(function ($builder) use ($validated) {
                 $builder->active();
+                $builder->when($validated['sub_category_id'] ?? null, function ($builder) use ($validated) {
+                    $builder->whereIn('category_id', $validated['sub_category_id']);
+                });
+                $builder->when($validated['category_id'] ?? null, function ($builder) use ($validated) {
+                    $builder->whereHas('category', function ($query) use ($validated) {
+                        $query->whereIn('categories.category_id', $validated['category_id']);
+                    });
+                });
                 $builder->with([
                     'translatable',
                     'tags' => function ($builder) {
