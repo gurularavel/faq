@@ -30,7 +30,7 @@ class QuestionGroup extends Model
         'is_active' => 'boolean',
     ];
 
-    protected array $cascadeDeletes = ['translatable', 'questions', 'usersRel', 'departmentsRel'];
+    protected array $cascadeDeletes = ['translatable', 'questions'];
 
     public function scopeActive(Builder $query): void
     {
