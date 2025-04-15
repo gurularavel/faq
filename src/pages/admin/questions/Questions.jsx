@@ -371,7 +371,7 @@ export default function Questions() {
               <TableRow key={row.id}>
                 <TableCell>{row.id}</TableCell>
                 <TableCell>{row.question}</TableCell>
-                <TableCell>{row.category.parent.title}</TableCell>
+                <TableCell>{row.category.parent?.title}</TableCell>
                 <TableCell>{row.category.title}</TableCell>
                 <TableCell>
                   <Switch
@@ -434,7 +434,7 @@ export default function Questions() {
                 </Grid2>
                 <Grid2 size={6}>
                   <Typography variant="body">
-                    {row.category.parent.title}
+                    {row.category.parent?.title}
                   </Typography>
                 </Grid2>
 

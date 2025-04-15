@@ -359,7 +359,7 @@ export default function Users() {
                   </Button>
                 </TableCell>
 
-                <TableCell>{row.department.parent.title}</TableCell>
+                <TableCell>{row.department.parent?.title}</TableCell>
                 <TableCell>{row.department.title}</TableCell>
                 <TableCell>
                   <Switch
@@ -447,7 +447,7 @@ export default function Users() {
                 </Grid2>
                 <Grid2 size={6}>
                   <Typography variant="body">
-                    {row.department.parent.title}
+                    {row.department.parent?.title}
                   </Typography>
                 </Grid2>
 
