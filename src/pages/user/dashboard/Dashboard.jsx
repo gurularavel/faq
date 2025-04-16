@@ -471,17 +471,16 @@ const DashBoard = () => {
             ) : (
               <>
                 {faqItems.map((item) => (
-                  <Grid2 key={item.id} size={{ xs: 12, md: 6 }}>
-                    <FAQItem
-                      id={item.id}
-                      question={item.question}
-                      answer={item.answer}
-                      searchQuery={searchQuery}
-                      showHighLight={showHighLight}
-                      tags={item.tags}
-                      seen_count={item.seen_count}
-                    />
-                  </Grid2>
+                  <FAQItem
+                    key={item.id}
+                    id={item.id}
+                    question={item.question}
+                    answer={item.answer}
+                    searchQuery={searchQuery}
+                    showHighLight={showHighLight}
+                    tags={item.tags}
+                    seen_count={item.seen_count}
+                  />
                 ))}
                 {showLoadMore && (
                   <Grid2 size={{ xs: 12 }}>

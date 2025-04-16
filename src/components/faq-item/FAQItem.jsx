@@ -7,6 +7,7 @@ import {
   Collapse,
   Divider,
   Chip,
+  Grid2,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { levenshtein } from "@src/utils/helpers/levenshtein";
@@ -92,67 +93,69 @@ const FAQItem = ({
   };
 
   return (
-    <Box position="relative">
-      {tags && tags.length > 0 && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "-28px",
-            right: "16px",
-            zIndex: 1,
-            display: "flex",
-            gap: "4px",
-          }}
+    <Grid2 size={{ xs: 12, md: isExpanded ? 12 : 6 }} item>
+      <Box position="relative">
+        {tags && tags.length > 0 && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: "-28px",
+              right: "16px",
+              zIndex: 1,
+              display: "flex",
+              gap: "4px",
+            }}
+          >
+            {tags.map((tag) => (
+              <Chip
+                key={tag.id}
+                label={tag.title}
+                size="small"
+                sx={{ fontSize: "0.7rem" }}
+              />
+            ))}
+          </Box>
+        )}
+
+        <Paper
+          className={`faq-item ${isExpanded ? "expanded" : ""}`}
+          elevation={0}
+          onClick={!isExpanded ? toggleExpand : undefined}
         >
-          {tags.map((tag) => (
-            <Chip
-              key={tag.id}
-              label={tag.title}
-              size="small"
-              sx={{ fontSize: "0.7rem" }}
-            />
-          ))}
-        </Box>
-      )}
+          <Box className="faq-header">
+            <Typography variant="body1" className="faq-question">
+              <HighlightText
+                text={question}
+                highlight={showHighLight ? searchQuery : ""}
+              />
+            </Typography>
+            {isExpanded && (
+              <IconButton
+                className="close-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleExpand();
+                }}
+                size="small"
+              >
+                <CloseIcon />
+              </IconButton>
+            )}
+          </Box>
 
-      <Paper
-        className={`faq-item ${isExpanded ? "expanded" : ""}`}
-        elevation={0}
-        onClick={!isExpanded ? toggleExpand : undefined}
-      >
-        <Box className="faq-header">
-          <Typography variant="body1" className="faq-question">
-            <HighlightText
-              text={question}
-              highlight={showHighLight ? searchQuery : ""}
-            />
-          </Typography>
-          {isExpanded && (
-            <IconButton
-              className="close-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleExpand();
-              }}
-              size="small"
-            >
-              <CloseIcon />
-            </IconButton>
-          )}
-        </Box>
+          {isExpanded && <Divider className="question-divider" />}
 
-        {isExpanded && <Divider className="question-divider" />}
-
-        <Collapse in={isExpanded}>
-          <Typography variant="body2" className="faq-answer">
-            <HighlightText
-              text={answer}
-              highlight={showHighLight ? searchQuery : ""}
-            />
-          </Typography>
-        </Collapse>
-      </Paper>
-    </Box>
+          <Collapse in={isExpanded}>
+            <Typography variant="body2" className="faq-answer">
+              <HighlightText
+                text={answer}
+                highlight={showHighLight ? searchQuery : ""}
+              />
+            </Typography>
+          </Collapse>
+        </Paper>
+      </Box>
+    </Grid2>
   );
 };
 
