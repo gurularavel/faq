@@ -34,7 +34,7 @@ import Modal from "@components/modal";
 import DeleteModal from "@components/modal/DeleteModal";
 import SearchInput from "@components/filterOptions/SearchInput";
 import SearchDropdown from "@components/filterOptions/SearchDropdown";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import ResetIcon from "@assets/icons/reset.svg";
 
 export default function Users() {
@@ -42,28 +42,40 @@ export default function Users() {
   const { setContent } = useHeader();
   const [isLoading, setIsLoading] = useState(true);
   const nav = useNavigate();
+  const location = useLocation();
+
   const [data, setData] = useState({
     list: [],
     total: 0,
   });
 
-  const [filters, setFilters] = useState({
-    page: 1,
-    limit: 10,
-    category: null,
-    search: null,
-    status: null,
-  });
+  // Parse URL query parameters on initial load
+  const getInitialFilters = () => {
+    const params = new URLSearchParams(location.search);
+    return {
+      page: parseInt(params.get("page")) || 1,
+      limit: Math.min(parseInt(params.get("limit")) || 10, 100),
+      category: params.get("category")
+        ? parseInt(params.get("category"))
+        : null,
+      search: params.get("search") || "",
+      status: params.get("status") ? parseInt(params.get("status")) : null,
+    };
+  };
+
+  const [filters, setFilters] = useState(getInitialFilters());
 
   // reset filter
-  const resetFilter = () =>
-    setFilters({
+  const resetFilter = () => {
+    const defaultFilters = {
       page: 1,
       limit: 10,
       category: null,
-      search: null,
+      search: "",
       status: null,
-    });
+    };
+    setFilters(defaultFilters);
+  };
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -94,8 +106,13 @@ export default function Users() {
         queryParams.append(key, value);
       }
     });
+
+    // Replace current URL with new query parameters without reloading the page
+    const newUrl = `${location.pathname}?${queryParams.toString()}`;
+    window.history.replaceState({ path: newUrl }, "", newUrl);
+
     getData(queryParams);
-  }, [filters]);
+  }, [filters, location.pathname]);
 
   const handlePageChange = (event, newPage) => {
     setFilters((prev) => ({

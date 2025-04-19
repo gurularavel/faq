@@ -18,6 +18,7 @@ import { controlPrivateApi } from "@src/utils/axios/controlPrivateApi";
 import { useDispatch } from "react-redux";
 import { addStaticWord } from "@src/store/lang";
 import { useTranslate } from "@src/utils/translations/useTranslate";
+import { useNavigate } from "react-router-dom";
 
 // Validation schema using Yup
 const schema = yup.object({
@@ -33,7 +34,7 @@ const schema = yup.object({
 
 const Edit = ({ langs, setList, close, defaultData }) => {
   const t = useTranslate();
-
+  const nav = useNavigate();
   const dispatch = useDispatch();
   const lang = JSON.parse(localStorage.getItem("lang"));
   const [pending, setPending] = useState(false);
@@ -113,6 +114,7 @@ const Edit = ({ langs, setList, close, defaultData }) => {
           text: data.translations.find((e) => e.language_id == lang.id)?.text,
         })
       );
+      nav("#" + data.key);
 
       close();
     } catch (error) {

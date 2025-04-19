@@ -36,7 +36,7 @@ import DeleteModal from "@components/modal/DeleteModal";
 import SearchInput from "@components/filterOptions/SearchInput";
 import Add from "./popups/Add";
 import Edit from "./popups/Edit";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ResetIcon from "@assets/icons/reset.svg";
 
 export default function QuestionGroup() {
@@ -44,34 +44,45 @@ export default function QuestionGroup() {
   const { setContent } = useHeader();
   const [isLoading, setIsLoading] = useState(true);
   const nav = useNavigate();
+  const location = useLocation();
 
   const [data, setData] = useState({
     list: [],
     total: 0,
   });
 
-  const [filters, setFilters] = useState({
-    page: 1,
-    limit: 10,
-    search: null,
-  });
+  // Parse URL query parameters on initial load
+  const getInitialFilters = () => {
+    const params = new URLSearchParams(location.search);
+    return {
+      page: parseInt(params.get("page")) || 1,
+      limit: Math.min(parseInt(params.get("limit")) || 10, 100),
+      search: params.get("search") || "",
+    };
+  };
+
+  const [filters, setFilters] = useState(getInitialFilters());
 
   // reset filter
-  const resetFilter = () =>
-    setFilters({
+  const resetFilter = () => {
+    const defaultFilters = {
       page: 1,
       limit: 10,
-      search: null,
-    });
+      search: "",
+    };
+    setFilters(defaultFilters);
+  };
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const getData = async (url) => {
+  const getData = async (queryParams) => {
     setIsLoading(true);
 
     try {
-      const res = await controlPrivateApi.get(url);
+      const res = await controlPrivateApi.get(
+        `/categories/load?${queryParams}`
+      );
 
       setData({
         list: res.data.data,
@@ -87,16 +98,18 @@ export default function QuestionGroup() {
   };
 
   useEffect(() => {
-    let url = `/categories/load?`;
-
-    for (const key in filters) {
-      if (filters[key]) {
-        url += `${key}=${filters[key]}&`;
+    const queryParams = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== "") {
+        queryParams.append(key, value);
       }
-    }
-    url = url.slice(0, -1);
+    });
 
-    getData(url);
+    // Replace current URL with new query parameters without reloading the page
+    const newUrl = `${location.pathname}?${queryParams.toString()}`;
+    window.history.replaceState({ path: newUrl }, "", newUrl);
+
+    getData(queryParams);
   }, [filters]);
 
   const handlePageChange = (event, newPage) => {
@@ -372,7 +385,10 @@ export default function QuestionGroup() {
             >
               <Switch
                 checked={row.is_active}
-                onChange={() => toggleStatus(row.id, row.is_active)}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  toggleStatus(row.id, row.is_active);
+                }}
                 size="small"
                 onClick={(e) => e.stopPropagation()}
               />
@@ -385,7 +401,8 @@ export default function QuestionGroup() {
                 <Box>
                   <IconButton
                     size="small"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setDraftData(row);
                       setModal(2);
                     }}
@@ -395,7 +412,8 @@ export default function QuestionGroup() {
                   <IconButton
                     size="small"
                     color="error"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setDraftData(row);
                       setModal(3);
                     }}

@@ -28,10 +28,11 @@ import ResetIcon from "@assets/icons/reset.svg";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@assets/icons/delete.svg";
 import EditIcon from "@assets/icons/edit.svg";
+import { useLocation } from "react-router-dom";
 export default function Translations() {
   const t = useTranslate();
   const { setContent } = useHeader();
-
+  const loc = useLocation();
   const [pending, setPending] = useState(true);
   const [languages, setLanguages] = useState([]);
   const [list, setList] = useState([]);
@@ -60,6 +61,24 @@ export default function Translations() {
       );
       setLanguages(res.data.data.languages);
       setList(res.data.data.translations);
+
+      // scrooll to id from url as hash
+      setTimeout(() => {
+        const hash = window.location.hash.substring(1);
+        console.log(hash);
+
+        if (hash) {
+          const element = document.getElementById(hash);
+          if (element) {
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.scrollY - 100;
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "smooth",
+            });
+          }
+        }
+      }, 1000);
     } catch (error) {
     } finally {
       setPending(false);
@@ -232,6 +251,7 @@ export default function Translations() {
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     tabIndex={-1}
                     key={item.key + item.group}
+                    id={item.key}
                   >
                     <TableCell>{item.key}</TableCell>
                     {languages.map((lang) => (

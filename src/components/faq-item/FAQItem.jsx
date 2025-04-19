@@ -19,6 +19,7 @@ const HighlightText = ({ text, highlight }) => {
       return { __html: text };
     }
 
+    // Store all HTML tags with their positions
     const tags = [];
     let cleanText = text.replace(/<[^>]+>/g, (match, offset) => {
       tags.push({ tag: match, position: offset });
@@ -26,42 +27,68 @@ const HighlightText = ({ text, highlight }) => {
     });
 
     const searchWords = highlight.toLowerCase().split(/\s+/).filter(Boolean);
-
-    const wordBoundary = /([^\w]|$)/;
-
-    const parts = cleanText.split(/(\s+|[.,!?;])/);
     const maxDistance = Math.min(2, Math.floor(highlight.length / 3));
 
+    // Split only text content, preserving tag placeholders
+    const parts = [];
+    let currentPart = "";
+    let currentTagIndex = 0;
+
+    for (let i = 0; i < cleanText.length; i++) {
+      if (
+        i <= cleanText.length - 5 &&
+        cleanText.substring(i, i + 5) === "§TAG§"
+      ) {
+        if (currentPart) {
+          parts.push({ type: "text", content: currentPart });
+          currentPart = "";
+        }
+        parts.push({ type: "tag", index: currentTagIndex });
+        currentTagIndex++;
+        i += 4; // Skip the rest of §TAG§
+      } else if (/\s|[.,!?;]/.test(cleanText[i])) {
+        if (currentPart) {
+          parts.push({ type: "text", content: currentPart });
+          currentPart = "";
+        }
+        parts.push({ type: "text", content: cleanText[i] });
+      } else {
+        currentPart += cleanText[i];
+      }
+    }
+
+    if (currentPart) {
+      parts.push({ type: "text", content: currentPart });
+    }
+
+    // Process each text part for highlighting
     const processedParts = parts.map((part) => {
-      const trimmedPart = part.trim();
-      if (!trimmedPart) return part;
+      if (part.type === "tag") {
+        return tags[part.index].tag;
+      }
+
+      const content = part.content;
+      if (!content.trim()) return content;
 
       const shouldHighlight = searchWords.some((searchWord) => {
-        if (trimmedPart.toLowerCase().includes(searchWord)) {
+        if (content.toLowerCase().includes(searchWord)) {
           return true;
         }
 
-        const lengthDiff = Math.abs(trimmedPart.length - searchWord.length);
+        const lengthDiff = Math.abs(content.length - searchWord.length);
         if (lengthDiff <= 2) {
-          const distance = levenshtein(trimmedPart.toLowerCase(), searchWord);
+          const distance = levenshtein(content.toLowerCase(), searchWord);
           return distance <= maxDistance;
         }
         return false;
       });
 
       return shouldHighlight
-        ? `<span style="background-color: #ffeb3b">${part}</span>`
-        : part;
+        ? `<span style="background-color: #ffeb3b">${content}</span>`
+        : content;
     });
 
-    let finalHtml = processedParts.join("");
-
-    tags.reverse().forEach(({ tag, position }) => {
-      const parts = finalHtml.split("§TAG§");
-      finalHtml = parts[0] + tag + parts.slice(1).join("§TAG§");
-    });
-
-    return { __html: finalHtml };
+    return { __html: processedParts.join("") };
   }, [text, highlight]);
 
   return <span dangerouslySetInnerHTML={fuzzyHighlightHtml} />;

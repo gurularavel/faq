@@ -380,6 +380,20 @@ body {
   }
 }
 
+figure.table {
+  table {
+    border: 1px solid black;
+    border-collapse: collapse;
+    tr {
+      border: 1px solid black;
+      td {
+        border: 1px solid black;
+        padding: 5px;
+      }
+    }
+  }
+}
+
 // exam container
 .exam-container {
   width: 100%;

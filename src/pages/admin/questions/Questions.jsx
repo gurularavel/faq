@@ -35,37 +35,67 @@ import Modal from "@components/modal";
 import DeleteModal from "@components/modal/DeleteModal";
 import SearchInput from "@components/filterOptions/SearchInput";
 import SearchDropdown from "@components/filterOptions/SearchDropdown";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { UploadFile } from "@mui/icons-material";
 import ResetIcon from "@assets/icons/reset.svg";
 import OrderBtn from "@components/filterOptions/OrderBtn";
+
 export default function Questions() {
   const t = useTranslate();
   const { setContent } = useHeader();
   const [isLoading, setIsLoading] = useState(true);
   const nav = useNavigate();
+  const location = useLocation();
   const [data, setData] = useState({
     list: [],
     total: 0,
   });
 
-  const [filters, setFilters] = useState({
-    page: 1,
-    limit: 10,
-    category: null,
-    search: null,
-    status: null,
-  });
+  // Parse URL query parameters on initial load
+  const getInitialFilters = () => {
+    const params = new URLSearchParams(location.search);
+    return {
+      page: parseInt(params.get("page")) || 1,
+      limit: Math.min(parseInt(params.get("limit")) || 10, 100),
+      category: params.get("category")
+        ? parseInt(params.get("category"))
+        : null,
+      search: params.get("search") || "",
+      status: params.get("status") ? parseInt(params.get("status")) : null,
+      sort: params.get("sort") || null,
+      sort_type: params.get("sort_type") || null,
+    };
+  };
+
+  const [filters, setFilters] = useState(getInitialFilters());
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== "") {
+        queryParams.append(key, value);
+      }
+    });
+
+    const newUrl = `${location.pathname}?${queryParams.toString()}`;
+    window.history.replaceState({ path: newUrl }, "", newUrl);
+
+    getData(queryParams);
+  }, [filters]);
 
   // reset filter
-  const resetFilter = () =>
-    setFilters({
+  const resetFilter = () => {
+    const defaultFilters = {
       page: 1,
       limit: 10,
       category: null,
-      search: null,
+      search: "",
       status: null,
-    });
+      sort: null,
+      sort_type: null,
+    };
+    setFilters(defaultFilters);
+  };
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -88,16 +118,6 @@ export default function Questions() {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    const queryParams = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== null && value !== undefined && value !== "") {
-        queryParams.append(key, value);
-      }
-    });
-    getData(queryParams);
-  }, [filters]);
 
   const handlePageChange = (event, newPage) => {
     setFilters((prev) => ({
