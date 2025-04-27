@@ -158,7 +158,7 @@ const FAQItem = ({
             {tags.map((tag) => (
               <Chip
                 key={tag.id}
-                label={tag.title}
+                label={<span dangerouslySetInnerHTML={{ __html: tag.title }} />}
                 size="small"
                 sx={{ fontSize: "0.7rem" }}
               />
