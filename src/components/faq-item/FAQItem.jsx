@@ -172,12 +172,12 @@ const FAQItem = ({
           onClick={!isExpanded ? toggleExpand : undefined}
         >
           <Box className="faq-header">
-            <Typography variant="body1" className="faq-question">
-              <HighlightText
-                text={question}
-                highlight={showHighLight ? searchQuery : ""}
-              />
-            </Typography>
+            <Box
+              dangerouslySetInnerHTML={{
+                __html: question,
+              }}
+              className="faq-question"
+            />
             {isExpanded && (
               <IconButton
                 className="close-button"
@@ -195,12 +195,10 @@ const FAQItem = ({
           {isExpanded && <Divider className="question-divider" />}
 
           <Collapse in={isExpanded}>
-            <Typography variant="body2" className="faq-answer">
-              <HighlightText
-                text={answer}
-                highlight={showHighLight ? searchQuery : ""}
-              />
-            </Typography>
+            <Box
+              className="faq-answer"
+              dangerouslySetInnerHTML={{ __html: answer }}
+            />
           </Collapse>
         </Paper>
       </Box>
