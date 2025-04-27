@@ -2,10 +2,9 @@
 
 namespace App\Http\Resources\App\Tags;
 
-use App\Services\HighlightService;
+use App\Services\SmartFuzzyHighlighterService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use OpenApi\Annotations as OA;
 
 /**
  * @OA\Schema(
@@ -40,7 +39,7 @@ class TagsSearchResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'title' => HighlightService::instance()->highlightPreservingHtml($this->title, $search),
+            'title' => SmartFuzzyHighlighterService::instance()->highlightSmart($this->title, $search),
         ];
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Http\Resources\App\Faqs;
 
 use App\Http\Resources\App\Tags\TagsSearchResource;
-use App\Services\HighlightService;
+use App\Services\SmartFuzzyHighlighterService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -60,8 +60,8 @@ class FaqsSearchResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'question' => HighlightService::instance()->highlightPreservingHtml($this->getLang('question'), $search),
-            'answer' => HighlightService::instance()->highlightPreservingHtml($this->getLang('answer'), $search),
+            'question' => SmartFuzzyHighlighterService::instance()->highlightSmart($this->getLang('question'), $search),
+            'answer' => SmartFuzzyHighlighterService::instance()->highlightSmart($this->getLang('answer'), $search),
             'seen_count' => $this->seen_count,
             'tags' => TagsSearchResource::collection($this->whenLoaded('tags')),
         ];
