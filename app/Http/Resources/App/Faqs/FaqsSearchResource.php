@@ -2,14 +2,14 @@
 
 namespace App\Http\Resources\App\Faqs;
 
-use App\Http\Resources\Admin\Tags\TagsListResource;
+use App\Http\Resources\App\Tags\TagsSearchResource;
 use App\Services\HighlightService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @OA\Schema(
- *     schema="FaqsListResource",
+ *     schema="FaqsSearchResource",
  *     type="object",
  *     title="FAQs List Resource",
  *     description="FAQs List Resource",
@@ -36,7 +36,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *      @OA\Property(
  *          property="tags",
  *          type="array",
- *          @OA\Items(ref="#/components/schemas/TagsListResource"),
+ *          @OA\Items(ref="#/components/schemas/TagsSearchResource"),
  *          description="Tags associated with the FAQ"
  *      )
  * )
@@ -63,7 +63,7 @@ class FaqsSearchResource extends JsonResource
             'question' => HighlightService::instance()->highlightPreservingHtml($this->getLang('question'), $search),
             'answer' => HighlightService::instance()->highlightPreservingHtml($this->getLang('answer'), $search),
             'seen_count' => $this->seen_count,
-            'tags' => TagsListResource::collection($this->whenLoaded('tags')),
+            'tags' => TagsSearchResource::collection($this->whenLoaded('tags')),
         ];
     }
 }

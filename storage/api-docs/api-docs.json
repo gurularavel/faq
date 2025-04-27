@@ -4689,7 +4689,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/FaqsListResource"
+                                        "$ref": "#/components/schemas/FaqsSearchResource"
                                     }
                                 }
                             }
@@ -7476,6 +7476,36 @@
                 },
                 "type": "object"
             },
+            "FaqsSearchResource": {
+                "title": "FAQs List Resource",
+                "description": "FAQs List Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the FAQ",
+                        "type": "integer"
+                    },
+                    "question": {
+                        "description": "Question text",
+                        "type": "string"
+                    },
+                    "answer": {
+                        "description": "Answer text",
+                        "type": "string"
+                    },
+                    "seen_count": {
+                        "description": "Seen count",
+                        "type": "integer"
+                    },
+                    "tags": {
+                        "description": "Tags associated with the FAQ",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TagsSearchResource"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "NotificationsListResource": {
                 "properties": {
                     "id": {
@@ -7498,6 +7528,20 @@
                     },
                     "is_seen": {
                         "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "TagsSearchResource": {
+                "title": "Tags List Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the tag",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Title of the tag",
+                        "type": "string"
                     }
                 },
                 "type": "object"

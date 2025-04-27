@@ -44,7 +44,7 @@ class FaqController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/FaqsListResource"))
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/FaqsSearchResource"))
      *     )
      * )
      */
