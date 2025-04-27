@@ -49,14 +49,13 @@ class Faq extends Model
 
     public function toSearchableArray(): array
     {
-        $translation = $this->translatable()
-            //->where('language_id', LangService::instance()->getCurrentLangId())
-            ->pluck('text')
-            ->implode(' ');
+        $translation = $this->relationLoaded('translatable')
+            ? $this->translatable->pluck('text')->implode(' ')
+            : $this->translatable()->pluck('text')->implode(' ');
 
-        $tagTitles = $this->tags
-            ->pluck('title')
-            ->implode(' ');
+        $tagTitles = $this->relationLoaded('tags')
+            ? $this->tags->pluck('title')->implode(' ')
+            : $this->tags()->pluck('title')->implode(' ');
 
         return [
             'id' => $this->id,
@@ -67,7 +66,7 @@ class Faq extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with('translatable');
+        return $query->with(['translatable', 'tags']);
     }
 
     public function category(): BelongsTo

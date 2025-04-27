@@ -5,6 +5,7 @@ namespace App\Http\Controllers\App;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\App\Faqs\FaqSearchRequest;
 use App\Http\Resources\Admin\Faqs\FaqsListResource;
+use App\Http\Resources\App\Faqs\FaqsSearchResource;
 use App\Http\Resources\GeneralResource;
 use App\Models\Faq;
 use App\Repositories\FaqRepository;
@@ -51,7 +52,7 @@ class FaqController extends Controller
     {
         $validated = $request->validated();
 
-        return FaqsListResource::collection($this->repo->fuzzySearch($validated));
+        return FaqsSearchResource::collection($this->repo->fuzzySearch($validated));
     }
 
     /**
