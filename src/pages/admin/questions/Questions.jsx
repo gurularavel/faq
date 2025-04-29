@@ -514,7 +514,14 @@ export default function Questions() {
   );
 
   return (
-    <MainCard title={t("questions")}>
+    <MainCard
+      title={
+        <>
+          {t("questions_count")}:
+          <Chip label={data.total} color="error" sx={{ ml: 1 }} />
+        </>
+      }
+    >
       <Modal
         open={open}
         fullScreenOnMobile={false}
