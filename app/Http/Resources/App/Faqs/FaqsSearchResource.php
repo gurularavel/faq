@@ -2,8 +2,7 @@
 
 namespace App\Http\Resources\App\Faqs;
 
-use App\Http\Resources\App\Tags\TagsSearchResource;
-use App\Services\SmartFuzzyHighlighterService;
+use App\Services\HtmlSafeHighlighterService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -12,37 +11,52 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *     schema="FaqsSearchResource",
  *     type="object",
  *     title="FAQs List Resource",
- *     description="FAQs List Resource",
+ *     description="Resource representing a single FAQ item",
  *     @OA\Property(
  *         property="id",
  *         type="integer",
- *         description="ID of the FAQ"
+ *         description="ID of the FAQ",
+ *         example=1
  *     ),
  *     @OA\Property(
  *         property="question",
  *         type="string",
- *         description="Question text"
+ *         description="Question text",
+ *         example="What is the return policy?"
  *     ),
  *     @OA\Property(
  *         property="answer",
  *         type="string",
- *         description="Answer text"
+ *         description="Answer text",
+ *         example="You can return items within 30 days."
  *     ),
- *          @OA\Property(
- *          property="seen_count",
- *          type="integer",
- *          description="Seen count"
- *      ),
- *      @OA\Property(
- *          property="tags",
- *          type="array",
- *          @OA\Items(ref="#/components/schemas/TagsSearchResource"),
- *          description="Tags associated with the FAQ"
- *      )
+ *     @OA\Property(
+ *         property="seen_count",
+ *         type="integer",
+ *         description="Number of times the FAQ has been viewed",
+ *         example=42
+ *     ),
+ *     @OA\Property(
+ *         property="tags",
+ *         type="array",
+ *         description="Tags associated with the FAQ",
+ *         @OA\Items(ref="#/components/schemas/TagsSearchResource")
+ *     ),
+ *     @OA\Property(
+ *         property="score",
+ *         type="number",
+ *         format="float",
+ *         description="Relevance score of the FAQ",
+ *         example=0.95
+ *     )
  * )
  *
  * @property mixed $id
  * @property mixed $seen_count
+ * @property mixed $tags
+ * @property mixed $score
+ * @property mixed $question
+ * @property mixed $answer
  * @method getLang(string $string)
  */
 class FaqsSearchResource extends JsonResource
@@ -60,10 +74,11 @@ class FaqsSearchResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'question' => SmartFuzzyHighlighterService::instance()->highlightSmart($this->getLang('question'), $search),
-            'answer' => SmartFuzzyHighlighterService::instance()->highlightSmart($this->getLang('answer'), $search),
+            'question' => HtmlSafeHighlighterService::instance()->highlight($this->question, $search),
+            'answer'   => HtmlSafeHighlighterService::instance()->highlight($this->answer, $search),
             'seen_count' => $this->seen_count,
-            'tags' => TagsSearchResource::collection($this->whenLoaded('tags')),
+            'tags' => $this->tags,
+            'score' => $this->score,
         ];
     }
 }

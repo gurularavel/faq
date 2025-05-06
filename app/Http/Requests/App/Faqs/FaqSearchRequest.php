@@ -37,6 +37,7 @@ class FaqSearchRequest extends FormRequest
     {
         return [
             'search' => ['required', 'string'],
+            'page' => 'sometimes|integer|min:1',
             'limit' => ['filled', 'int', 'min:5', 'max:100'],
             'sub_category_id' => ['filled', 'array', 'min:1'],
             'sub_category_id.*' => ['required', 'int', 'min:1'],

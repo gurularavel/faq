@@ -9,8 +9,10 @@ use App\Models\Faq;
 use App\Models\FaqList;
 use App\Models\User;
 use App\Services\LangService;
+use App\Services\LoggerService;
 use App\Services\NotificationService;
 use Carbon\Carbon;
+use Elasticsearch\Client;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -127,6 +129,8 @@ class FaqRepository
 
             $faq->tags()->sync($tags);
 
+            (new FaqRepository())->indexFaq($faq);
+
             return $faq;
         });
     }
@@ -160,6 +164,8 @@ class FaqRepository
             $userIds = User::query()->pluck('id')->toArray();
             NotificationService::instance()->sendToUsers($userIds, NotificationTypeEnum::FAQ, $faq);
 
+            (new FaqRepository())->indexFaq($faq);
+
             return $faq;
         });
     }
@@ -168,6 +174,8 @@ class FaqRepository
     {
         DB::transaction(static function () use ($faq) {
             $faq->delete();
+
+            (new FaqRepository())->deleteFromIndex($faq);
         });
     }
 
@@ -176,6 +184,8 @@ class FaqRepository
         DB::transaction(static function () use ($faq) {
             $faq->is_active = !$faq->is_active;
             $faq->save();
+
+            (new FaqRepository())->indexFaq($faq);
         });
     }
 
@@ -265,25 +275,147 @@ class FaqRepository
 
     public function fuzzySearch(array $validated): LengthAwarePaginator
     {
-        return Faq::search($validated['search'])
-            ->query(function ($builder) use ($validated) {
-                $builder->active();
-                $builder->when($validated['sub_category_id'] ?? null, function ($builder) use ($validated) {
-                    $builder->whereIn('category_id', $validated['sub_category_id']);
-                });
-                $builder->when($validated['category_id'] ?? null, function ($builder) use ($validated) {
-                    $builder->whereHas('category', function ($query) use ($validated) {
-                        $query->whereIn('categories.category_id', $validated['category_id']);
-                    });
-                });
-                $builder->with([
-                    'translatable',
-                    'tags' => function ($builder) {
-                        $builder->limit(config('settings.faq.tags_limit'));
-                    },
-                ]);
-            })
-            ->paginate($validated['limit'] ?? 10);
+        $client = app(Client::class);
+
+        $lang = LangService::instance()->getCurrentLang();
+        $questionField = "question_{$lang}";
+        $answerField = "answer_{$lang}";
+
+        $perPage = $validated['limit'] ?? 10;
+        $page = $validated['page'] ?? 1;
+
+        $filters = [];
+
+        if (!empty($validated['sub_category_id'])) {
+            $filters[] = [
+                'terms' => [
+                    'category_id' => $validated['sub_category_id']
+                ]
+            ];
+        }
+
+        if (!empty($validated['category_id'])) {
+            $filters[] = [
+                'terms' => [
+                    'parent_category_id' => $validated['category_id']
+                ]
+            ];
+        }
+
+        $response = $client->search([
+            'index' => 'faq_index',
+            'body' => [
+                'from' => ($page - 1) * $perPage,
+                'size' => $perPage,
+                'query' => [
+
+                    'bool' => [
+                        'should' => [
+                            [
+                                'match_phrase' => [
+                                    'content' => $validated['search']
+                                ]
+                            ],
+                            [
+                                'multi_match' => [
+                                    'query'     => $validated['search'],
+                                    'fields'    => [$questionField, $answerField, 'tags'],
+                                    'fuzziness' => 'AUTO',
+                                    'operator' => 'and',
+                                ]
+                            ]
+                        ],
+                        'filter' => $filters,
+                    ]
+                ],
+                'highlight' => [
+                    'pre_tags' => ['<span style="background: yellow;">'],
+                    'post_tags'=> ['</span>'],
+                    'fields' => [
+                        $questionField => new \stdClass(),
+                        $answerField   => new \stdClass(),
+                        'tags'         => new \stdClass(),
+                    ]
+                ]
+            ]
+        ]);
+
+        $hits = collect($response['hits']['hits']);
+
+        $faqIds = data_get($hits, '*._source.id');
+        $faqs = Faq::query()
+            ->active()
+            ->whereIn('id', $faqIds)
+            ->with([
+                'tags',
+            ])
+            ->get();
+
+        $results = $hits->map(function ($hit) use ($faqs, $lang) {
+            $source = $hit['_source'];
+            $highlight = $hit['highlight'] ?? [];
+
+            $faqModel = $faqs->where('id', $source['id'])->first();
+
+            if (!$faqModel) {
+                return null;
+            }
+
+            $question = $source["question_{$lang}"];
+            if (!empty($highlight["question_{$lang}"][0])) {
+                $highlighted = strip_tags($highlight["question_{$lang}"][0], '<span>');
+                $term = strip_tags($highlight["question_{$lang}"][0]);
+                $question = $this->mbStrReplace($term, $highlighted, $question);
+            }
+
+            $answer = $source["answer_{$lang}"];
+            if (!empty($highlight["answer_{$lang}"][0])) {
+                $highlighted = strip_tags($highlight["answer_{$lang}"][0], '<span>');
+                $term = strip_tags($highlight["answer_{$lang}"][0]);
+                $answer = $this->mbStrReplace($term, $highlighted, $answer);
+            }
+
+            $highlightedTag = null;
+            if (!empty($highlight['tags'][0])) {
+                $highlightedTag = [
+                    'term' => strip_tags($highlight['tags'][0]),
+                    'highlighted' => strip_tags($highlight['tags'][0], '<span>'),
+                ];
+            }
+
+            $tags = $faqModel->tags->map(function ($tag) use ($highlightedTag) {
+                $title = $tag->title;
+                if ($highlightedTag && stripos($title, $highlightedTag['term']) !== false) {
+                    $title = $this->mbStrReplace($highlightedTag['term'], $highlightedTag['highlighted'], $title);
+                }
+                return [
+                    'id' => $tag->id,
+                    'title' => $title,
+                ];
+            })->values()->all();
+
+            return (object)[
+                'id' => $source['id'],
+                'question' => $question,
+                'answer' => $answer,
+                'seen_count' => 0,
+                'tags' => $tags,
+                'score' => $hit['_score'] ?? null,
+            ];
+        })->filter();
+
+        return new \Illuminate\Pagination\LengthAwarePaginator(
+            $results,
+            $response['hits']['total']['value'] ?? 0,
+            $perPage,
+            $page
+        );
+    }
+
+    private function mbStrReplace($search, $replace, $subject): array|string|null
+    {
+        $pattern = '/' . preg_quote($search, '/') . '/iu';
+        return preg_replace($pattern, $replace, $subject);
     }
 
     public function checkIsActive(Faq $faq): void
@@ -295,5 +427,128 @@ class FaqRepository
                     ->getLang('faq_is_not_active')
             );
         }
+    }
+
+    public function indexFaq(Faq $faq): void
+    {
+        $faq->load(['translatable', 'tags', 'category']);
+
+        $data = [
+            'id' => $faq->id,
+            'question_az' => $faq->getLang('question', LangService::instance()->getLangIdByKey('az')),
+            'answer_az'   => $faq->getLang('answer', LangService::instance()->getLangIdByKey('az')),
+            'question_ru' => $faq->getLang('question', LangService::instance()->getLangIdByKey('ru')),
+            'answer_ru'   => $faq->getLang('answer', LangService::instance()->getLangIdByKey('ru')),
+            'tags'        => $faq->tags->pluck('title')->implode(' '),
+            'category_id' => $faq->category_id,
+            'parent_category_id' => optional($faq->category)->category_id ?? 0,
+        ];
+
+        app(Client::class)->index([
+            'index' => 'faq_index',
+            'id'    => $faq->id,
+            'body'  => $data
+        ]);
+    }
+
+    public function deleteFromIndex(Faq $faq): void
+    {
+        try {
+            app(Client::class)->delete([
+                'index' => 'faq_index',
+                'id' => $faq->id,
+            ]);
+        } catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e) {
+            LoggerService::instance()->log($e->getMessage(), [], true);
+        }
+    }
+
+    public function deleteIndex(): void
+    {
+        $client = app(Client::class);
+
+        if ($client->indices()->exists(['index' => 'faq_index'])) {
+            $client->indices()->delete(['index' => 'faq_index']);
+        }
+    }
+
+    public function createIndex(): void
+    {
+        $client = app(Client::class);
+
+        $client->indices()->create([
+            'index' => 'faq_index',
+            'body' => [
+                'settings' => [
+                    'analysis' => [
+                        'analyzer' => [
+                            'az_ru_analyzer' => [
+                                'type' => 'custom',
+                                'tokenizer' => 'standard',
+                                'filter' => ['lowercase', 'asciifolding'],
+                            ],
+                        ],
+                    ],
+                ],
+                'mappings' => [
+                    'properties' => [
+                        'id' => ['type' => 'integer'],
+                        'question_az' => ['type' => 'text', 'analyzer' => 'az_ru_analyzer'],
+                        'answer_az' => ['type' => 'text', 'analyzer' => 'az_ru_analyzer'],
+                        'question_ru' => ['type' => 'text', 'analyzer' => 'az_ru_analyzer'],
+                        'answer_ru' => ['type' => 'text', 'analyzer' => 'az_ru_analyzer'],
+                        'tags' => ['type' => 'text', 'analyzer' => 'az_ru_analyzer'],
+                        'category_id' => ['type' => 'integer'],
+                        'parent_category_id' => ['type' => 'integer'],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function generateIndex(): void
+    {
+        $client = app(Client::class);
+
+        $langAz = LangService::instance()->getLangIdByKey('az');
+        $langRu = LangService::instance()->getLangIdByKey('ru');
+
+        Faq::query()
+            ->active()
+            ->with(['translatable', 'tags', 'category'])
+            ->chunk(100, function ($faqs) use ($client, $langAz, $langRu) {
+                $body = [];
+
+                foreach ($faqs as $faq) {
+                    $body[] = [
+                        'index' => [
+                            '_index' => 'faq_index',
+                            '_id' => $faq->id,
+                        ],
+                    ];
+
+                    $body[] = [
+                        'id' => $faq->id,
+                        'question_az' => $faq->getLang('question', $langAz),
+                        'answer_az' => $faq->getLang('answer', $langAz),
+                        'question_ru' => $faq->getLang('question', $langRu),
+                        'answer_ru' => $faq->getLang('answer', $langRu),
+                        'tags' => $faq->tags->pluck('title')->implode(' '),
+                        'category_id' => $faq->category_id,
+                        'parent_category_id' => optional($faq->category)->category_id ?? 0,
+                    ];
+                }
+
+                if (!empty($body)) {
+                    $client->bulk(['body' => $body]);
+                }
+            });
+    }
+
+    public function reGenerateIndex(): void
+    {
+        $this->deleteIndex();
+        $this->createIndex();
+        $this->generateIndex();
     }
 }

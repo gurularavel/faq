@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Services\LoggerService;
+use Elasticsearch\Client;
+use Elasticsearch\ClientBuilder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 
@@ -13,7 +15,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(Client::class, function () {
+            return ClientBuilder::create()
+                ->setHosts([[
+                    'host'   => env('ELASTICSEARCH_HOST'),
+                    'port'   => env('ELASTICSEARCH_PORT'),
+                    'scheme' => 'http',
+                    'user'   => env('ELASTICSEARCH_USER'),
+                    'pass'   => env('ELASTICSEARCH_PASS'),
+                ]])
+                ->build();
+        });
     }
 
     /**

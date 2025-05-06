@@ -122,6 +122,8 @@ class FaqExcelRepository
 
             $this->rollbackData($faqExcel, $user);
 
+            (new FaqRepository())->reGenerateIndex();
+
             $this->changeStatus($faqExcel, FaqExcelStatusEnum::ROLLBACK);
         });
     }

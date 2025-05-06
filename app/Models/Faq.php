@@ -12,17 +12,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Scout\Searchable;
 
 /**
  * @property bool|mixed $is_active
  * @property mixed $id
  * @property mixed $seen_count
  * @property mixed $tags
+ * @property mixed $category_id
+ * @property mixed $category
  */
 class Faq extends Model
 {
-    use SoftDeletes, ActionBy, ActionUser, Translatable, CascadeSoftDeletes, Searchable;
+    use SoftDeletes, ActionBy, ActionUser, Translatable, CascadeSoftDeletes;
 
     protected $fillable = [
         'category_id', // sub category id
@@ -44,7 +45,7 @@ class Faq extends Model
 
     public function isActive()
     {
-        return $this->is_active;
+        return $this->is_active ?? true;
     }
 
     public function toSearchableArray(): array

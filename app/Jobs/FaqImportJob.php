@@ -7,6 +7,7 @@ use App\Imports\FaqImport;
 use App\Models\Admin;
 use App\Models\FaqExcel;
 use App\Repositories\FaqExcelRepository;
+use App\Repositories\FaqRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -51,5 +52,7 @@ class FaqImportJob implements ShouldQueue
                 $this->faqExcelRepo->rollbackData($this->faqExcel, $this->user);
             });
         }
+
+        (new FaqRepository())->reGenerateIndex();
     }
 }
