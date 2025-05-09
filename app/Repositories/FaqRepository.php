@@ -481,28 +481,76 @@ class FaqRepository
             'body' => [
                 'settings' => [
                     'analysis' => [
+                        'char_filter' => [
+                            'az_char_map' => [
+                                'type' => 'mapping',
+                                'mappings' => [
+                                    'ə => e',
+                                    'ı => i',
+                                    'ö => o',
+                                    'ü => u',
+                                    'ç => c',
+                                    'ş => s',
+                                    'ğ => g'
+                                ]
+                            ]
+                        ],
+                        'filter' => [
+                            'edge_ngram_filter' => [
+                                'type' => 'edge_ngram',
+                                'min_gram' => 2,
+                                'max_gram' => 20,
+                            ]
+                        ],
                         'analyzer' => [
-                            'az_ru_analyzer' => [
+                            'az_ru_index_analyzer' => [
                                 'type' => 'custom',
                                 'tokenizer' => 'standard',
-                                'filter' => ['lowercase', 'asciifolding'],
+                                'char_filter' => ['az_char_map'],
+                                'filter' => ['lowercase', 'edge_ngram_filter'],
                             ],
-                        ],
-                    ],
+                            'az_ru_search_analyzer' => [
+                                'type' => 'custom',
+                                'tokenizer' => 'standard',
+                                'char_filter' => ['az_char_map'],
+                                'filter' => ['lowercase'],
+                            ],
+                        ]
+                    ]
                 ],
                 'mappings' => [
                     'properties' => [
                         'id' => ['type' => 'integer'],
-                        'question_az' => ['type' => 'text', 'analyzer' => 'az_ru_analyzer'],
-                        'answer_az' => ['type' => 'text', 'analyzer' => 'az_ru_analyzer'],
-                        'question_ru' => ['type' => 'text', 'analyzer' => 'az_ru_analyzer'],
-                        'answer_ru' => ['type' => 'text', 'analyzer' => 'az_ru_analyzer'],
-                        'tags' => ['type' => 'text', 'analyzer' => 'az_ru_analyzer'],
+                        'question_az' => [
+                            'type' => 'text',
+                            'analyzer' => 'az_ru_index_analyzer',
+                            'search_analyzer' => 'az_ru_search_analyzer',
+                        ],
+                        'answer_az' => [
+                            'type' => 'text',
+                            'analyzer' => 'az_ru_index_analyzer',
+                            'search_analyzer' => 'az_ru_search_analyzer',
+                        ],
+                        'question_ru' => [
+                            'type' => 'text',
+                            'analyzer' => 'az_ru_index_analyzer',
+                            'search_analyzer' => 'az_ru_search_analyzer',
+                        ],
+                        'answer_ru' => [
+                            'type' => 'text',
+                            'analyzer' => 'az_ru_index_analyzer',
+                            'search_analyzer' => 'az_ru_search_analyzer',
+                        ],
+                        'tags' => [
+                            'type' => 'text',
+                            'analyzer' => 'az_ru_index_analyzer',
+                            'search_analyzer' => 'az_ru_search_analyzer',
+                        ],
                         'category_id' => ['type' => 'integer'],
                         'parent_category_id' => ['type' => 'integer'],
-                    ],
-                ],
-            ],
+                    ]
+                ]
+            ]
         ]);
     }
 
