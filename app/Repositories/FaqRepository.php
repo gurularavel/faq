@@ -284,9 +284,17 @@ class FaqRepository
         $perPage = $validated['limit'] ?? 10;
         $page = $validated['page'] ?? 1;
 
+        $hasSearch = !empty($validated['search']);
+        $hasCategory = !empty($validated['category_id']);
+        $hasSubCategory = !empty($validated['sub_category_id']);
+
+        if (!$hasSearch && !$hasCategory && !$hasSubCategory) {
+            throw new BadRequestHttpException('At least one of search, category_id or sub_category_id is required.');
+        }
+
         $filters = [];
 
-        if (!empty($validated['sub_category_id'])) {
+        if ($hasSubCategory) {
             $filters[] = [
                 'terms' => [
                     'category_id' => $validated['sub_category_id']
@@ -294,12 +302,35 @@ class FaqRepository
             ];
         }
 
-        if (!empty($validated['category_id'])) {
+        if ($hasCategory) {
             $filters[] = [
                 'terms' => [
                     'parent_category_id' => $validated['category_id']
                 ]
             ];
+        }
+
+        if ($hasSearch) {
+            $query = [
+                'should' => [
+                    [
+                        'match_phrase' => [
+                            'content' => $validated['search']
+                        ]
+                    ],
+                    [
+                        'multi_match' => [
+                            'query'     => $validated['search'],
+                            'fields'    => [$questionField, $answerField, 'tags'],
+                            'fuzziness' => 'AUTO',
+                            'operator'  => 'and',
+                        ]
+                    ]
+                ],
+                'filter' => $filters,
+            ];
+        } else {
+            $query = ['filter' => $filters];
         }
 
         $response = $client->search([
@@ -308,25 +339,7 @@ class FaqRepository
                 'from' => ($page - 1) * $perPage,
                 'size' => $perPage,
                 'query' => [
-
-                    'bool' => [
-                        'should' => [
-                            [
-                                'match_phrase' => [
-                                    'content' => $validated['search']
-                                ]
-                            ],
-                            [
-                                'multi_match' => [
-                                    'query'     => $validated['search'],
-                                    'fields'    => [$questionField, $answerField, 'tags'],
-                                    'fuzziness' => 'AUTO',
-                                    'operator' => 'and',
-                                ]
-                            ]
-                        ],
-                        'filter' => $filters,
-                    ]
+                    'bool' => $query,
                 ],
                 'highlight' => [
                     'pre_tags' => ['<span style="background: yellow;">'],

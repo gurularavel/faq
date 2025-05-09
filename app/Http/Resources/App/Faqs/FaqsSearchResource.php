@@ -70,7 +70,7 @@ class FaqsSearchResource extends JsonResource
 
     public function toArray(Request $request): array
     {
-        $search = $request->input('search');
+        $search = $request->input('search', '');
 
         return [
             'id' => $this->id,
