@@ -62,13 +62,15 @@ const DashBoard = () => {
       categoryIds = [],
       subCategoryIds = []
     ) => {
+      const searchText = search.length >= 3 ? search : "";
       try {
         const isSearchMode = search.length >= 3;
-
-        if (isSearchMode) {
+        const searchWithCategoryAndSubCategory =
+          categoryIds.length > 0 || subCategoryIds.length > 0;
+        if (isSearchMode || searchWithCategoryAndSubCategory) {
           const endpoint = "/faqs/search";
           const params = {
-            search,
+            search: searchText,
             page,
             limit,
             category_id: categoryIds,
@@ -87,8 +89,7 @@ const DashBoard = () => {
             },
           };
         } else if (mostSearchedFaqs.length === 0) {
-          const endpoint = "/faqs/most-searched";
-          const { data } = await userPrivateApi.get(endpoint);
+          const { data } = await userPrivateApi.get("/faqs/most-searched");
 
           setShowHighLight(false);
           const items = data.data || [];
@@ -177,9 +178,18 @@ const DashBoard = () => {
     }
 
     const timeoutId = setTimeout(() => {
-      if (trimmedQuery.length >= 3) {
+      if (
+        trimmedQuery.length >= 3 ||
+        selectedCategories.length > 0 ||
+        selectedSubCategories.length > 0
+      ) {
         fetchInitialData(trimmedQuery);
-      } else if (trimmedQuery.length === 0 && mostSearchedFaqs.length > 0) {
+      } else if (
+        trimmedQuery.length < 3 &&
+        mostSearchedFaqs.length > 0 &&
+        selectedCategories.length === 0 &&
+        selectedSubCategories.length === 0
+      ) {
         setFaqItems(mostSearchedFaqs);
         setShowHighLight(false);
         setPagination(null);
@@ -187,7 +197,13 @@ const DashBoard = () => {
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, fetchInitialData, mostSearchedFaqs]);
+  }, [
+    searchQuery,
+    fetchInitialData,
+    mostSearchedFaqs,
+    selectedCategories,
+    selectedSubCategories,
+  ]);
 
   useEffect(() => {
     fetchInitialData("");
@@ -226,25 +242,11 @@ const DashBoard = () => {
       );
     }
 
-    const trimmedQuery = searchQuery.trim();
-    if (trimmedQuery.length >= 3) {
-      skipEffectApiCall.current = true;
-
-      setIsLoading(true);
-      fetchFAQs(trimmedQuery, 1, 10, newCategories, newSubCategories)
-        .then((response) => {
-          setFaqItems(response.items);
-          setPagination(response.pagination);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.error("Error fetching with new filters:", err);
-          setIsLoading(false);
-        });
-    }
+    setIsLoading(true);
 
     setSelectedCategories(newCategories);
     setSelectedSubCategories(newSubCategories);
+    skipEffectApiCall.current = true;
   };
 
   const handleSubCategoryChange = (event) => {
@@ -255,22 +257,7 @@ const DashBoard = () => {
     const newSubCategories =
       typeof value === "string" ? value.split(",").map(Number) : value;
 
-    const trimmedQuery = searchQuery.trim();
-    if (trimmedQuery.length >= 3) {
-      skipEffectApiCall.current = true;
-
-      setIsLoading(true);
-      fetchFAQs(trimmedQuery, 1, 10, selectedCategories, newSubCategories)
-        .then((response) => {
-          setFaqItems(response.items);
-          setPagination(response.pagination);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.error("Error fetching with new filters:", err);
-          setIsLoading(false);
-        });
-    }
+    setIsLoading(true);
 
     setSelectedSubCategories(newSubCategories);
   };
@@ -303,8 +290,6 @@ const DashBoard = () => {
   const showLoadMore =
     pagination && pagination.currentPage < pagination.lastPage;
 
-  const showFilters = searchQuery.trim().length >= 3;
-
   return (
     <Box className="search-container">
       <Box>
@@ -324,126 +309,123 @@ const DashBoard = () => {
           className="search-input"
         />
 
-        {/* Filter section */}
-        {showFilters && (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              gap: 2,
-            }}
-          >
-            <FormControl sx={{ minWidth: 200, flex: 1 }}>
-              <Select
-                multiple
-                displayEmpty
-                className="filter-input dashboard-filter-input"
-                value={selectedCategories}
-                onChange={handleCategoryChange}
-                renderValue={(selected) => {
-                  if (selected.length === 0) {
-                    return <>{t("categories")}</>;
-                  }
-                  return (
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                      {selected.map((value) => (
-                        <Chip
-                          key={value}
-                          label={getCategoryLabel(value)}
-                          onDelete={() => {
-                            setSelectedCategories(
-                              selectedCategories.filter((id) => id !== value)
-                            );
-                          }}
-                          onMouseDown={(event) => {
-                            event.stopPropagation();
-                          }}
-                        />
-                      ))}
-                    </Box>
-                  );
-                }}
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 300,
-                    },
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            gap: 2,
+          }}
+        >
+          <FormControl sx={{ minWidth: 200, flex: 1 }}>
+            <Select
+              multiple
+              displayEmpty
+              className="filter-input dashboard-filter-input"
+              value={selectedCategories}
+              onChange={handleCategoryChange}
+              renderValue={(selected) => {
+                if (selected.length === 0) {
+                  return <>{t("categories")}</>;
+                }
+                return (
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip
+                        key={value}
+                        label={getCategoryLabel(value)}
+                        onDelete={() => {
+                          setSelectedCategories(
+                            selectedCategories.filter((id) => id !== value)
+                          );
+                        }}
+                        onMouseDown={(event) => {
+                          event.stopPropagation();
+                        }}
+                      />
+                    ))}
+                  </Box>
+                );
+              }}
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 300,
                   },
-                }}
-              >
-                <MenuItem disabled value="">
-                  {t("categories")}{" "}
-                </MenuItem>
-                {categories.map((category) => (
-                  <MenuItem key={category.id} value={category.id}>
-                    {category.title}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl sx={{ minWidth: 200, flex: 1 }}>
-              <Select
-                multiple
-                displayEmpty
-                className="filter-input dashboard-filter-input"
-                value={selectedSubCategories}
-                onChange={handleSubCategoryChange}
-                renderValue={(selected) => {
-                  if (selected.length === 0) {
-                    return <>{t("subcategories")}</>;
-                  }
-                  return (
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                      {selected.map((value) => (
-                        <Chip
-                          key={value}
-                          label={getSubCategoryLabel(value)}
-                          onDelete={() => {
-                            setSelectedSubCategories(
-                              selectedSubCategories.filter((id) => id !== value)
-                            );
-                          }}
-                          onMouseDown={(event) => {
-                            event.stopPropagation();
-                          }}
-                        />
-                      ))}
-                    </Box>
-                  );
-                }}
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 300,
-                    },
-                  },
-                }}
-              >
-                <MenuItem disabled value="">
-                  {t("subcategories")}
-                </MenuItem>
-                {availableSubCategories.map((subCategory) => (
-                  <MenuItem key={subCategory.id} value={subCategory.id}>
-                    {subCategory.title}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <Button
-              onClick={handleResetFilters}
-              disabled={
-                selectedCategories.length === 0 &&
-                selectedSubCategories.length === 0 &&
-                searchQuery.trim().length === 0
-              }
-              className="filter-reset-btn dashboard-btn"
+                },
+              }}
             >
-              <img src={ResetIcon} alt="reset" />
-            </Button>
-          </Box>
-        )}
+              <MenuItem disabled value="">
+                {t("categories")}{" "}
+              </MenuItem>
+              {categories.map((category) => (
+                <MenuItem key={category.id} value={category.id}>
+                  {category.title}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl sx={{ minWidth: 200, flex: 1 }}>
+            <Select
+              multiple
+              displayEmpty
+              className="filter-input dashboard-filter-input"
+              value={selectedSubCategories}
+              onChange={handleSubCategoryChange}
+              renderValue={(selected) => {
+                if (selected.length === 0) {
+                  return <>{t("subcategories")}</>;
+                }
+                return (
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip
+                        key={value}
+                        label={getSubCategoryLabel(value)}
+                        onDelete={() => {
+                          setSelectedSubCategories(
+                            selectedSubCategories.filter((id) => id !== value)
+                          );
+                        }}
+                        onMouseDown={(event) => {
+                          event.stopPropagation();
+                        }}
+                      />
+                    ))}
+                  </Box>
+                );
+              }}
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 300,
+                  },
+                },
+              }}
+            >
+              <MenuItem disabled value="">
+                {t("subcategories")}
+              </MenuItem>
+              {availableSubCategories.map((subCategory) => (
+                <MenuItem key={subCategory.id} value={subCategory.id}>
+                  {subCategory.title}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Button
+            onClick={handleResetFilters}
+            disabled={
+              selectedCategories.length === 0 &&
+              selectedSubCategories.length === 0 &&
+              searchQuery.trim().length === 0
+            }
+            className="filter-reset-btn dashboard-btn"
+          >
+            <img src={ResetIcon} alt="reset" />
+          </Button>
+        </Box>
 
         <Typography
           variant="h6"
