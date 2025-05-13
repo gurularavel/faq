@@ -15,7 +15,7 @@ class HtmlSafeHighlighterService
         return self::$instance;
     }
 
-    public function highlight(string $html, string $term): string
+    public function highlight(string $html, ?string $term): string
     {
         if (empty($term) || empty($html)) {
             return $html;
