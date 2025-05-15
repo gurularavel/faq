@@ -19,7 +19,7 @@ import dayjs from "dayjs";
 import { useTranslate } from "@src/utils/translations/useTranslate";
 import { Link, useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
-
+import DoneAllIcon from "@mui/icons-material/DoneAll";
 const getNotificationIcon = (type) => {
   switch (type) {
     case "exam":
@@ -166,6 +166,21 @@ const Notifications = () => {
     }
   };
 
+  const markAllAsSeen = async () => {
+    try {
+      await userPrivateApi.post("/notifications/seen-bulk", {});
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_seen: true })));
+    } catch (error) {
+      if (isAxiosError(error)) {
+        notify(
+          error.response?.data?.message ||
+            "Failed to mark all notifications as seen",
+          "error"
+        );
+      }
+    }
+  };
+
   const renderNotificationItem = (notification) => (
     <MenuItem
       key={notification.id}
@@ -263,6 +278,19 @@ const Notifications = () => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
+        {notifications.some((n) => !n.is_seen) && (
+          <MenuItem
+            onClick={markAllAsSeen}
+            sx={{
+              justifyContent: "center",
+              color: "#1976d2",
+              fontWeight: "bold",
+            }}
+          >
+            {t("mark_all_as_seen")}
+            <DoneAllIcon sx={{ color: "#1976d2", ml: 1 }} />
+          </MenuItem>
+        )}
         {notifications.length === 0 ? (
           <MenuItem>No notifications</MenuItem>
         ) : (

@@ -462,6 +462,7 @@ const DashBoard = () => {
                     showHighLight={showHighLight}
                     tags={item.tags}
                     seen_count={item.seen_count}
+                    category={item.category}
                   />
                 ))}
                 {showLoadMore && (

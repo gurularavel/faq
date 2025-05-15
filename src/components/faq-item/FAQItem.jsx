@@ -12,7 +12,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { levenshtein } from "@src/utils/helpers/levenshtein";
 import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
-
+import SubdirectoryArrowRightIcon from "@mui/icons-material/SubdirectoryArrowRight";
 const HighlightText = ({ text, highlight }) => {
   const fuzzyHighlightHtml = useMemo(() => {
     if (!highlight?.trim()) {
@@ -123,6 +123,7 @@ const FAQItem = ({
   searchQuery,
   showHighLight,
   tags,
+  category,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -172,12 +173,37 @@ const FAQItem = ({
           onClick={!isExpanded ? toggleExpand : undefined}
         >
           <Box className="faq-header">
-            <Box
-              dangerouslySetInnerHTML={{
-                __html: question,
-              }}
-              className="faq-question"
-            />
+            <Box display="flex" flexDirection="column" gap="4px">
+              <Box display="flex" gap="4px">
+                {category?.parent && (
+                  <Chip
+                    label={category?.parent?.title}
+                    size="small"
+                    sx={{ fontSize: "0.7rem" }}
+                    color="error"
+                  />
+                )}
+                {category?.title && (
+                  <Chip
+                    label={
+                      <Box alignItems="center" display="flex" gap="4px">
+                        <SubdirectoryArrowRightIcon />
+                        {category?.title}
+                      </Box>
+                    }
+                    size="small"
+                    sx={{ fontSize: "0.7rem" }}
+                    color="secondary"
+                  />
+                )}
+              </Box>
+              <Box
+                dangerouslySetInnerHTML={{
+                  __html: question,
+                }}
+                className="faq-question"
+              />
+            </Box>
             {isExpanded && (
               <IconButton
                 className="close-button"
