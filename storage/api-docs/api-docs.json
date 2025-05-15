@@ -4875,6 +4875,41 @@
                 ]
             }
         },
+        "/api/app/notifications/seen-bulk": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark all notifications as seen",
+                "operationId": "507d0e8860bf464756e9f742b6dfba87",
+                "responses": {
+                    "200": {
+                        "description": "Notifications marked as seen",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Notifications marked as seen!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": []
+                    },
+                    {
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/app/profile/info": {
             "get": {
                 "tags": [

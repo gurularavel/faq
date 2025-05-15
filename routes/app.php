@@ -33,6 +33,7 @@ Route::middleware(['general_access:app', RouteLogMiddleware::class])->prefix('ap
         Route::group(['prefix' => 'notifications'], static function () {
             Route::get('list', [NotificationController::class, 'list']);
             Route::get('{notification}/show', [NotificationController::class, 'show']);
+            Route::post('seen-bulk', [NotificationController::class, 'setSeenBulk']);
         });
 
         Route::group(['prefix' => 'exams'], static function () {

@@ -4,8 +4,11 @@ namespace App\Http\Controllers\App;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\App\Notifications\NotificationsListResource;
+use App\Http\Resources\GeneralResource;
 use App\Models\Notification;
+use App\Services\LangService;
 use App\Services\NotificationService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Annotations as OA;
 
@@ -61,5 +64,39 @@ class NotificationController extends Controller
     public function show(Notification $notification): NotificationsListResource
     {
         return NotificationsListResource::make(NotificationService::instance()->getNotification($notification));
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/app/notifications/seen-bulk",
+     *     summary="Mark all notifications as seen",
+     *     tags={"Notifications"},
+     *     security={
+     *         {"AppApiToken": {}},
+     *         {"AppSanctumBearerToken": {}}
+     *     },
+     *     @OA\Response(
+     *         response=200,
+     *         description="Notifications marked as seen",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Notifications marked as seen!"
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function setSeenBulk(): JsonResponse
+    {
+        NotificationService::instance()->setSeenBulk();
+
+        return response()->json(GeneralResource::make([
+            'message' => LangService::instance()
+                ->setDefault('Notifications marked as seen!')
+                ->getLang('notifications_marked_as_seen'),
+        ]));
     }
 }

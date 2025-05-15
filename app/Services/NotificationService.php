@@ -178,4 +178,16 @@ class NotificationService
         $rel->read_at = Carbon::now();
         $rel->save();
     }
+
+    public function setSeenBulk(): void
+    {
+        /** @var User $user */
+        $user = auth('user')->user();
+
+        $user->notificationsRel()
+            ->whereNull('read_at')
+            ->update([
+                'read_at' => Carbon::now(),
+            ]);
+    }
 }
