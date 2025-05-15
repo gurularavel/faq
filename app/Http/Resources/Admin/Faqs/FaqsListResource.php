@@ -29,19 +29,25 @@ use OpenApi\Annotations as OA;
  *         type="string",
  *         description="Answer text"
  *     ),
- *          @OA\Property(
- *          property="seen_count",
- *          type="integer",
- *          description="Seen count"
- *      ),
- *      @OA\Property(
- *          property="tags",
- *          type="array",
- *          @OA\Items(ref="#/components/schemas/TagsListResource"),
- *          description="Tags associated with the FAQ"
- *      )
+ *     @OA\Property(
+ *         property="seen_count",
+ *         type="integer",
+ *         description="Number of times the FAQ has been viewed",
+ *         example=42
+ *     ),
+ *     @OA\Property(
+ *         property="tags",
+ *         type="array",
+ *         description="Tags associated with the FAQ",
+ *         @OA\Items(ref="#/components/schemas/TagsListResource")
+ *     ),
+ *     @OA\Property(
+ *         property="category",
+ *         type="object",
+ *         description="Category associated with the FAQ",
+ *         ref="#/components/schemas/CategoriesListResource"
+ *     )
  * )
- *
  * @property mixed $id
  * @property mixed $seen_count
  * @method getLang(string $string)

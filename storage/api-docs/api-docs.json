@@ -6804,8 +6804,9 @@
                         "type": "string"
                     },
                     "seen_count": {
-                        "description": "Seen count",
-                        "type": "integer"
+                        "description": "Number of times the FAQ has been viewed",
+                        "type": "integer",
+                        "example": 42
                     },
                     "tags": {
                         "description": "Tags associated with the FAQ",
@@ -6813,6 +6814,9 @@
                         "items": {
                             "$ref": "#/components/schemas/TagsListResource"
                         }
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/CategoriesListResource"
                     }
                 },
                 "type": "object"
@@ -7478,23 +7482,27 @@
             },
             "FaqsSearchResource": {
                 "title": "FAQs List Resource",
-                "description": "FAQs List Resource",
+                "description": "Resource representing a single FAQ item",
                 "properties": {
                     "id": {
                         "description": "ID of the FAQ",
-                        "type": "integer"
+                        "type": "integer",
+                        "example": 1
                     },
                     "question": {
                         "description": "Question text",
-                        "type": "string"
+                        "type": "string",
+                        "example": "What is the return policy?"
                     },
                     "answer": {
                         "description": "Answer text",
-                        "type": "string"
+                        "type": "string",
+                        "example": "You can return items within 30 days."
                     },
                     "seen_count": {
-                        "description": "Seen count",
-                        "type": "integer"
+                        "description": "Number of times the FAQ has been viewed",
+                        "type": "integer",
+                        "example": 42
                     },
                     "tags": {
                         "description": "Tags associated with the FAQ",
@@ -7502,6 +7510,15 @@
                         "items": {
                             "$ref": "#/components/schemas/TagsSearchResource"
                         }
+                    },
+                    "score": {
+                        "description": "Relevance score of the FAQ",
+                        "type": "number",
+                        "format": "float",
+                        "example": 0.95
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/CategoriesListResource"
                     }
                 },
                 "type": "object"

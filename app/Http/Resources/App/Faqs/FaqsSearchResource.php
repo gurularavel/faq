@@ -49,7 +49,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *         format="float",
  *         description="Relevance score of the FAQ",
  *         example=0.95
- *     )
+ *     ),
+ *          @OA\Property(
+ *          property="category",
+ *          type="object",
+ *          description="Category associated with the FAQ",
+ *          ref="#/components/schemas/CategoriesListResource"
+ *      )
  * )
  *
  * @property mixed $id
