@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Admin\Faqs;
 
+use App\Http\Resources\Admin\Categories\CategoriesListResource;
 use App\Http\Resources\Admin\Tags\TagsListResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -62,6 +63,7 @@ class FaqsListResource extends JsonResource
             'answer' => $this->getLang('answer'),
             'seen_count' => $this->seen_count,
             'tags' => TagsListResource::collection($this->whenLoaded('tags')),
+            'category' => CategoriesListResource::make($this->whenLoaded('category')),
         ];
     }
 }

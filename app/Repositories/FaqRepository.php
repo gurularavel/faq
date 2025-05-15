@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Enum\FaqListTypeEnum;
 use App\Enum\NotificationTypeEnum;
+use App\Http\Resources\Admin\Categories\CategoriesListResource;
 use App\Models\Admin;
 use App\Models\Faq;
 use App\Models\FaqList;
@@ -259,6 +260,10 @@ class FaqRepository
                 'tags' => function ($builder) {
                     $builder->limit(config('settings.faq.tags_limit'));
                 },
+                'category',
+                'category.translatable',
+                'category.parent',
+                'category.parent.translatable',
             ])
             ->limit($limit)
             ->orderByDesc('seen_count')
@@ -361,6 +366,10 @@ class FaqRepository
             ->whereIn('id', $faqIds)
             ->with([
                 'tags',
+                'category',
+                'category.translatable',
+                'category.parent',
+                'category.parent.translatable',
             ])
             ->get();
 
@@ -414,6 +423,7 @@ class FaqRepository
                 'seen_count' => 0,
                 'tags' => $tags,
                 'score' => $hit['_score'] ?? null,
+                'category' => CategoriesListResource::make($faqModel->category),
             ];
         })->filter();
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\App\Faqs;
 
+use App\Http\Resources\Admin\Categories\CategoriesListResource;
 use App\Services\HtmlSafeHighlighterService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -57,6 +58,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $score
  * @property mixed $question
  * @property mixed $answer
+ * @property mixed $category
  * @method getLang(string $string)
  */
 class FaqsSearchResource extends JsonResource
@@ -79,6 +81,7 @@ class FaqsSearchResource extends JsonResource
             'seen_count' => $this->seen_count,
             'tags' => $this->tags,
             'score' => $this->score,
+            'category' => $this->category,
         ];
     }
 }
