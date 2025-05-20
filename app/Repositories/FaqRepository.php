@@ -315,27 +315,33 @@ class FaqRepository
             ];
         }
 
+        $query = [];
+
         if ($hasSearch) {
-            $query = [
-                'should' => [
-                    [
-                        'match_phrase' => [
-                            'content' => $validated['search']
+            $query['must'][] = [
+                'bool' => [
+                    'should' => [
+                        [
+                            'match_phrase' => [
+                                'content' => $validated['search']
+                            ]
+                        ],
+                        [
+                            'multi_match' => [
+                                'query'     => $validated['search'],
+                                'fields'    => [$questionField, $answerField, 'tags'],
+                                'fuzziness' => 'AUTO',
+                                'operator'  => 'and',
+                            ]
                         ]
                     ],
-                    [
-                        'multi_match' => [
-                            'query'     => $validated['search'],
-                            'fields'    => [$questionField, $answerField, 'tags'],
-                            'fuzziness' => 'AUTO',
-                            'operator'  => 'and',
-                        ]
-                    ]
-                ],
-                'filter' => $filters,
+                    'minimum_should_match' => 1
+                ]
             ];
-        } else {
-            $query = ['filter' => $filters];
+        }
+
+        if (!empty($filters)) {
+            $query['filter'] = $filters;
         }
 
         $response = $client->search([
