@@ -329,7 +329,11 @@ class FaqRepository
                         [
                             'multi_match' => [
                                 'query'     => $validated['search'],
-                                'fields'    => [$questionField, $answerField, 'tags'],
+                                'fields'    => [
+                                    "{$questionField}^3",
+                                    "{$answerField}^2",
+                                    "tags^4"
+                                ],
                                 'fuzziness' => 'AUTO',
                                 'operator'  => 'and',
                             ]
