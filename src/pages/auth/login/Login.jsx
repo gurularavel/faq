@@ -28,7 +28,7 @@ export default function Login() {
 
   const t = useTranslate();
   const schema = yup.object().shape({
-    email: yup.string().email(t("invalid_email")).required(t("required_field")),
+    email: yup.string().required(t("required_field")),
     password: yup.string().required(t("required_field")),
   });
   const {
@@ -101,7 +101,7 @@ export default function Login() {
                 {...field}
                 margin="normal"
                 fullWidth
-                label={t("label_email")}
+                label={t("label_email_or_username")}
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 sx={{ mb: 2 }}

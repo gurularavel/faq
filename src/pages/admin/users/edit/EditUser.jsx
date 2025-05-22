@@ -33,7 +33,7 @@ export default function EditUser() {
     department_id: yup.number().required(t("required_field")),
     name: yup.string().required(t("required_field")),
     surname: yup.string().required(t("required_field")),
-    email: yup.string().email(t("invalid_email")).required(t("required_field")),
+    email: yup.string().required(t("required_field")),
   });
 
   const {
@@ -267,7 +267,7 @@ export default function EditUser() {
                     <TextField
                       {...field}
                       fullWidth
-                      label={t("email")}
+                      label={t("label_email_or_username")}
                       error={!!errors.email}
                       helperText={errors.email?.message}
                     />
