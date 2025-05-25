@@ -130,7 +130,7 @@ class FaqRepository
 
             $faq->tags()->sync($tags);
 
-            //(new FaqRepository())->indexFaq($faq);
+            (new FaqRepository())->indexFaq($faq);
 
             return $faq;
         });
