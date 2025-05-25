@@ -23,7 +23,7 @@ use App\Http\Middleware\RouteLogMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('control')->group(callback: static function () {
-    Route::post("login", [LoginController::class, 'login']);
+    Route::post("login", [LoginController::class, 'login'])->withoutMiddleware(RouteLogMiddleware::class);
 
     Route::group(['middleware' => ['auth:admin']], static function () {
         Route::group(['prefix' => 'profile'], static function () {
@@ -42,8 +42,8 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
         Route::group(['prefix' => 'admins', 'middleware' => ['role:' . RoleEnum::ADMIN->value]], static function () {
             Route::get('load', [AdminController::class, 'index']);
             Route::get('show/{admin}', [AdminController::class, 'show']);
-            Route::post('add', [AdminController::class, 'store']);
-            Route::post('update/{admin}', [AdminController::class, 'update']);
+            Route::post('add', [AdminController::class, 'store'])->withoutMiddleware(RouteLogMiddleware::class);
+            Route::post('update/{admin}', [AdminController::class, 'update'])->withoutMiddleware(RouteLogMiddleware::class);
             Route::delete('delete/{admin}', [AdminController::class, 'destroy']);
         });
 

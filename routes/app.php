@@ -18,7 +18,7 @@ Route::middleware(['general_access:app', RouteLogMiddleware::class])->prefix('ap
         Route::get('{lang}', [LocalTranslationsController::class, 'getTranslations']);
     });
 
-    Route::post('login', [LoginController::class, 'login']);
+    Route::post('login', [LoginController::class, 'login'])->withoutMiddleware(RouteLogMiddleware::class);
 
     Route::group(['middleware' => ['auth:user', CheckUserExpiredMiddleware::class]], static function () {
         Route::group(['prefix' => 'profile'], static function () {
