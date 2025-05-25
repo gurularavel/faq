@@ -15,7 +15,7 @@ use OpenApi\Annotations as OA;
  *     title="User Update Request",
  *     description="Request parameters for updating a user",
  *     required={"email", "name", "surname", "department_id"},
- *     @OA\Property(property="email", type="string", format="email", maxLength=150, example="user@example.com"),
+ *     @OA\Property(property="email", type="string", maxLength=150, example="user@example.com"),
  *     @OA\Property(property="name", type="string", maxLength=255, example="John"),
  *     @OA\Property(property="surname", type="string", maxLength=255, example="Doe"),
  *     @OA\Property(property="department_id", type="integer", example=1)
@@ -41,7 +41,7 @@ class UserUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email', 'max:150', Rule::unique(User::class, 'email')->whereNull('deleted_at')->ignore($this->route('user'))],
+            'email' => ['required', 'string', 'max:150', Rule::unique(User::class, 'email')->whereNull('deleted_at')->ignore($this->route('user'))],
             'name' => ['required', 'string', 'max:255'],
             'surname' => ['required', 'string', 'max:255'],
             'department_id' => ['required', 'integer', Rule::exists(Department::class, 'id')->where('is_active', true)->whereNotNull('department_id')->whereNull('deleted_at')],
