@@ -34,7 +34,7 @@ class NotificationService
     public function createNotification(NotificationTypeEnum $type, ?Model $typeableModel = null): Notification
     {
         $notification = Notification::query()->create([
-            'type' => $type->value,
+            'type' => $type->value === NotificationTypeEnum::FAQ_NEW->value ? NotificationTypeEnum::FAQ->value : $type->value,
             'typeable_type' => $typeableModel?->getMorphClass() ?? null,
             'typeable_id' => $typeableModel?->id ?? null,
         ]);
@@ -65,6 +65,16 @@ class NotificationService
                 $message = LangService::instance()
                     ->setDefault('This FAQ was updated: @faq')
                     ->getLang('notification_faq_updated_message', ['@faq' => $typeableModel->getLang('question', $language['id'])], $language['key']);
+            } else if ($type == NotificationTypeEnum::FAQ_NEW) {
+                /** @var Faq $typeableModel */
+
+                $title = LangService::instance()
+                    ->setDefault('FAQ created!')
+                    ->getLang('notification_faq_created_title', [], $language['key']);
+
+                $message = LangService::instance()
+                    ->setDefault('This FAQ was created: @faq')
+                    ->getLang('notification_faq_created_message', ['@faq' => $typeableModel->getLang('question', $language['id'])], $language['key']);
             }
 
             $notification->setLang('title', $title, $language['id']);

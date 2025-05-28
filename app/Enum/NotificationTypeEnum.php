@@ -19,6 +19,7 @@ enum NotificationTypeEnum: string
     //case MESSAGE = 'message';
     case EXAM = 'exam';
     case FAQ = 'faq';
+    case FAQ_NEW = 'faq_new';
 
     public static function getList(): array
     {

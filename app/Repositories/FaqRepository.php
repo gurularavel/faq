@@ -130,6 +130,9 @@ class FaqRepository
 
             $faq->tags()->sync($tags);
 
+            $userIds = User::query()->pluck('id')->toArray();
+            NotificationService::instance()->sendToUsers($userIds, NotificationTypeEnum::FAQ_NEW, $faq);
+
             (new FaqRepository())->indexFaq($faq);
 
             return $faq;
