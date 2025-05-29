@@ -13,6 +13,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { levenshtein } from "@src/utils/helpers/levenshtein";
 import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
 import SubdirectoryArrowRightIcon from "@mui/icons-material/SubdirectoryArrowRight";
+import dayjs from "dayjs";
 const HighlightText = ({ text, highlight }) => {
   const fuzzyHighlightHtml = useMemo(() => {
     if (!highlight?.trim()) {
@@ -124,6 +125,7 @@ const FAQItem = ({
   showHighLight,
   tags,
   category,
+  updatedDate,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -145,6 +147,11 @@ const FAQItem = ({
   return (
     <Grid2 size={{ xs: 12, md: isExpanded ? 12 : 6 }} item>
       <Box position="relative">
+        <Box position="absolute" top="-24px" left="20px">
+          <Typography variant="caption" color="text.secondary">
+            {dayjs(updatedDate).format("DD.MM.YYYY  HH:mm")}
+          </Typography>
+        </Box>
         {tags && tags.length > 0 && (
           <Box
             sx={{

@@ -436,7 +436,7 @@ const DashBoard = () => {
           {searchQuery.length >= 3 ? t("result") : t("mostly_searched_faq")}
         </Typography>
 
-        <Box className="faq-list">
+        <Box className="faq-list" sx={{ mt: 4 }}>
           <Grid2 container spacing={2} rowSpacing={5}>
             {isLoading ? (
               <Grid2
@@ -463,6 +463,7 @@ const DashBoard = () => {
                     tags={item.tags}
                     seen_count={item.seen_count}
                     category={item.category}
+                    updatedDate={item.updated_date}
                   />
                 ))}
                 {showLoadMore && (

@@ -39,6 +39,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { UploadFile } from "@mui/icons-material";
 import ResetIcon from "@assets/icons/reset.svg";
 import OrderBtn from "@components/filterOptions/OrderBtn";
+import dayjs from "dayjs";
 
 export default function Questions() {
   const t = useTranslate();
@@ -344,7 +345,7 @@ export default function Questions() {
             <TableCell>{t("category")}</TableCell>
             <TableCell>{t("sub_category")}</TableCell>
             <TableCell>{t("status")}</TableCell>
-            <TableCell align="center">
+            <TableCell align="center" sx={{ minWidth: "160px" }}>
               {t("search_count")}
 
               <OrderBtn
@@ -353,6 +354,7 @@ export default function Questions() {
                 setData={setFilters}
               />
             </TableCell>
+            <TableCell>{t("updated_date")}</TableCell>
             <TableCell></TableCell>
           </TableRow>
         </TableHead>
@@ -371,6 +373,9 @@ export default function Questions() {
                 </TableCell>
                 <TableCell>
                   <Skeleton width={100} />
+                </TableCell>
+                <TableCell>
+                  <Skeleton width={40} />
                 </TableCell>
                 <TableCell>
                   <Skeleton width={40} />
@@ -401,6 +406,9 @@ export default function Questions() {
                 </TableCell>
                 <TableCell align="center">
                   <Chip color="error" label={row.seen_count} />
+                </TableCell>
+                <TableCell>
+                  {dayjs(row.updated_date).format("DD.MM.YYYY  HH:mm")}
                 </TableCell>
 
                 <TableCell sx={{ minWidth: "120px" }}>
@@ -465,6 +473,12 @@ export default function Questions() {
                 </Grid2>
                 <Grid2 size={6}>
                   <Typography variant="body">{row.category.title}</Typography>
+                </Grid2>
+                <Grid2 size={12} display={"flex"} gap={1} alignItems={"center"}>
+                  <Typography variant="body">{t("updated_date")}:</Typography>
+                  <Typography variant="body">
+                    {dayjs(row.updated_date).format("DD.MM.YYYY  HH:mm")}
+                  </Typography>
                 </Grid2>
 
                 <Grid2 size={12} display={"flex"} gap={1} alignItems={"center"}>
