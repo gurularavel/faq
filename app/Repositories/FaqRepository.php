@@ -276,9 +276,11 @@ class FaqRepository
 
     public function open(Faq $faq): void
     {
+        $faq->timestamps = false;
         $faq->update([
             'seen_count' => $faq->seen_count + 1,
         ]);
+        $faq->timestamps = true;
     }
 
     public function fuzzySearch(array $validated): LengthAwarePaginator
@@ -437,6 +439,7 @@ class FaqRepository
                 'tags' => $tags,
                 'score' => $hit['_score'] ?? null,
                 'category' => CategoriesListResource::make($faqModel->category),
+                'updated_at' => $faqModel->updated_at,
             ];
         })->filter();
 
