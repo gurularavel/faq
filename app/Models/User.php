@@ -26,6 +26,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property mixed $id
  * @property Department|mixed $department
  * @property mixed $last_login_at
+ * @property mixed $samaccountname
  */
 class User extends Authenticatable implements HasMedia
 {

@@ -27,8 +27,8 @@ class LDAPService
     public function check(User $user, string $password): bool
     {
         $attempt = Auth::guard('ldap')->attempt([
-            //'samaccountname' => $username,
-            'userprincipalname' => $user->email,
+            'samaccountname' => $user->samaccountname,
+            //'userprincipalname' => $user->email,
             'password' => $password,
         ]);
 

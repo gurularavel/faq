@@ -5114,7 +5114,8 @@
                 "type": "string",
                 "enum": [
                     "exam",
-                    "faq"
+                    "faq",
+                    "faq_new"
                 ]
             },
             "TranslationGroupEnum": {
@@ -6141,9 +6142,13 @@
                 "properties": {
                     "email": {
                         "type": "string",
-                        "format": "email",
                         "maxLength": 150,
                         "example": "user@example.com"
+                    },
+                    "samaccountname": {
+                        "type": "string",
+                        "maxLength": 150,
+                        "example": "john.doe"
                     },
                     "name": {
                         "type": "string",
@@ -6174,9 +6179,13 @@
                 "properties": {
                     "email": {
                         "type": "string",
-                        "format": "email",
                         "maxLength": 150,
                         "example": "user@example.com"
+                    },
+                    "samaccountname": {
+                        "type": "string",
+                        "maxLength": 150,
+                        "example": "john.doe"
                     },
                     "name": {
                         "type": "string",
@@ -7279,6 +7288,10 @@
                         "description": "Email of the user",
                         "type": "string"
                     },
+                    "samaccountname": {
+                        "description": "samaccountname of the user",
+                        "type": "string"
+                    },
                     "name": {
                         "description": "Name of the user",
                         "type": "string"
@@ -7326,6 +7339,10 @@
                     },
                     "email": {
                         "description": "Email of the user",
+                        "type": "string"
+                    },
+                    "samaccountname": {
+                        "description": "samaccountname of the user",
                         "type": "string"
                     },
                     "name": {

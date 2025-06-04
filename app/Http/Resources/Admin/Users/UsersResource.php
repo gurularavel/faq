@@ -23,6 +23,11 @@ use OpenApi\Annotations as OA;
  *         type="string",
  *         description="Email of the user"
  *     ),
+ *               @OA\Property(
+ *           property="samaccountname",
+ *           type="string",
+ *           description="samaccountname of the user"
+ *       ),
  *     @OA\Property(
  *         property="name",
  *         type="string",
@@ -76,6 +81,7 @@ use OpenApi\Annotations as OA;
  * @property mixed $is_active
  * @property mixed $questions_sum_point
  * @property mixed $last_login_at
+ * @property mixed $samaccountname
  */
 class UsersResource extends JsonResource
 {
@@ -91,6 +97,7 @@ class UsersResource extends JsonResource
         return [
             'id' => $this->id,
             'email' => $this->email,
+            'samaccountname' => $this->samaccountname,
             'name' => $this->name,
             'surname' => $this->surname,
             'last_login_date' => $this->last_login_at?->toDateTimeString(),

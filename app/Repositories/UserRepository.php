@@ -25,6 +25,7 @@ class UserRepository
                 $builder->where(function (Builder $builder) use ($validated) {
                     $builder->whereLike('name', '%' . $validated['search'] . '%');
                     $builder->orWhereLike('surname', '%' . $validated['search'] . '%');
+                    $builder->orWhereLike('samaccountname', '%' . $validated['search'] . '%');
                     $builder->orWhereLike('email', '%' . $validated['search'] . '%');
                 });
             })

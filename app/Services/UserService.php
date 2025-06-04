@@ -31,7 +31,7 @@ class UserService
     {
         $user = User::query()
             ->active()
-            ->where('email', $fields['email'])
+            ->where('samaccountname', $fields['email'])
             ->first();
 
         if (!$user || !LDAPService::instance()->check($user, $fields['password'])) {
