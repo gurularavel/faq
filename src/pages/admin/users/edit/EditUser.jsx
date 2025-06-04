@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Grid2,
@@ -34,6 +34,7 @@ export default function EditUser() {
     name: yup.string().required(t("required_field")),
     surname: yup.string().required(t("required_field")),
     email: yup.string().required(t("required_field")),
+    samaccountname: yup.string().required(t("required_field")),
   });
 
   const {
@@ -50,6 +51,7 @@ export default function EditUser() {
       name: "",
       surname: "",
       email: "",
+      samaccountname: "",
     },
   });
 
@@ -98,6 +100,7 @@ export default function EditUser() {
         name: userData.name,
         surname: userData.surname,
         email: userData.email,
+        samaccountname: userData.samaccountname,
       });
     } catch (error) {
       notify(
@@ -270,6 +273,21 @@ export default function EditUser() {
                       label={t("label_email_or_username")}
                       error={!!errors.email}
                       helperText={errors.email?.message}
+                    />
+                  )}
+                />
+              </Grid2>
+              <Grid2 size={{ xs: 12 }}>
+                <Controller
+                  name="samaccountname"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label={t("samaccountname")}
+                      error={!!errors.samaccountname}
+                      helperText={errors.samaccountname?.message}
                     />
                   )}
                 />

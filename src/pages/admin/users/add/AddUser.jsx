@@ -32,12 +32,12 @@ export default function AddUser() {
     name: yup.string().required(t("required_field")),
     surname: yup.string().required(t("required_field")),
     email: yup.string().required(t("required_field")),
+    samaccountname: yup.string().required(t("required_field")),
   });
 
   const {
     control,
     handleSubmit,
-    reset,
     setValue,
     formState: { errors },
   } = useForm({
@@ -48,6 +48,7 @@ export default function AddUser() {
       name: "",
       surname: "",
       email: "",
+      samaccountname: "",
     },
   });
 
@@ -219,6 +220,21 @@ export default function AddUser() {
                       label={t("label_email_or_username")}
                       error={!!errors.email}
                       helperText={errors.email?.message}
+                    />
+                  )}
+                />
+              </Grid2>
+              <Grid2 size={{ xs: 12 }}>
+                <Controller
+                  name="samaccountname"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label={t("samaccountname")}
+                      error={!!errors.samaccountname}
+                      helperText={errors.samaccountname?.message}
                     />
                   )}
                 />

@@ -315,6 +315,7 @@ export default function Users() {
           <TableRow>
             <TableCell></TableCell>
             <TableCell>{t("user")}</TableCell>
+            <TableCell>{t("samaccountname")}</TableCell>
             <TableCell>{t("last_login_date")}</TableCell>
             <TableCell>{t("score")}</TableCell>
             <TableCell>{t("category")}</TableCell>
@@ -327,6 +328,9 @@ export default function Users() {
               <TableRow key={index}>
                 <TableCell>
                   <Skeleton width={20} />
+                </TableCell>
+                <TableCell>
+                  <Skeleton width={100} />
                 </TableCell>
                 <TableCell>
                   <Skeleton width={100} />
@@ -363,6 +367,7 @@ export default function Users() {
                 <TableCell>
                   {row.name} {row.surname}
                 </TableCell>
+                <TableCell>{row.samaccountname}</TableCell>
                 <TableCell>{row.last_login_date}</TableCell>
                 <TableCell>
                   <Button
@@ -427,8 +432,12 @@ export default function Users() {
               {filters.page * filters.limit - filters.limit + i + 1}. {row.name}{" "}
               {row.surname}
             </Typography>
+            <Typography variant="body1">
+              {row.samaccountname}
+            </Typography>
             <Box mt={1}>
               <Grid2 container spacing={1}>
+                
                 <Grid2 size={6}>
                   <Typography variant="body" fontWeight={"bold"}>
                     {t("last_login_date")}:
