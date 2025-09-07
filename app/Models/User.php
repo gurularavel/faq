@@ -130,4 +130,9 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->hasMany(NotificationUser::class);
     }
+
+    public function faqSeenLogs(): HasMany
+    {
+        return $this->hasMany(FaqSeenLog::class);
+    }
 }

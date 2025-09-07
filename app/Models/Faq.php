@@ -89,4 +89,9 @@ class Faq extends Model
     {
         return $this->hasMany(FaqList::class);
     }
+
+    public function seenLogs(): HasMany
+    {
+        return $this->hasMany(FaqSeenLog::class);
+    }
 }

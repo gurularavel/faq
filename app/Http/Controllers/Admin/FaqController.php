@@ -9,13 +9,18 @@ use App\Http\Requests\Admin\Faqs\FaqStoreRequest;
 use App\Http\Requests\Admin\Faqs\FaqUpdateRequest;
 use App\Http\Requests\App\Faqs\FaqAddToListRequest;
 use App\Http\Requests\App\Faqs\FaqBulkAddToListRequest;
+use App\Http\Requests\App\Faqs\FaqReportsTimeSeriesRequest;
+use App\Http\Requests\App\Faqs\FaqReportsTopStatisticsRequest;
 use App\Http\Resources\Admin\Faqs\FaqsListResource;
+use App\Http\Resources\Admin\Faqs\FaqsReportTimeSeriesResource;
+use App\Http\Resources\Admin\Faqs\FaqsReportTopStatisticsResource;
 use App\Http\Resources\Admin\Faqs\FaqsResource;
 use App\Http\Resources\Admin\Faqs\FaqResource;
 use App\Http\Resources\GeneralResource;
 use App\Models\Faq;
 use App\Repositories\FaqRepository;
 use App\Services\LangService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Annotations as OA;
@@ -382,5 +387,67 @@ class FaqController extends Controller
                 ->setDefault('FAQs added to list successfully!')
                 ->getLang('faqs_added_to_list'),
         ]);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/control/reports/faqs/top-statistics",
+     *     summary="Get top FAQ statistics",
+     *     tags={"Reports"},
+     *     security={
+     *         {
+     *             "ApiToken": {},
+     *             "SanctumBearerToken": {}
+     *         }
+     *     },
+     *               @OA\Parameter(
+     *           name="parameters",
+     *           in="query",
+     *           required=false,
+     *           @OA\Schema(ref="#/components/schemas/FaqReportsTopStatisticsRequest")
+     *       ),
+     *          @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/FaqsReportTopStatisticsResource"))
+     *      )
+     * )
+     */
+    public function topStatistics(FaqReportsTopStatisticsRequest $request): AnonymousResourceCollection
+    {
+        $validated = $request->validated();
+
+        return FaqsReportTopStatisticsResource::collection($this->repo->topFaqs($validated['period'], $validated['limit'], ($validated['calendar'] ?? 'no') === 'yes'));
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/control/reports/faqs/time-series",
+     *     summary="Get FAQ time series data",
+     *     tags={"Reports"},
+     *     security={
+     *         {
+     *             "ApiToken": {},
+     *             "SanctumBearerToken": {}
+     *         }
+     *     },
+     *               @OA\Parameter(
+     *           name="parameters",
+     *           in="query",
+     *           required=false,
+     *           @OA\Schema(ref="#/components/schemas/FaqReportsTimeSeriesRequest")
+     *       ),
+     *          @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/FaqsReportTimeSeriesResource"))
+     *      )
+     * )
+     */
+    public function timeSeries(FaqReportsTimeSeriesRequest $request): AnonymousResourceCollection
+    {
+        $validated = $request->validated();
+
+        return FaqsReportTimeSeriesResource::collection($this->repo->timeSeries($validated['granularity'], $validated['from'] ? Carbon::parse($validated['from']) : null, $validated['to'] ? Carbon::parse($validated['to']) : null));
     }
 }

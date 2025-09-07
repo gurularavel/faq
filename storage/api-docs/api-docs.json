@@ -1821,6 +1821,86 @@
                 ]
             }
         },
+        "/api/control/reports/faqs/top-statistics": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Get top FAQ statistics",
+                "operationId": "190e3a885f3e082bbe9ce47abef98d5d",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/FaqReportsTopStatisticsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FaqsReportTopStatisticsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/reports/faqs/time-series": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Get FAQ time series data",
+                "operationId": "9405d372910ce4225015585da79e5a8d",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/FaqReportsTimeSeriesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FaqsReportTimeSeriesResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/faqs/excels/load": {
             "get": {
                 "tags": [
@@ -6303,6 +6383,74 @@
                 },
                 "type": "object"
             },
+            "FaqReportsTimeSeriesRequest": {
+                "required": [
+                    "granularity"
+                ],
+                "properties": {
+                    "granularity": {
+                        "description": "The granularity for statistics (week, month, year)",
+                        "type": "string",
+                        "enum": [
+                            "week",
+                            "month",
+                            "year"
+                        ],
+                        "example": "week"
+                    },
+                    "from": {
+                        "description": "Start date for the statistics (optional, defaults to start of sub 29 days if null)",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-06-01",
+                        "nullable": true
+                    },
+                    "to": {
+                        "description": "End date for the statistics (optional, defaults to end of today if null)",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-06-29",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "FaqReportsTopStatisticsRequest": {
+                "required": [
+                    "period",
+                    "limit"
+                ],
+                "properties": {
+                    "period": {
+                        "description": "The period for statistics (week, month, year)",
+                        "type": "string",
+                        "enum": [
+                            "week",
+                            "month",
+                            "year"
+                        ],
+                        "example": "week"
+                    },
+                    "limit": {
+                        "description": "The maximum number of results to return",
+                        "type": "integer",
+                        "maximum": 100,
+                        "minimum": 1,
+                        "example": 10
+                    },
+                    "calendar": {
+                        "description": "Whether to use calendar mode",
+                        "type": "string",
+                        "enum": [
+                            "yes",
+                            "no"
+                        ],
+                        "example": "yes",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "FaqSearchRequest": {
                 "title": "FAQ Search Request",
                 "description": "Request body for searching FAQs",
@@ -6861,6 +7009,51 @@
                     },
                     "category": {
                         "$ref": "#/components/schemas/CategoriesListResource"
+                    }
+                },
+                "type": "object"
+            },
+            "FaqsReportTimeSeriesResource": {
+                "properties": {
+                    "bucket": {
+                        "description": "Time bucket label (e.g., date or period)",
+                        "type": "string",
+                        "example": "2024-06-01"
+                    },
+                    "id": {
+                        "description": "FAQ ID",
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "question": {
+                        "description": "FAQ question text",
+                        "type": "string",
+                        "example": "How do I reset my password?"
+                    },
+                    "views": {
+                        "description": "Number of views in the bucket",
+                        "type": "integer",
+                        "example": 42
+                    }
+                },
+                "type": "object"
+            },
+            "FaqsReportTopStatisticsResource": {
+                "properties": {
+                    "id": {
+                        "description": "FAQ ID",
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "question": {
+                        "description": "FAQ question text",
+                        "type": "string",
+                        "example": "How do I reset my password?"
+                    },
+                    "views": {
+                        "description": "Number of views",
+                        "type": "integer",
+                        "example": 42
                     }
                 },
                 "type": "object"
@@ -7684,6 +7877,10 @@
         {
             "name": "Faq",
             "description": "Faq"
+        },
+        {
+            "name": "Reports",
+            "description": "Reports"
         },
         {
             "name": "FaqExcel",

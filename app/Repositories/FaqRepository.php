@@ -13,6 +13,7 @@ use App\Services\LangService;
 use App\Services\LoggerService;
 use App\Services\NotificationService;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Elasticsearch\Client;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -277,9 +278,17 @@ class FaqRepository
     public function open(Faq $faq): void
     {
         $faq->timestamps = false;
+
         $faq->update([
             'seen_count' => $faq->seen_count + 1,
         ]);
+
+        /** @var User $user */
+        $user = auth('user')->user();
+        $faq->seenLogs()->create([
+            'user_id' => $user->id,
+        ]);
+
         $faq->timestamps = true;
     }
 
@@ -637,5 +646,83 @@ class FaqRepository
         $this->deleteIndex();
         $this->createIndex();
         $this->generateIndex();
+    }
+
+    // reports
+    public function topFaqs(string $period = 'day', int $limit = 10, bool $calendar = true): \Illuminate\Support\Collection
+    {
+        $tz  = config('app.timezone', 'Asia/Baku');
+        $now = Carbon::now($tz);
+
+        [$from, $to] = match ($period) {
+            'week'  => [$calendar ? $now->copy()->startOfWeek(CarbonInterface::MONDAY) : $now->copy()->subDays(6)->startOfDay(),
+                $now->copy()->endOfDay()],
+            'month' => [$calendar ? $now->copy()->startOfMonth() : $now->copy()->subDays(29)->startOfDay(),
+                $now->copy()->endOfDay()],
+            default => [$now->copy()->startOfDay(), $now->copy()->endOfDay()],
+        };
+
+        return $this->topFaqsBetween($from, $to, $limit);
+    }
+
+    public function topFaqsBetween(Carbon $from, Carbon $to, int $limit = 10): \Illuminate\Support\Collection
+    {
+        return DB::table('faq_seen_logs as l')
+            ->join('faqs as f', 'f.id', '=', 'l.faq_id')
+            ->leftJoin('model_translations as t', function ($join) {
+                $join->on('t.translatable_id', '=', 'f.id')
+                    ->where('t.translatable_type', '=', Faq::class)
+                    ->where('t.column', '=', 'question')
+                    ->where('t.language_id', '=', LangService::instance()->getCurrentLangId());
+            })
+            ->whereNull('l.deleted_at')
+            ->whereBetween('l.created_at', [$from, $to])
+            ->groupBy('f.id', 't.text')
+            ->select('f.id', 't.text', DB::raw('COUNT(*) as views'))
+            ->orderByDesc('views')
+            ->limit($limit)
+            ->get();
+    }
+
+    public function timeSeries(string $granularity = 'day', ?Carbon $from = null, ?Carbon $to = null): \Illuminate\Support\Collection
+    {
+        $now  = Carbon::now();
+        $from ??= $now->copy()->subDays(29)->startOfDay();
+        $to   ??= $now->copy()->endOfDay();
+
+        $base = DB::table('faq_seen_logs as l')
+            ->join('faqs as f', 'f.id', '=', 'l.faq_id')
+            ->leftJoin('model_translations as t', function ($join) {
+                $join->on('t.translatable_id', '=', 'f.id')
+                    ->where('t.translatable_type', '=', Faq::class)
+                    ->where('t.column', '=', 'question')
+                    ->where('t.language_id', '=', LangService::instance()->getCurrentLangId());
+            })
+            ->whereNull('l.deleted_at')
+            ->whereBetween('l.created_at', [$from, $to]);
+
+        if ($granularity === 'month') {
+            return $base
+                ->selectRaw('DATE_FORMAT(l.created_at, "%Y-%m") as bucket, f.id, t.text, COUNT(*) as views')
+                ->groupBy('bucket', 'f.id', 't.text')
+                ->orderBy('bucket')
+                ->get();
+
+        }
+
+        if ($granularity === 'week') {
+            return $base
+                ->selectRaw('YEARWEEK(l.created_at, 3) as bucket, f.id, t.text, COUNT(*) as views')
+                ->groupBy('bucket', 'f.id', 't.text')
+                ->orderBy('bucket')
+                ->get();
+        }
+
+        // day
+        return $base
+            ->selectRaw('DATE(l.created_at) as bucket, f.id, t.text, COUNT(*) as views')
+            ->groupBy('bucket', 'f.id', 't.text')
+            ->orderBy('bucket')
+            ->get();
     }
 }

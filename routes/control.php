@@ -180,5 +180,12 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
                 Route::delete('delete/{question}', [QuestionController::class, 'destroy']);
             });
         });
+
+        Route::group(['prefix' => 'reports'], static function () {
+            Route::group(['prefix' => 'faqs'], static function () {
+                Route::get('top-statistics', [FaqController::class, 'topStatistics']);
+                Route::get('time-series', [FaqController::class, 'timeSeries']);
+            });
+        });
     });
 });
