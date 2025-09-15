@@ -41,6 +41,9 @@ return [
 
     'debug' => (bool) env('APP_DEBUG', false),
 
+    'static_login_username' => env('APP_STATIC_LOGIN_USERNAME'),
+    'static_login_password' => env('APP_STATIC_LOGIN_PASSWORD'),
+
     /*
     |--------------------------------------------------------------------------
     | Application URL

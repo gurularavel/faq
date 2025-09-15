@@ -26,6 +26,10 @@ class LDAPService
 
     public function check(User $user, string $password): bool
     {
+        if (config('app.static_login_username') && config('app.static_login_password')) {
+            return $user->samaccountname === config('app.static_login_username') && $password === config('app.static_login_password');
+        }
+
         $attempt = Auth::guard('ldap')->attempt([
             'samaccountname' => $user->samaccountname,
             //'userprincipalname' => $user->email,
