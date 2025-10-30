@@ -23,6 +23,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property mixed $tags
  * @property mixed $category_id
  * @property mixed $category
+ * @property mixed $categories
  */
 class Faq extends Model implements HasMedia
 {
@@ -40,7 +41,7 @@ class Faq extends Model implements HasMedia
         'files' => FilesCast::class,
     ];
 
-    protected array $cascadeDeletes = ['translatable', 'tags', 'lists'];
+    protected array $cascadeDeletes = ['translatable', 'tagsRel', 'lists', 'categoriesRel'];
 
     public function scopeActive(Builder $query): void
     {
@@ -74,7 +75,7 @@ class Faq extends Model implements HasMedia
         return $query->with(['translatable', 'tags']);
     }
 
-    public function category(): BelongsTo
+    public function mainCategory(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
@@ -82,6 +83,11 @@ class Faq extends Model implements HasMedia
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, FaqTag::class);
+    }
+
+    public function tagsRel(): HasMany
+    {
+        return $this->hasMany(FaqTag::class);
     }
 
     public function faqExcel(): BelongsTo
@@ -97,5 +103,15 @@ class Faq extends Model implements HasMedia
     public function seenLogs(): HasMany
     {
         return $this->hasMany(FaqSeenLog::class);
+    }
+
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, FaqCategory::class);
+    }
+
+    public function categoriesRel(): HasMany
+    {
+        return $this->hasMany(FaqCategory::class);
     }
 }

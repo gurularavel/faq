@@ -118,6 +118,10 @@ class FaqImport implements ToCollection, WithHeadingRow, WithChunkReading
                 }
 
                 $faq->saveLang();
+
+                $categories = [];
+                $categories[] = $subCategory->id;
+                $faq->categories()->sync($categories);
             }
         });
     }

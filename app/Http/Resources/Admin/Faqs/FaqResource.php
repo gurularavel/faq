@@ -62,7 +62,7 @@ class FaqResource extends JsonResource
         return [
             'id' => $this->id,
             'seen_count' => $this->seen_count,
-            'category' => CategoriesListResource::make($this->whenLoaded('category')),
+            'categories' => CategoriesListResource::collection($this->whenLoaded('categories')),
             'tags' => TagsListResource::collection($this->whenLoaded('tags')),
             'translations' => $this->translations,
             'files' => $this->whenLoaded('media', function () {

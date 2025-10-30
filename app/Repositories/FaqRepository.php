@@ -16,6 +16,7 @@ use App\Services\NotificationService;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -32,10 +33,10 @@ class FaqRepository
                 'translatable',
                 'creatable',
                 'tags',
-                'category',
-                'category.translatable',
-                'category.parent',
-                'category.parent.translatable',
+                'categories',
+                'categories.translatable',
+                'categories.parent',
+                'categories.parent.translatable',
             ])
             ->withExists([
                 'lists as in_most_searched' => static function (Builder $query) {
@@ -57,10 +58,14 @@ class FaqRepository
                 });
             })
             ->when($validated['category'] ?? null, function (Builder $builder) use ($validated) {
-                $builder->where(function (Builder $query) use ($validated) {
-                    $query->where('category_id', $validated['category']);
-                    $query->orWhereHas('category', function (Builder $q) use ($validated) {
-                        $q->where('categories.category_id', $validated['category']);
+                $categoryId = $validated['category'];
+
+                $builder->where(function (Builder $query) use ($categoryId) {
+                    $query->whereHas('categories', function (Builder $q) use ($categoryId) {
+                        $q->where('categories.id', $categoryId);
+                    });
+                    $query->orWhereHas('categories.parent', function (Builder $q) use ($categoryId) {
+                        $q->where('categories.id', $categoryId);
                     });
                 });
             })
@@ -92,10 +97,10 @@ class FaqRepository
                 'translatable',
                 'creatable',
                 'tags',
-                'category',
-                'category.translatable',
-                'category.parent',
-                'category.parent.translatable',
+                'categories',
+                'categories.translatable',
+                'categories.parent',
+                'categories.parent.translatable',
             ]);
     }
 
@@ -107,10 +112,10 @@ class FaqRepository
                 'media',
                 'creatable',
                 'tags',
-                'category',
-                'category.translatable',
-                'category.parent',
-                'category.parent.translatable',
+                'categories',
+                'categories.translatable',
+                'categories.parent',
+                'categories.parent.translatable',
             ]);
     }
 
@@ -136,8 +141,10 @@ class FaqRepository
                 $tags = [];
             }
 
+            $categories = $validated['categories'];
+
             $faq = Faq::query()->create([
-                'category_id' => $validated['category_id'],
+                'category_id' => $categories[0],
             ]);
 
             $default = $translations[0];
@@ -147,6 +154,8 @@ class FaqRepository
             }
 
             $faq->saveLang();
+
+            $faq->categories()->sync($categories);
 
             $faq->tags()->sync($tags);
 
@@ -176,8 +185,10 @@ class FaqRepository
                 $tags = [];
             }
 
+            $categories = $validated['categories'];
+
             $faq->update([
-                'category_id' => $validated['category_id'],
+                'category_id' => $categories[0],
             ]);
 
             foreach ($translations as $translation) {
@@ -186,6 +197,8 @@ class FaqRepository
             }
 
             $faq->saveLang();
+
+            $faq->categories()->sync($categories);
 
             $faq->tags()->sync($tags);
 
@@ -297,10 +310,10 @@ class FaqRepository
                 'tags' => function ($builder) {
                     $builder->limit(config('settings.faq.tags_limit'));
                 },
-                'category',
-                'category.translatable',
-                'category.parent',
-                'category.parent.translatable',
+                'categories',
+                'categories.translatable',
+                'categories.parent',
+                'categories.parent.translatable',
             ])
             ->limit($limit)
             ->orderByDesc('seen_count')
@@ -347,17 +360,25 @@ class FaqRepository
         $filters = [];
 
         if ($hasSubCategory) {
+            $subIds = is_array($validated['sub_category_id'])
+                ? $validated['sub_category_id']
+                : [$validated['sub_category_id']];
+
             $filters[] = [
                 'terms' => [
-                    'category_id' => $validated['sub_category_id']
+                    'category_ids' => $subIds
                 ]
             ];
         }
 
         if ($hasCategory) {
+            $parentIds = is_array($validated['category_id'])
+                ? $validated['category_id']
+                : [$validated['category_id']];
+
             $filters[] = [
                 'terms' => [
-                    'parent_category_id' => $validated['category_id']
+                    'parent_category_ids' => $parentIds
                 ]
             ];
         }
@@ -424,10 +445,10 @@ class FaqRepository
             ->with([
                 'media',
                 'tags',
-                'category',
-                'category.translatable',
-                'category.parent',
-                'category.parent.translatable',
+                'categories',
+                'categories.translatable',
+                'categories.parent',
+                'categories.parent.translatable',
             ])
             ->get();
 
@@ -481,7 +502,7 @@ class FaqRepository
                 'seen_count' => 0,
                 'tags' => $tags,
                 'score' => $hit['_score'] ?? null,
-                'category' => CategoriesListResource::make($faqModel->category),
+                'categories' => CategoriesListResource::collection($faqModel->categories),
                 'updated_at' => $faqModel->updated_at,
                 'files' => $faqModel->files['files'] ?? [],
             ];
@@ -518,7 +539,20 @@ class FaqRepository
             return;
         }
 
-        $faq->load(['translatable', 'tags', 'category']);
+        $faq->load(['translatable', 'tags', 'categories', 'categories.parent']);
+
+        $categoryIds = $faq->categories
+            ->pluck('id')
+            ->unique()
+            ->values()
+            ->all();
+
+        $parentCategoryIds = $faq->categories
+            ->map(fn($c) => optional($c->parent)->id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
 
         $data = [
             'id' => $faq->id,
@@ -527,8 +561,8 @@ class FaqRepository
             'question_ru' => $faq->getLang('question', LangService::instance()->getLangIdByKey('ru')),
             'answer_ru'   => $faq->getLang('answer', LangService::instance()->getLangIdByKey('ru')),
             'tags'        => $faq->tags->pluck('title')->implode(' '),
-            'category_id' => $faq->category_id,
-            'parent_category_id' => optional($faq->category)->category_id ?? 0,
+            'category_ids' => $categoryIds,
+            'parent_category_ids' => $parentCategoryIds,
         ];
 
         app(Client::class)->index([
@@ -549,7 +583,7 @@ class FaqRepository
                 'index' => 'faq_index',
                 'id' => $faq->id,
             ]);
-        } catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e) {
+        } catch (Missing404Exception $e) {
             LoggerService::instance()->log($e->getMessage(), [], true);
         }
     }
@@ -645,8 +679,8 @@ class FaqRepository
                             'analyzer' => 'az_ru_index_analyzer',
                             'search_analyzer' => 'az_ru_search_analyzer',
                         ],
-                        'category_id' => ['type' => 'integer'],
-                        'parent_category_id' => ['type' => 'integer'],
+                        'category_ids' => ['type' => 'integer'],
+                        'parent_category_ids' => ['type' => 'integer'],
                     ]
                 ]
             ]
@@ -666,11 +700,24 @@ class FaqRepository
 
         Faq::query()
             ->active()
-            ->with(['translatable', 'tags', 'category'])
+            ->with(['translatable', 'tags', 'categories', 'categories.parent'])
             ->chunk(100, function ($faqs) use ($client, $langAz, $langRu) {
                 $body = [];
 
                 foreach ($faqs as $faq) {
+                    $categoryIds = $faq->categories
+                        ->pluck('id')
+                        ->unique()
+                        ->values()
+                        ->all();
+
+                    $parentCategoryIds = $faq->categories
+                        ->map(fn($c) => optional($c->parent)->id)
+                        ->filter()
+                        ->unique()
+                        ->values()
+                        ->all();
+
                     $body[] = [
                         'index' => [
                             '_index' => 'faq_index',
@@ -685,8 +732,8 @@ class FaqRepository
                         'question_ru' => $faq->getLang('question', $langRu),
                         'answer_ru' => $faq->getLang('answer', $langRu),
                         'tags' => $faq->tags->pluck('title')->implode(' '),
-                        'category_id' => $faq->category_id,
-                        'parent_category_id' => optional($faq->category)->category_id ?? 0,
+                        'category_ids' => $categoryIds,
+                        'parent_category_ids' => $parentCategoryIds,
                     ];
                 }
 
@@ -710,11 +757,11 @@ class FaqRepository
     // reports
     public function topFaqs(string $period = 'day', int $limit = 10, bool $calendar = true): \Illuminate\Support\Collection
     {
-        $tz  = config('app.timezone', 'Asia/Baku');
+        $tz = config('app.timezone', 'Asia/Baku');
         $now = Carbon::now($tz);
 
         [$from, $to] = match ($period) {
-            'week'  => [$calendar ? $now->copy()->startOfWeek(CarbonInterface::MONDAY) : $now->copy()->subDays(6)->startOfDay(),
+            'week' => [$calendar ? $now->copy()->startOfWeek(CarbonInterface::MONDAY) : $now->copy()->subDays(6)->startOfDay(),
                 $now->copy()->endOfDay()],
             'month' => [$calendar ? $now->copy()->startOfMonth() : $now->copy()->subDays(29)->startOfDay(),
                 $now->copy()->endOfDay()],
@@ -745,9 +792,9 @@ class FaqRepository
 
     public function timeSeries(string $granularity = 'day', ?Carbon $from = null, ?Carbon $to = null): \Illuminate\Support\Collection
     {
-        $now  = Carbon::now();
+        $now = Carbon::now();
         $from ??= $now->copy()->subDays(29)->startOfDay();
-        $to   ??= $now->copy()->endOfDay();
+        $to ??= $now->copy()->endOfDay();
 
         $base = DB::table('faq_seen_logs as l')
             ->join('faqs as f', 'f.id', '=', 'l.faq_id')

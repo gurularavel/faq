@@ -74,7 +74,8 @@ class FaqStoreRequest extends FormRequest
                 File::types(['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'])
                     ->max(30 * 1024),
             ],
-            'category_id' => ['required', 'integer', Rule::exists(Category::class, 'id')->whereNotNull('category_id')->whereNull('deleted_at')],
+            'categories' => ['required', 'array', 'min:1'],
+            'categories.*' => ['required', 'integer', Rule::exists(Category::class, 'id')->whereNotNull('category_id')->whereNull('deleted_at')],
             'translations' => ['required', 'array', 'size:' . count(LangService::instance()->getLanguages())],
             'translations.*.language_id' => ['required', 'integer', 'distinct', Rule::in(data_get(LangService::instance()->getLanguages(), '*.id'))],
             'translations.*.question' => [new FirstTranslationRequired('question')],

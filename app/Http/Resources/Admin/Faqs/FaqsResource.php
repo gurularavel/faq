@@ -86,7 +86,7 @@ class FaqsResource extends JsonResource
             'is_active' => $this->is_active ?? true,
             'seen_count' => $this->seen_count,
             'in_most_searched' => $this->in_most_searched ?? false,
-            'category' => CategoriesListResource::make($this->whenLoaded('category')),
+            'categories' => CategoriesListResource::collection($this->whenLoaded('categories')),
             'tags' => TagsListResource::collection($this->whenLoaded('tags')),
             'created_user' => $this->whenLoaded('creatable', function () {
                 return $this->creatable?->username;
