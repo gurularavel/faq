@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\Faqs\FilesCast;
 use App\Traits\ActionBy;
 use App\Traits\ActionUser;
 use App\Traits\Translatable;
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  * @property bool|mixed $is_active
@@ -21,9 +24,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property mixed $category_id
  * @property mixed $category
  */
-class Faq extends Model
+class Faq extends Model implements HasMedia
 {
-    use SoftDeletes, ActionBy, ActionUser, Translatable, CascadeSoftDeletes;
+    use SoftDeletes, ActionBy, ActionUser, Translatable, CascadeSoftDeletes, InteractsWithMedia;
 
     protected $fillable = [
         'category_id', // sub category id
@@ -34,6 +37,7 @@ class Faq extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'seen_count' => 'integer',
+        'files' => FilesCast::class,
     ];
 
     protected array $cascadeDeletes = ['translatable', 'tags', 'lists'];

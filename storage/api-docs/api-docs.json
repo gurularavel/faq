@@ -1673,6 +1673,51 @@
                 ]
             }
         },
+        "/api/control/faqs/images/delete/{faq}/{mediaId}": {
+            "delete": {
+                "tags": [
+                    "Faq"
+                ],
+                "summary": "Delete image from FAQ",
+                "operationId": "7afea9b06c841722bd9e769521d329f0",
+                "parameters": [
+                    {
+                        "name": "faq",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "mediaId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Image deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/faqs/change-active-status/{faq}": {
             "post": {
                 "tags": [

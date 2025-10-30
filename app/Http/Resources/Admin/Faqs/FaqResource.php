@@ -46,6 +46,7 @@ use OpenApi\Annotations as OA;
  * @property mixed $id
  * @property mixed $translations
  * @property mixed $seen_count
+ * @property mixed $files
  */
 class FaqResource extends JsonResource
 {
@@ -64,6 +65,9 @@ class FaqResource extends JsonResource
             'category' => CategoriesListResource::make($this->whenLoaded('category')),
             'tags' => TagsListResource::collection($this->whenLoaded('tags')),
             'translations' => $this->translations,
+            'files' => $this->whenLoaded('media', function () {
+                return $this->files;
+            }),
         ];
     }
 }

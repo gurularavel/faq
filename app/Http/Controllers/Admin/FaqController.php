@@ -117,7 +117,7 @@ class FaqController extends Controller
      */
     public function show(Faq $faq): FaqResource
     {
-        $this->repo->loadRelations($faq);
+        $this->repo->show($faq);
 
         return FaqResource::make($faq);
     }
@@ -151,7 +151,7 @@ class FaqController extends Controller
      */
     public function store(FaqStoreRequest $request): JsonResponse
     {
-        $faq = $this->repo->store($request->validated());
+        $faq = $this->repo->store($request);
 
         $this->repo->loadRelations($faq);
 
@@ -193,7 +193,7 @@ class FaqController extends Controller
      */
     public function update(FaqUpdateRequest $request, Faq $faq): JsonResponse
     {
-        $faq = $this->repo->update($faq, $request->validated());
+        $faq = $this->repo->update($faq, $request);
 
         $this->repo->loadRelations($faq);
 
@@ -242,6 +242,47 @@ class FaqController extends Controller
             'message' => LangService::instance()
                 ->setDefault('Deleted successfully!')
                 ->getLang('faq_deleted_successfully'),
+        ]));
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/control/faqs/images/delete/{faq}/{mediaId}",
+     *     summary="Delete image from FAQ",
+     *     tags={"Faq"},
+     *     security={
+     *         {
+     *             "ApiToken": {},
+     *             "SanctumBearerToken": {}
+     *         }
+     *     },
+     *     @OA\Parameter(
+     *         name="faq",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="mediaId",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Image deleted successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GeneralResource")
+     *     )
+     * )
+     */
+    public function destroyImage(Faq $faq, int $mediaId): JsonResponse
+    {
+        $this->repo->deleteImage($faq, $mediaId);
+
+        return response()->json(GeneralResource::make([
+            'message' => LangService::instance()
+                ->setDefault('Selected media file deleted successfully!')
+                ->getLang('faq_media_deleted_successfully'),
         ]));
     }
 

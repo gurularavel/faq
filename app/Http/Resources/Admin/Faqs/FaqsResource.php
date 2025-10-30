@@ -66,6 +66,7 @@ use OpenApi\Annotations as OA;
  * @property mixed $in_most_searched
  * @property mixed $seen_count
  * @property mixed $updated_at
+ * @property mixed $files
  * @method getLang(string $string)
  */
 class FaqsResource extends JsonResource
@@ -92,6 +93,9 @@ class FaqsResource extends JsonResource
             }),
             'created_date' => $this->created_at?->toDateTimeString(),
             'updated_date' => $this->updated_at?->toDateTimeString(),
+            'files' => $this->whenLoaded('media', function () {
+                return $this->files;
+            }),
         ];
     }
 }

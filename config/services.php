@@ -35,4 +35,7 @@ return [
         ],
     ],
 
+    'elasticsearch' => [
+        'disable' => (bool) env('ELASTICSEARCH_DISABLE', false),
+    ],
 ];

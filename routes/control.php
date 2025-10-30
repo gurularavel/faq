@@ -110,6 +110,7 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
             Route::post('update/{faq}', [FaqController::class, 'update']);
             Route::post('change-active-status/{faq}', [FaqController::class, 'changeActiveStatus']);
             Route::delete('delete/{faq}', [FaqController::class, 'destroy']);
+            Route::delete('images/delete/{faq}/{mediaId}', [FaqController::class, 'destroyImage']);
             Route::post('lists/add', [FaqController::class, 'addToList']);
             Route::post('lists/remove', [FaqController::class, 'removeFromList']);
             Route::post('lists/bulk-add', [FaqController::class, 'bulkAddToList']);

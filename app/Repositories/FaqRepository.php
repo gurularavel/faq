@@ -9,6 +9,7 @@ use App\Models\Admin;
 use App\Models\Faq;
 use App\Models\FaqList;
 use App\Models\User;
+use App\Services\FileUpload;
 use App\Services\LangService;
 use App\Services\LoggerService;
 use App\Services\NotificationService;
@@ -18,6 +19,7 @@ use Elasticsearch\Client;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -97,6 +99,21 @@ class FaqRepository
             ]);
     }
 
+    public function show(Faq $faq): void
+    {
+        $faq
+            ->load([
+                'translatable',
+                'media',
+                'creatable',
+                'tags',
+                'category',
+                'category.translatable',
+                'category.parent',
+                'category.parent.translatable',
+            ]);
+    }
+
     public function loadTranslations(Faq $faq): void
     {
         $faq->load([
@@ -104,9 +121,11 @@ class FaqRepository
         ]);
     }
 
-    public function store(array $validated): Faq
+    public function store(FormRequest $request): Faq
     {
-        return DB::transaction(static function () use ($validated) {
+        return DB::transaction(static function () use ($request) {
+            $validated = $request->validated();
+
             $translations = $validated['translations'];
             unset($validated['translations']);
 
@@ -131,6 +150,8 @@ class FaqRepository
 
             $faq->tags()->sync($tags);
 
+            FileUpload::multipleUpload($request, 'files', 'faqs', $faq);
+
             $userIds = User::query()->pluck('id')->toArray();
             NotificationService::instance()->sendToUsers($userIds, NotificationTypeEnum::FAQ_NEW, $faq);
 
@@ -140,9 +161,11 @@ class FaqRepository
         });
     }
 
-    public function update(Faq $faq, array $validated): Faq
+    public function update(Faq $faq, FormRequest $request): Faq
     {
-        return DB::transaction(static function () use ($faq, $validated) {
+        return DB::transaction(static function () use ($faq, $request) {
+            $validated = $request->validated();
+
             $translations = $validated['translations'];
             unset($validated['translations']);
 
@@ -166,6 +189,8 @@ class FaqRepository
 
             $faq->tags()->sync($tags);
 
+            FileUpload::multipleUpload($request, 'files', 'faqs', $faq);
+
             $userIds = User::query()->pluck('id')->toArray();
             NotificationService::instance()->sendToUsers($userIds, NotificationTypeEnum::FAQ, $faq);
 
@@ -181,6 +206,13 @@ class FaqRepository
             $faq->delete();
 
             (new FaqRepository())->deleteFromIndex($faq);
+        });
+    }
+
+    public function deleteImage(Faq $faq, int $mediaId): void
+    {
+        DB::transaction(static function () use ($faq, $mediaId) {
+            $faq->deleteMedia($mediaId);
         });
     }
 
@@ -479,6 +511,10 @@ class FaqRepository
 
     public function indexFaq(Faq $faq): void
     {
+        if (config('services.elasticsearch.disable') === true) {
+            return;
+        }
+
         $faq->load(['translatable', 'tags', 'category']);
 
         $data = [
@@ -501,6 +537,10 @@ class FaqRepository
 
     public function deleteFromIndex(Faq $faq): void
     {
+        if (config('services.elasticsearch.disable') === true) {
+            return;
+        }
+
         try {
             app(Client::class)->delete([
                 'index' => 'faq_index',
@@ -513,6 +553,10 @@ class FaqRepository
 
     public function deleteIndex(): void
     {
+        if (config('services.elasticsearch.disable') === true) {
+            return;
+        }
+
         $client = app(Client::class);
 
         if ($client->indices()->exists(['index' => 'faq_index'])) {
@@ -522,6 +566,10 @@ class FaqRepository
 
     public function createIndex(): void
     {
+        if (config('services.elasticsearch.disable') === true) {
+            return;
+        }
+
         $client = app(Client::class);
 
         $client->indices()->create([
@@ -604,6 +652,10 @@ class FaqRepository
 
     public function generateIndex(): void
     {
+        if (config('services.elasticsearch.disable') === true) {
+            return;
+        }
+
         $client = app(Client::class);
 
         $langAz = LangService::instance()->getLangIdByKey('az');
@@ -643,6 +695,10 @@ class FaqRepository
 
     public function reGenerateIndex(): void
     {
+        if (config('services.elasticsearch.disable') === true) {
+            return;
+        }
+
         $this->deleteIndex();
         $this->createIndex();
         $this->generateIndex();

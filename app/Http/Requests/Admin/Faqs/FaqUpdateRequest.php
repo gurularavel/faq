@@ -7,6 +7,7 @@ use App\Models\Tag;
 use App\Services\LangService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 use OpenApi\Annotations as OA;
 
 /**
@@ -66,6 +67,12 @@ class FaqUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'files' => ['filled', 'array'],
+            'files.*' => [
+                'required',
+                File::types(['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'])
+                    ->max(30 * 1024),
+            ],
             'category_id' => ['required', 'integer', Rule::exists(Category::class, 'id')->whereNotNull('category_id')->whereNull('deleted_at')],
             'translations' => ['required', 'array', 'size:' . count(LangService::instance()->getLanguages())],
             'translations.*.language_id' => ['required', 'integer', 'distinct', Rule::in(data_get(LangService::instance()->getLanguages(), '*.id'))],
