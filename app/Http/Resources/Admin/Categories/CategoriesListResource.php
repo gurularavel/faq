@@ -31,6 +31,7 @@ use OpenApi\Annotations as OA;
  * )
  *
  * @property mixed $id
+ * @property mixed $icon
  * @method getLang(string $string)
  */
 class CategoriesListResource extends JsonResource
@@ -47,6 +48,9 @@ class CategoriesListResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->getLang('title'),
+            'icon' => $this->whenLoaded('media', function () {
+                return $this->icon;
+            }),
             'subs' => CategoriesListResource::collection($this->whenLoaded('subs')),
             'parent' => CategoriesListResource::make($this->whenLoaded('parent')),
         ];

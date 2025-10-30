@@ -33,6 +33,7 @@ use OpenApi\Annotations as OA;
  * @property mixed $id
  * @property mixed $translations
  * @property mixed $category_id
+ * @property mixed $icon
  */
 class CategoryResource extends JsonResource
 {
@@ -49,6 +50,9 @@ class CategoryResource extends JsonResource
             'id' => $this->id,
             'parent_id' => $this->category_id,
             'translations' => $this->translations,
+            'icon' => $this->whenLoaded('media', function () {
+                return $this->icon;
+            }),
         ];
     }
 }

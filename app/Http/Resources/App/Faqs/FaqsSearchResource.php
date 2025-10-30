@@ -64,9 +64,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $score
  * @property mixed $question
  * @property mixed $answer
- * @property mixed $category
  * @property mixed $updated_at
  * @property mixed $files
+ * @property mixed $categories
  * @method getLang(string $string)
  */
 class FaqsSearchResource extends JsonResource
@@ -89,7 +89,7 @@ class FaqsSearchResource extends JsonResource
             'seen_count' => $this->seen_count,
             'tags' => $this->tags,
             'score' => $this->score,
-            'category' => $this->category,
+            'categories' => $this->categories,
             'updated_date' => $this->updated_at?->toDateTimeString(),
             'files' => $this->files ?? [],
         ];

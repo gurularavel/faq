@@ -35,8 +35,10 @@ class FaqRepository
                 'tags',
                 'categories',
                 'categories.translatable',
+                'categories.media',
                 'categories.parent',
                 'categories.parent.translatable',
+                'categories.parent.media',
             ])
             ->withExists([
                 'lists as in_most_searched' => static function (Builder $query) {
@@ -99,8 +101,10 @@ class FaqRepository
                 'tags',
                 'categories',
                 'categories.translatable',
+                'categories.media',
                 'categories.parent',
                 'categories.parent.translatable',
+                'categories.parent.media',
             ]);
     }
 
@@ -114,8 +118,10 @@ class FaqRepository
                 'tags',
                 'categories',
                 'categories.translatable',
+                'categories.media',
                 'categories.parent',
                 'categories.parent.translatable',
+                'categories.parent.media',
             ]);
     }
 
@@ -312,8 +318,10 @@ class FaqRepository
                 },
                 'categories',
                 'categories.translatable',
+                'categories.media',
                 'categories.parent',
                 'categories.parent.translatable',
+                'categories.parent.media',
             ])
             ->limit($limit)
             ->orderByDesc('seen_count')
@@ -447,8 +455,10 @@ class FaqRepository
                 'tags',
                 'categories',
                 'categories.translatable',
+                'categories.media',
                 'categories.parent',
                 'categories.parent.translatable',
+                'categories.parent.media',
             ])
             ->get();
 

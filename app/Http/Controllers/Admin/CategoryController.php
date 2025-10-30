@@ -185,7 +185,7 @@ class CategoryController extends Controller
      */
     public function store(CategoryStoreRequest $request): JsonResponse
     {
-        $category = $this->repo->store($request->validated());
+        $category = $this->repo->store($request);
 
         $this->repo->loadRelations($category);
 
@@ -227,7 +227,7 @@ class CategoryController extends Controller
      */
     public function update(CategoryUpdateRequest $request, Category $category): JsonResponse
     {
-        $category = $this->repo->update($category, $request->validated());
+        $category = $this->repo->update($category, $request);
 
         $this->repo->loadRelations($category);
 

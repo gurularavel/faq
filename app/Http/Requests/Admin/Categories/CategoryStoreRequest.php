@@ -7,6 +7,7 @@ use App\Rules\FirstTranslationRequired;
 use App\Services\LangService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 use OpenApi\Annotations as OA;
 
 /**
@@ -61,6 +62,7 @@ class CategoryStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'icon' => ['filled', File::image()->max(2 * 1024)],
             'parent_id' => ['nullable', 'integer', Rule::exists(Category::class, 'id')->whereNull('category_id')->whereNull('deleted_at')],
             'translations' => ['required', 'array', 'size:' . count(LangService::instance()->getLanguages())],
             'translations.*.language_id' => ['required', 'integer', 'distinct', Rule::in(data_get(LangService::instance()->getLanguages(), '*.id'))],

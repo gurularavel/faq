@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\Categories\IconCast;
 use App\Traits\ActionBy;
 use App\Traits\ActionUser;
 use App\Traits\SoftDeleteAcceptable;
@@ -13,15 +14,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  * @property array|mixed $translations
  * @property bool|mixed $is_active
  * @method static active()
  */
-class Category extends Model
+class Category extends Model implements HasMedia
 {
-    use SoftDeletes, ActionBy, ActionUser, Translatable, CascadeSoftDeletes, SoftDeleteAcceptable;
+    use SoftDeletes, ActionBy, ActionUser, Translatable, CascadeSoftDeletes, SoftDeleteAcceptable, InteractsWithMedia;
 
     protected $fillable = [
         'slug',
@@ -31,11 +34,17 @@ class Category extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'icon' => IconCast::class,
     ];
 
-    protected array $cascadeDeletes = ['subs', 'translatable'];
+    protected array $cascadeDeletes = ['subs', 'translatable', 'media'];
 
     protected array $softDeleteAcceptableRelations = ['faqs'];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('categories')->singleFile();
+    }
 
     public function scopeActive(Builder $query): void
     {
@@ -70,5 +79,10 @@ class Category extends Model
     public function faqs(): BelongsToMany
     {
         return $this->belongsToMany(Faq::class, FaqCategory::class);
+    }
+
+    public function faqsRel(): HasMany
+    {
+        return $this->hasMany(FaqCategory::class);
     }
 }

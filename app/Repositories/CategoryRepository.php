@@ -3,10 +3,12 @@
 namespace App\Repositories;
 
 use App\Models\Category;
+use App\Services\FileUpload;
 use App\Services\LangService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -20,6 +22,7 @@ class CategoryRepository
             ->with([
                 'translatable',
                 'creatable',
+                'media',
                 //'parent',
                 //'parent.translatable',
             ])
@@ -30,6 +33,7 @@ class CategoryRepository
                 $query->with([
                     'subs',
                     'subs.translatable',
+                    'subs.media',
                 ]);
             })
             ->when($validated['search'] ?? null, function (Builder $builder) use ($validated) {
@@ -53,11 +57,13 @@ class CategoryRepository
             ->parents()
             ->with([
                 'translatable',
+                'media',
             ])
             ->when(($validated['with_subs'] ?? 'no') === 'yes', function ($query) {
                 $query->with([
                     'subs',
                     'subs.translatable',
+                    'subs.media',
                 ]);
             })
             ->orderByDesc('id')
@@ -70,6 +76,7 @@ class CategoryRepository
             ->with([
                 'translatable',
                 'creatable',
+                'media',
             ])
             ->when($validated['search'] ?? null, function (Builder $builder) use ($validated) {
                 $builder->where(function (Builder $builder) use ($validated) {
@@ -91,17 +98,21 @@ class CategoryRepository
             ->load([
                 'translatable',
                 'creatable',
+                'media',
                 'parent',
                 'parent.translatable',
+                'parent.media',
             ])
             ->loadCount([
                 'subs',
             ]);
     }
 
-    public function store(array $validated): Category
+    public function store(FormRequest $request): Category
     {
-        return DB::transaction(static function () use ($validated) {
+        return DB::transaction(static function () use ($request) {
+            $validated = $request->validated();
+
             $translations = $validated['translations'];
             unset($validated['translations']);
 
@@ -127,13 +138,17 @@ class CategoryRepository
 
             $category->saveLang();
 
+            FileUpload::upload($request, 'icon', 'categories', $category);
+
             return $category;
         });
     }
 
-    public function update(Category $category, array $validated): Category
+    public function update(Category $category, FormRequest $request): Category
     {
-        return DB::transaction(static function () use ($category, $validated) {
+        return DB::transaction(static function () use ($category, $request) {
+            $validated = $request->validated();
+
             $translations = $validated['translations'];
             unset($validated['translations']);
 
@@ -146,6 +161,8 @@ class CategoryRepository
             }
 
             $category->saveLang();
+
+            FileUpload::upload($request, 'icon', 'categories', $category);
 
             return $category;
         });
