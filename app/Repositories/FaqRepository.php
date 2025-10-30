@@ -292,6 +292,7 @@ class FaqRepository
         return Faq::query()
             ->active()
             ->with([
+                'media',
                 'translatable',
                 'tags' => function ($builder) {
                     $builder->limit(config('settings.faq.tags_limit'));
@@ -421,6 +422,7 @@ class FaqRepository
             ->active()
             ->whereIn('id', $faqIds)
             ->with([
+                'media',
                 'tags',
                 'category',
                 'category.translatable',
@@ -481,6 +483,7 @@ class FaqRepository
                 'score' => $hit['_score'] ?? null,
                 'category' => CategoriesListResource::make($faqModel->category),
                 'updated_at' => $faqModel->updated_at,
+                'files' => $faqModel->files['files'] ?? [],
             ];
         })->filter();
 

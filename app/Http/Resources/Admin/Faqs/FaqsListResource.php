@@ -74,7 +74,7 @@ class FaqsListResource extends JsonResource
             'category' => CategoriesListResource::make($this->whenLoaded('category')),
             'updated_date' => $this->updated_at?->toDateTimeString(),
             'files' => $this->whenLoaded('media', function () {
-                return $this->files;
+                return $this->files['files'] ?? [];
             }),
         ];
     }
