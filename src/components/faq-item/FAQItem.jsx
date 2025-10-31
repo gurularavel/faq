@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
+import PropTypes from "prop-types";
 import {
   Paper,
   Typography,
@@ -8,126 +9,28 @@ import {
   Divider,
   Chip,
   Grid2,
+  Button,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { levenshtein } from "@src/utils/helpers/levenshtein";
+import HistoryIcon from "@mui/icons-material/History";
 import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
+import { useTranslate } from "@src/utils/translations/useTranslate";
 import SubdirectoryArrowRightIcon from "@mui/icons-material/SubdirectoryArrowRight";
 import dayjs from "dayjs";
-const HighlightText = ({ text, highlight }) => {
-  const fuzzyHighlightHtml = useMemo(() => {
-    if (!highlight?.trim()) {
-      return { __html: text };
-    }
-
-    const tags = [];
-    let cleanText = text.replace(/<[^>]+>/g, (match, offset) => {
-      tags.push({ tag: match, position: offset });
-      return "§TAG§";
-    });
-
-    const searchWords = highlight.toLowerCase().split(/\s+/).filter(Boolean);
-
-    const containsSpecialCharsOrNumbers =
-      /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(highlight);
-
-    const maxDistance = containsSpecialCharsOrNumbers
-      ? Math.min(1, Math.floor(highlight.length / 4))
-      : Math.min(2, Math.floor(highlight.length / 3));
-
-    const parts = [];
-    let currentPart = "";
-    let currentTagIndex = 0;
-
-    for (let i = 0; i < cleanText.length; i++) {
-      if (
-        i <= cleanText.length - 5 &&
-        cleanText.substring(i, i + 5) === "§TAG§"
-      ) {
-        if (currentPart) {
-          parts.push({ type: "text", content: currentPart });
-          currentPart = "";
-        }
-        parts.push({ type: "tag", index: currentTagIndex });
-        currentTagIndex++;
-        i += 4;
-      } else if (/\s|[.,!?;]/.test(cleanText[i])) {
-        if (currentPart) {
-          parts.push({ type: "text", content: currentPart });
-          currentPart = "";
-        }
-        parts.push({ type: "text", content: cleanText[i] });
-      } else {
-        currentPart += cleanText[i];
-      }
-    }
-
-    if (currentPart) {
-      parts.push({ type: "text", content: currentPart });
-    }
-
-    const processedParts = parts.map((part) => {
-      if (part.type === "tag") {
-        return tags[part.index].tag;
-      }
-
-      const content = part.content;
-      if (!content.trim()) return content;
-
-      const shouldHighlight = searchWords.some((searchWord) => {
-        if (content.toLowerCase() === searchWord) {
-          return true;
-        }
-
-        if (content.toLowerCase().includes(searchWord)) {
-          if (containsSpecialCharsOrNumbers) {
-            return true;
-          } else {
-            return true;
-          }
-        }
-
-        const contentHasSpecialChars =
-          /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(content);
-
-        const maxLengthDiff =
-          contentHasSpecialChars || containsSpecialCharsOrNumbers ? 1 : 2;
-
-        const lengthDiff = Math.abs(content.length - searchWord.length);
-        if (lengthDiff <= maxLengthDiff) {
-          const distance = levenshtein(content.toLowerCase(), searchWord);
-
-          if (contentHasSpecialChars || containsSpecialCharsOrNumbers) {
-            return distance <= (maxDistance === 0 ? 0 : maxDistance - 1);
-          }
-
-          return distance <= maxDistance;
-        }
-        return false;
-      });
-
-      return shouldHighlight
-        ? `<span style="background-color: #ffeb3b">${content}</span>`
-        : content;
-    });
-
-    return { __html: processedParts.join("") };
-  }, [text, highlight]);
-
-  return <span dangerouslySetInnerHTML={fuzzyHighlightHtml} />;
-};
+import HistoryModal from "./HistoryModal";
 
 const FAQItem = ({
   id,
   question,
   answer,
-  searchQuery,
-  showHighLight,
   tags,
-  category,
+  categories,
   updatedDate,
+  isMostSearched
 }) => {
+  const t = useTranslate();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
   const postFaqId = async (id) => {
     try {
@@ -145,7 +48,7 @@ const FAQItem = ({
   };
 
   return (
-    <Grid2 size={{ xs: 12, md: isExpanded ? 12 : 6 }} item>
+    <Grid2 size={{ xs: 12, md: isExpanded || isMostSearched ? 12 : 6 }} item>
       <Box position="relative">
         <Box position="absolute" top="-24px" left="20px">
           <Typography variant="caption" color="text.secondary">
@@ -181,29 +84,6 @@ const FAQItem = ({
         >
           <Box className="faq-header">
             <Box display="flex" flexDirection="column" gap="4px">
-              <Box display="flex" gap="4px">
-                {category?.parent && (
-                  <Chip
-                    label={category?.parent?.title}
-                    size="small"
-                    sx={{ fontSize: "0.7rem" }}
-                    color="error"
-                  />
-                )}
-                {category?.title && (
-                  <Chip
-                    label={
-                      <Box alignItems="center" display="flex" gap="4px">
-                        <SubdirectoryArrowRightIcon />
-                        {category?.title}
-                      </Box>
-                    }
-                    size="small"
-                    sx={{ fontSize: "0.7rem" }}
-                    color="secondary"
-                  />
-                )}
-              </Box>
               <Box
                 dangerouslySetInnerHTML={{
                   __html: question,
@@ -228,15 +108,94 @@ const FAQItem = ({
           {isExpanded && <Divider className="question-divider" />}
 
           <Collapse in={isExpanded}>
+            {categories && categories.length > 0 && (
+              <Box display="flex" gap="4px" flexWrap="wrap" mb={2}>
+                {categories.map((category) => (
+                  <React.Fragment key={category.id}>
+                    {category?.parent && (
+                      <Chip
+                        label={category?.parent?.title}
+                        size="small"
+                        sx={{ fontSize: "0.7rem" }}
+                        color="error"
+                      />
+                    )}
+                    {category?.title && (
+                      <Chip
+                        label={
+                          <Box alignItems="center" display="flex" gap="4px">
+                            <SubdirectoryArrowRightIcon />
+                            {category?.title}
+                          </Box>
+                        }
+                        size="small"
+                        sx={{ fontSize: "0.7rem" }}
+                        color="secondary"
+                      />
+                    )}
+                  </React.Fragment>
+                ))}
+              </Box>
+            )}
             <Box
               className="faq-answer"
               dangerouslySetInnerHTML={{ __html: answer }}
             />
+            <Box display="flex" justifyContent="flex-end" mt={2}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<HistoryIcon />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsHistoryModalOpen(true);
+                }}
+                sx={{
+                  borderColor: "#d32f2f",
+                  color: "#d32f2f",
+                  "&:hover": {
+                    borderColor: "#b71c1c",
+                    bgcolor: "#ffebee",
+                  },
+                }}
+              >
+                {t("view_history") || "View History"}
+              </Button>
+            </Box>
           </Collapse>
         </Paper>
       </Box>
+      
+      <HistoryModal
+        open={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        faqId={id}
+      />
     </Grid2>
   );
+};
+
+FAQItem.propTypes = {
+  id: PropTypes.number.isRequired,
+  question: PropTypes.string.isRequired,
+  answer: PropTypes.string.isRequired,
+  tags: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      title: PropTypes.string,
+    })
+  ),
+  categories: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      title: PropTypes.string,
+      parent: PropTypes.shape({
+        title: PropTypes.string,
+      }),
+    })
+  ),
+  updatedDate: PropTypes.string.isRequired,
+  isMostSearched: PropTypes.bool,
 };
 
 export default FAQItem;

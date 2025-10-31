@@ -258,7 +258,7 @@ export default function ShowSubGroup() {
                     alignItems="center"
                     mb={2}
                   >
-                    <Typography variant="h6">
+                    <Typography variant="h6" mb={4}>
                       {t("pinned_faq") || "Pinned FAQ"}
                     </Typography>
                     {!subgroupData?.pinned_faq && (

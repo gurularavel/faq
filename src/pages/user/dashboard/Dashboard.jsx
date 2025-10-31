@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -7,292 +7,252 @@ import {
   Grid2,
   Button,
   CircularProgress,
-  Chip,
-  FormControl,
-  Select,
-  MenuItem,
 } from "@mui/material";
 import SearchIcon from "@assets/icons/search.svg";
+import ResetIcon from "@assets/icons/reset.svg";
 import FAQItem from "@components/faq-item/FAQItem";
+import MostSearched from "@components/most-searched/MostSearched";
+import SubCategoriesList from "@components/subcategories-list/SubCategoriesList";
 import { useTranslate } from "@src/utils/translations/useTranslate";
 import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
-import ResetIcon from "@assets/icons/reset.svg";
 
 const DashBoard = () => {
   const t = useTranslate();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [faqItems, setFaqItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchPagination, setSearchPagination] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [pagination, setPagination] = useState(null);
-  const [showHighLight, setShowHighLight] = useState(false);
+  
   const [mostSearchedFaqs, setMostSearchedFaqs] = useState([]);
+  const [isLoadingMostSearched, setIsLoadingMostSearched] = useState(false);
 
-  const [categories, setCategories] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [selectedSubCategories, setSelectedSubCategories] = useState([]);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+  const [subcategories, setSubcategories] = useState([]);
+  const [isLoadingSubcategories, setIsLoadingSubcategories] = useState(false);
+  
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
+  const [pinnedFaq, setPinnedFaq] = useState(null);
+  const [categoryFaqs, setCategoryFaqs] = useState([]);
+  const [categoryPagination, setCategoryPagination] = useState(null);
+  const [isLoadingCategoryFaqs, setIsLoadingCategoryFaqs] = useState(false);
 
-  const fetchCategories = useCallback(async () => {
-    setIsLoadingCategories(true);
+  // Fetch subcategories
+  const fetchSubcategories = useCallback(async () => {
+    setIsLoadingSubcategories(true);
     try {
-      const { data } = await userPrivateApi.get(
-        "/categories/list?with_subs=yes"
-      );
-      setCategories(data.data || []);
+      const { data } = await userPrivateApi.get("/categories/list?limit=100&with_subs=yes");
+      // Flatten all subcategories (children only) from all categories
+      const allSubcategories = data.data.flatMap((cat) => cat.subs || []);
+      setSubcategories(allSubcategories);
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error("Error fetching subcategories:", error);
     } finally {
-      setIsLoadingCategories(false);
+      setIsLoadingSubcategories(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+  // Fetch most searched FAQs
+  const fetchMostSearched = useCallback(async () => {
+    setIsLoadingMostSearched(true);
+    try {
+      const { data } = await userPrivateApi.get("/faqs/most-searched");
+      setMostSearchedFaqs(data.data || []);
+    } catch (error) {
+      console.error("Error fetching most searched FAQs:", error);
+    } finally {
+      setIsLoadingMostSearched(false);
+    }
+  }, []);
 
-  const skipEffectApiCall = React.useRef(false);
+  // Fetch subcategory details with pinned FAQ
+  const fetchSubcategoryDetails = useCallback(async (subcategoryId) => {
+    try {
+      const { data } = await userPrivateApi.get(`/categories/${subcategoryId}/show`);
+      setPinnedFaq(data.data.pinned_faq);
+    } catch (error) {
+      console.error("Error fetching subcategory details:", error);
+      setPinnedFaq(null);
+    }
+  }, []);
 
-  const fetchFAQs = useCallback(
-    async (
-      search = "",
-      page = 1,
-      limit = 10,
-      categoryIds = [],
-      subCategoryIds = []
-    ) => {
-      const searchText = search.length >= 3 ? search : "";
-      try {
-        const isSearchMode = search.length >= 3;
-        const searchWithCategoryAndSubCategory =
-          categoryIds.length > 0 || subCategoryIds.length > 0;
-        if (isSearchMode || searchWithCategoryAndSubCategory) {
-          const endpoint = "/faqs/search";
-          const params = {
-            search: searchText,
+  // Fetch FAQs for selected subcategory
+  const fetchCategoryFaqs = useCallback(async (subcategoryId, page = 1, limit = 100) => {
+    setIsLoadingCategoryFaqs(true);
+    try {
+      const { data } = await userPrivateApi.get(
+        `/categories/${subcategoryId}/selected-faqs?limit=${limit}&page=${page}`
+      );
+      if (page === 1) {
+        setCategoryFaqs(data.data || []);
+      } else {
+        setCategoryFaqs((prevItems) => [...prevItems, ...(data.data || [])]);
+      }
+      setCategoryPagination({
+        currentPage: data.meta.current_page,
+        lastPage: data.meta.last_page,
+        total: data.meta.total,
+      });
+    } catch (error) {
+      console.error("Error fetching category FAQs:", error);
+      setCategoryFaqs([]);
+      setCategoryPagination(null);
+    } finally {
+      setIsLoadingCategoryFaqs(false);
+    }
+  }, []);
+
+  // Search FAQs
+  const searchFaqs = useCallback(async (query, page = 1, limit = 10, categoryId = null) => {
+    if (query.trim().length < 3) {
+      setSearchResults([]);
+      setSearchPagination(null);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      let data;
+      
+      // If a category is selected, use category-specific search
+      if (categoryId) {
+        const response = await userPrivateApi.get(
+          `/categories/${categoryId}/selected-faqs`,
+          {
+            params: {
+              search: query.trim(),
+              page,
+              limit,
+            },
+          }
+        );
+        data = response.data;
+      } else {
+        // Otherwise, use general search
+        const response = await userPrivateApi.get("/faqs/search", {
+          params: {
+            search: query.trim(),
             page,
             limit,
-            category_id: categoryIds,
-            sub_category_id: subCategoryIds,
-          };
-
-          const { data } = await userPrivateApi.get(endpoint, { params });
-
-          setShowHighLight(true);
-          return {
-            items: data.data || [],
-            pagination: {
-              currentPage: data.meta.current_page,
-              lastPage: data.meta.last_page,
-              total: data.meta.total,
-            },
-          };
-        } else if (mostSearchedFaqs.length === 0) {
-          const { data } = await userPrivateApi.get("/faqs/most-searched");
-
-          setShowHighLight(false);
-          const items = data.data || [];
-          setMostSearchedFaqs(items);
-
-          return {
-            items,
-            pagination: null,
-          };
-        } else {
-          return {
-            items: mostSearchedFaqs,
-            pagination: null,
-          };
-        }
-      } catch (error) {
-        console.error("Error fetching FAQs:", error);
-        return {
-          items: [],
-          pagination: null,
-        };
+          },
+        });
+        data = response.data;
       }
-    },
-    [mostSearchedFaqs]
-  );
 
-  const fetchInitialData = useCallback(
-    async (search) => {
-      setIsLoading(true);
-      try {
-        const response = await fetchFAQs(
-          search,
-          1,
-          10,
-          selectedCategories,
-          selectedSubCategories
-        );
-        setFaqItems(response.items);
-        setPagination(response.pagination);
-      } catch (error) {
-        console.error("Error fetching FAQs:", error);
-        setFaqItems([]);
-        setPagination(null);
-      } finally {
-        setIsLoading(false);
+      if (page === 1) {
+        setSearchResults(data.data || []);
+      } else {
+        setSearchResults((prevItems) => [...prevItems, ...(data.data || [])]);
       }
-    },
-    [fetchFAQs, selectedCategories, selectedSubCategories]
-  );
+      setSearchPagination({
+        currentPage: data.meta.current_page,
+        lastPage: data.meta.last_page,
+        total: data.meta.total,
+      });
+    } catch (error) {
+      console.error("Error searching FAQs:", error);
+      setSearchResults([]);
+      setSearchPagination(null);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
 
-  const loadMore = async () => {
+  // Initialize data on mount
+  useEffect(() => {
+    fetchSubcategories();
+    fetchMostSearched();
+  }, [fetchSubcategories, fetchMostSearched]);
+
+  // Handle search query changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery.trim().length >= 3) {
+        searchFaqs(searchQuery, 1, 10, selectedSubCategoryId);
+      } else {
+        setSearchResults([]);
+        setSearchPagination(null);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, searchFaqs, selectedSubCategoryId]);
+
+  // Handle subcategory selection
+  const handleSubCategoryClick = (subcategoryId) => {
+    setSelectedSubCategoryId(subcategoryId);
+    fetchSubcategoryDetails(subcategoryId);
+    fetchCategoryFaqs(subcategoryId);
+  };
+
+  // Reset to initial state
+  const handleReset = () => {
+    setSearchQuery("");
+    setSelectedSubCategoryId(null);
+    setPinnedFaq(null);
+    setCategoryFaqs([]);
+    setCategoryPagination(null);
+    setSearchResults([]);
+    setSearchPagination(null);
+  };
+
+  // Load more for search results
+  const loadMoreSearch = async () => {
     if (
-      !pagination ||
+      !searchPagination ||
       isLoadingMore ||
-      pagination.currentPage >= pagination.lastPage
+      searchPagination.currentPage >= searchPagination.lastPage
     ) {
       return;
     }
 
     setIsLoadingMore(true);
     try {
-      const nextPage = pagination.currentPage + 1;
-      const response = await fetchFAQs(
-        searchQuery.trim(),
-        nextPage,
-        10,
-        selectedCategories,
-        selectedSubCategories
-      );
-
-      setFaqItems((prevItems) => [...prevItems, ...response.items]);
-      setPagination(response.pagination);
+      const nextPage = searchPagination.currentPage + 1;
+      await searchFaqs(searchQuery, nextPage, 10, selectedSubCategoryId);
     } catch (error) {
-      console.error("Error loading more FAQs:", error);
+      console.error("Error loading more search results:", error);
     } finally {
       setIsLoadingMore(false);
     }
   };
 
-  useEffect(() => {
-    const trimmedQuery = searchQuery.trim();
-
-    if (skipEffectApiCall.current) {
-      skipEffectApiCall.current = false;
+  // Load more for category FAQs
+  const loadMoreCategoryFaqs = async () => {
+    if (
+      !categoryPagination ||
+      isLoadingMore ||
+      categoryPagination.currentPage >= categoryPagination.lastPage
+    ) {
       return;
     }
 
-    const timeoutId = setTimeout(() => {
-      if (
-        trimmedQuery.length >= 3 ||
-        selectedCategories.length > 0 ||
-        selectedSubCategories.length > 0
-      ) {
-        fetchInitialData(trimmedQuery);
-      } else if (
-        trimmedQuery.length < 3 &&
-        mostSearchedFaqs.length > 0 &&
-        selectedCategories.length === 0 &&
-        selectedSubCategories.length === 0
-      ) {
-        setFaqItems(mostSearchedFaqs);
-        setShowHighLight(false);
-        setPagination(null);
-      }
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [
-    searchQuery,
-    fetchInitialData,
-    mostSearchedFaqs,
-    selectedCategories,
-    selectedSubCategories,
-  ]);
-
-  useEffect(() => {
-    fetchInitialData("");
-  }, [fetchInitialData]);
-
-  const handleResetFilters = () => {
-    setSelectedCategories([]);
-    setSelectedSubCategories([]);
-    setSearchQuery("");
-
-    setFaqItems(mostSearchedFaqs);
-    setShowHighLight(false);
-    setPagination(null);
-  };
-
-  const handleCategoryChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-
-    const newCategories =
-      typeof value === "string" ? value.split(",").map(Number) : value;
-
-    let newSubCategories = [...selectedSubCategories];
-
-    if (newCategories.length === 0) {
-      newSubCategories = [];
-    } else {
-      const validSubCategories = categories
-        .filter((cat) => newCategories.includes(cat.id))
-        .flatMap((cat) => cat.subs || [])
-        .map((sub) => sub.id);
-
-      newSubCategories = selectedSubCategories.filter((id) =>
-        validSubCategories.includes(id)
-      );
+    setIsLoadingMore(true);
+    try {
+      const nextPage = categoryPagination.currentPage + 1;
+      await fetchCategoryFaqs(selectedSubCategoryId, nextPage);
+    } catch (error) {
+      console.error("Error loading more category FAQs:", error);
+    } finally {
+      setIsLoadingMore(false);
     }
-
-    setIsLoading(true);
-
-    setSelectedCategories(newCategories);
-    setSelectedSubCategories(newSubCategories);
-    skipEffectApiCall.current = true;
   };
 
-  const handleSubCategoryChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-
-    const newSubCategories =
-      typeof value === "string" ? value.split(",").map(Number) : value;
-
-    setIsLoading(true);
-
-    setSelectedSubCategories(newSubCategories);
-  };
-
-  const availableSubCategories = useMemo(() => {
-    if (selectedCategories.length === 0) {
-      return categories.flatMap((cat) => cat.subs || []);
-    }
-
-    return categories
-      .filter((cat) => selectedCategories.includes(cat.id))
-      .flatMap((cat) => cat.subs || []);
-  }, [categories, selectedCategories]);
-
-  const getCategoryLabel = (id) => {
-    const category = categories.find((cat) => cat.id === id);
-    return category ? category.title : id;
-  };
-
-  const getSubCategoryLabel = (id) => {
-    for (const cat of categories) {
-      if (cat.subs) {
-        const subCat = cat.subs.find((sub) => sub.id === id);
-        if (subCat) return subCat.title;
-      }
-    }
-    return id;
-  };
-
-  const showLoadMore =
-    pagination && pagination.currentPage < pagination.lastPage;
-
+  const isSearchMode = searchQuery.trim().length >= 3;
+  const showSearchResults = isSearchMode;
+  const showCategoryView = selectedSubCategoryId && !isSearchMode;
+  const isMostSearched = mostSearchedFaqs.length > 0;
   return (
     <Box className="search-container">
-      <Box>
+      {/* Search Box */}
+      <Box 
+        sx={{ 
+          mb: 4,
+          display: "flex",
+          gap: 2,
+          alignItems: "center",
+        }}
+      >
         <TextField
           fullWidth
           variant="outlined"
@@ -308,183 +268,203 @@ const DashBoard = () => {
           }}
           className="search-input"
         />
-
-        <Box
+        <Button
+          onClick={handleReset}
+          disabled={!searchQuery && !selectedSubCategoryId}
+          className="filter-reset-btn dashboard-btn"
           sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            gap: 2,
+            minWidth: "fit-content",
+            height: "60px",
           }}
         >
-          <FormControl sx={{ minWidth: 200, flex: 1 }}>
-            <Select
-              multiple
-              displayEmpty
-              className="filter-input dashboard-filter-input"
-              value={selectedCategories}
-              onChange={handleCategoryChange}
-              renderValue={(selected) => {
-                if (selected.length === 0) {
-                  return <>{t("categories")}</>;
-                }
-                return (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Chip
-                        key={value}
-                        label={getCategoryLabel(value)}
-                        onDelete={() => {
-                          setSelectedCategories(
-                            selectedCategories.filter((id) => id !== value)
-                          );
-                        }}
-                        onMouseDown={(event) => {
-                          event.stopPropagation();
-                        }}
-                      />
-                    ))}
-                  </Box>
-                );
-              }}
-              MenuProps={{
-                PaperProps: {
-                  style: {
-                    maxHeight: 300,
-                  },
-                },
-              }}
-            >
-              <MenuItem disabled value="">
-                {t("categories")}{" "}
-              </MenuItem>
-              {categories.map((category) => (
-                <MenuItem key={category.id} value={category.id}>
-                  {category.title}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl sx={{ minWidth: 200, flex: 1 }}>
-            <Select
-              multiple
-              displayEmpty
-              className="filter-input dashboard-filter-input"
-              value={selectedSubCategories}
-              onChange={handleSubCategoryChange}
-              renderValue={(selected) => {
-                if (selected.length === 0) {
-                  return <>{t("subcategories")}</>;
-                }
-                return (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Chip
-                        key={value}
-                        label={getSubCategoryLabel(value)}
-                        onDelete={() => {
-                          setSelectedSubCategories(
-                            selectedSubCategories.filter((id) => id !== value)
-                          );
-                        }}
-                        onMouseDown={(event) => {
-                          event.stopPropagation();
-                        }}
-                      />
-                    ))}
-                  </Box>
-                );
-              }}
-              MenuProps={{
-                PaperProps: {
-                  style: {
-                    maxHeight: 300,
-                  },
-                },
-              }}
-            >
-              <MenuItem disabled value="">
-                {t("subcategories")}
-              </MenuItem>
-              {availableSubCategories.map((subCategory) => (
-                <MenuItem key={subCategory.id} value={subCategory.id}>
-                  {subCategory.title}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <Button
-            onClick={handleResetFilters}
-            disabled={
-              selectedCategories.length === 0 &&
-              selectedSubCategories.length === 0 &&
-              searchQuery.trim().length === 0
-            }
-            className="filter-reset-btn dashboard-btn"
-          >
-            <img src={ResetIcon} alt="reset" />
-          </Button>
-        </Box>
-
-        <Typography
-          variant="h6"
-          component="h2"
-          className="faq-title"
-          sx={{ mt: 3 }}
-        >
-          {searchQuery.length >= 3 ? t("result") : t("mostly_searched_faq")}
-        </Typography>
-
-        <Box className="faq-list" sx={{ mt: 4 }}>
-          <Grid2 container spacing={2} rowSpacing={5}>
-            {isLoading ? (
-              <Grid2
-                size={{ xs: 12 }}
-                display={"flex"}
-                justifyContent={"center"}
-              >
-                <CircularProgress />
-              </Grid2>
-            ) : faqItems.length === 0 ? (
-              <Grid2 size={{ xs: 12 }}>
-                <Typography align="center">{t("no_results_found")}</Typography>
-              </Grid2>
-            ) : (
-              <>
-                {faqItems.map((item) => (
-                  <FAQItem
-                    key={item.id}
-                    id={item.id}
-                    question={item.question}
-                    answer={item.answer}
-                    searchQuery={searchQuery}
-                    showHighLight={showHighLight}
-                    tags={item.tags}
-                    seen_count={item.seen_count}
-                    category={item.category}
-                    updatedDate={item.updated_date}
-                  />
-                ))}
-                {showLoadMore && (
-                  <Grid2 size={{ xs: 12 }}>
-                    <Box display="flex" justifyContent="center" mt={2}>
-                      <Button
-                        color="error"
-                        variant="contained"
-                        onClick={loadMore}
-                        disabled={isLoadingMore}
-                      >
-                        {isLoadingMore ? t("loading") : t("load_more")}
-                      </Button>
-                    </Box>
-                  </Grid2>
-                )}
-              </>
-            )}
-          </Grid2>
-        </Box>
+          <img src={ResetIcon} alt="reset" />
+        </Button>
       </Box>
+
+      {/* Main Content Area */}
+      <Grid2 container spacing={3}>
+        {/* Left Side - Most Searched or Search Results or Category FAQs */}
+        <Grid2 size={{ xs: 12, md: showSearchResults || showCategoryView  ? 12 : isMostSearched ? 4 : 7 }}>
+          {showSearchResults ? (
+            // Search Results View
+            <Box>
+              <Typography
+                variant="h6"
+                component="h2"
+                className="faq-title"
+                sx={{ mb: 3, color: "#d32f2f", fontWeight: 600 }}
+              >
+                {t("result")}
+                {selectedSubCategoryId && (
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    sx={{ ml: 1, color: "text.secondary", fontWeight: 400 }}
+                  >
+                    ({subcategories.find((sub) => sub.id === selectedSubCategoryId)?.title})
+                  </Typography>
+                )}
+              </Typography>
+              {isSearching && searchResults.length === 0 ? (
+                <Box display="flex" justifyContent="center" py={4}>
+                  <CircularProgress />
+                </Box>
+              ) : searchResults.length === 0 ? (
+                <Typography align="center" color="text.secondary" py={4}>
+                  {t("no_results_found")}
+                </Typography>
+              ) : (
+                <>
+                  <Grid2 container spacing={2} rowSpacing={5}>
+                    {searchResults.map((item) => (
+                      <FAQItem
+                        key={item.id}
+                        id={item.id}
+                        question={item.question}
+                        answer={item.answer}
+                        searchQuery={searchQuery}
+                        showHighLight={true}
+                        tags={item.tags}
+                        seen_count={item.seen_count}
+                        categories={item.categories}
+                        updatedDate={item.updated_date}
+                      />
+                    ))}
+                  </Grid2>
+                  {searchPagination &&
+                    searchPagination.currentPage < searchPagination.lastPage && (
+                      <Box display="flex" justifyContent="center" mt={4}>
+                        <Button
+                          color="error"
+                          variant="contained"
+                          onClick={loadMoreSearch}
+                          disabled={isLoadingMore}
+                        >
+                          {isLoadingMore ? t("loading") : t("load_more")}
+                        </Button>
+                      </Box>
+                    )}
+                </>
+              )}
+            </Box>
+          ) : showCategoryView ? (
+            // Category FAQs View
+            <Box>
+              <Typography
+                variant="h6"
+                component="h2"
+                className="faq-title"
+                sx={{ mb: 3, color: "#d32f2f", fontWeight: 600 }}
+              >
+                {subcategories.find((sub) => sub.id === selectedSubCategoryId)
+                  ?.title || t("category_faqs")}
+              </Typography>
+              {pinnedFaq && (
+                <Box sx={{ mb: 4 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ mb: 2, color: "#d32f2f", fontWeight: 600 }}
+                  >
+                    {t("pinned_faq") || "Pinned FAQ"}
+                  </Typography>
+                  <Grid2 container spacing={2} rowSpacing={5}>
+                    <FAQItem
+                      id={pinnedFaq.id}
+                      question={pinnedFaq.question}
+                      answer={pinnedFaq.answer}
+                      searchQuery=""
+                      showHighLight={false}
+                      tags={pinnedFaq.tags}
+                      seen_count={pinnedFaq.seen_count}
+                      categories={pinnedFaq.categories}
+                      updatedDate={pinnedFaq.updated_date}
+                    />
+                  </Grid2>
+                </Box>
+              )}
+              
+              {/* Selected FAQs Title */}
+              {!isLoadingCategoryFaqs && categoryFaqs.length > 0 && (
+                <Typography
+                  variant="subtitle2"
+                  sx={{ mb: 4, color: "#d32f2f", fontWeight: 600 }}
+                >
+                  {t("selected_faqs") || "Seçilmiş Suallar"}
+                </Typography>
+              )}
+              
+              {isLoadingCategoryFaqs && categoryFaqs.length === 0 ? (
+                <Box display="flex" justifyContent="center" py={4}>
+                  <CircularProgress />
+                </Box>
+              ) : categoryFaqs.length === 0 ? (
+                <Typography align="center" color="text.secondary" py={4}>
+                  {t("no_results_found")}
+                </Typography>
+              ) : (
+                <>
+                  <Grid2 container spacing={2} rowSpacing={5}>
+                    {categoryFaqs.map((item) => (
+                      <FAQItem
+                        key={item.id}
+                        id={item.id}
+                        question={item.question}
+                        answer={item.answer}
+                        searchQuery=""
+                        showHighLight={false}
+                        tags={item.tags}
+                        seen_count={item.seen_count}
+                        categories={item.categories}
+                        updatedDate={item.updated_date}
+                      />
+                    ))}
+                  </Grid2>
+                  {categoryPagination &&
+                    categoryPagination.currentPage < categoryPagination.lastPage && (
+                      <Box display="flex" justifyContent="center" mt={4}>
+                        <Button
+                          color="error"
+                          variant="contained"
+                          onClick={loadMoreCategoryFaqs}
+                          disabled={isLoadingMore}
+                        >
+                          {isLoadingMore ? t("loading") : t("load_more")}
+                        </Button>
+                      </Box>
+                    )}
+                </>
+              )}
+            </Box>
+          ) : (
+            // Most Searched View (Default)
+            <MostSearched
+              faqItems={mostSearchedFaqs}
+              isLoading={isLoadingMostSearched}
+              title={t("mostly_searched_faq")}
+            />
+          )}
+        </Grid2>
+
+        {/* Right Side - Subcategories List */}
+        {!showSearchResults && !showCategoryView && (
+          <Grid2 size={{ xs: 12, md: isMostSearched ? 8 : 5 }}>
+            <Typography
+              variant="h6"
+              component="h2"
+              className="faq-title"
+              sx={{ mb: 3, color: "#d32f2f", fontWeight: 600 }}
+            >
+              {t("categories") || "Kateqoriyalar"}
+            </Typography>
+            <SubCategoriesList
+              subcategories={subcategories}
+              isLoading={isLoadingSubcategories}
+              onSubCategoryClick={handleSubCategoryClick}
+              selectedSubCategoryId={selectedSubCategoryId}
+            />
+          </Grid2>
+        )}
+      </Grid2>
     </Box>
   );
 };
