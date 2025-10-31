@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -23,6 +23,7 @@ import {
   Chip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteIcon from "@assets/icons/delete.svg";
 import EditIcon from "@assets/icons/edit.svg";
 import { controlPrivateApi } from "@src/utils/axios/controlPrivateApi";
@@ -311,6 +312,12 @@ export default function Questions() {
                 height={32}
                 sx={{ mr: 1 }}
               />
+              <Skeleton
+                variant="circular"
+                width={32}
+                height={32}
+                sx={{ mr: 1 }}
+              />
               <Skeleton variant="circular" width={32} height={32} />
             </Box>
           </Box>
@@ -342,8 +349,7 @@ export default function Questions() {
               <OrderBtn column="id" data={filters} setData={setFilters} />
             </TableCell>
             <TableCell sx={{ width: "40%" }}>{t("title")}</TableCell>
-            <TableCell>{t("category")}</TableCell>
-            <TableCell>{t("sub_category")}</TableCell>
+            <TableCell>{t("categories")}</TableCell>
             <TableCell>{t("status")}</TableCell>
             <TableCell align="center" sx={{ minWidth: "160px" }}>
               {t("search_count")}
@@ -369,10 +375,7 @@ export default function Questions() {
                   <Skeleton />
                 </TableCell>
                 <TableCell>
-                  <Skeleton width={100} />
-                </TableCell>
-                <TableCell>
-                  <Skeleton width={100} />
+                  <Skeleton width={150} />
                 </TableCell>
                 <TableCell>
                   <Skeleton width={40} />
@@ -387,6 +390,7 @@ export default function Questions() {
                   <Box display="flex" gap={1}>
                     <Skeleton variant="circular" width={32} height={32} />
                     <Skeleton variant="circular" width={32} height={32} />
+                    <Skeleton variant="circular" width={32} height={32} />
                   </Box>
                 </TableCell>
               </TableRow>
@@ -396,8 +400,32 @@ export default function Questions() {
               <TableRow key={row.id}>
                 <TableCell>{row.id}</TableCell>
                 <TableCell>{row.question}</TableCell>
-                <TableCell>{row.category.parent?.title}</TableCell>
-                <TableCell>{row.category.title}</TableCell>
+                <TableCell>
+                  <Stack spacing={0.5}>
+                    {row.categories?.map((category, index) => (
+                      <Box key={index} display="flex" flexDirection="column">
+                        {category.parent && (
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ fontSize: "0.7rem" }}
+                          >
+                            {category.parent.title}
+                          </Typography>
+                        )}
+                        <Chip
+                          label={category.title}
+                          size="small"
+                          color="default"
+                          sx={{ 
+                            maxWidth: "fit-content",
+                            fontSize: "0.75rem"
+                          }}
+                        />
+                      </Box>
+                    ))}
+                  </Stack>
+                </TableCell>
                 <TableCell>
                   <Switch
                     checked={row.is_active}
@@ -411,7 +439,15 @@ export default function Questions() {
                   {dayjs(row.updated_date).format("DD.MM.YYYY  HH:mm")}
                 </TableCell>
 
-                <TableCell sx={{ minWidth: "120px" }}>
+                <TableCell sx={{ minWidth: "150px" }}>
+                  <IconButton
+                    onClick={() => {
+                      nav(`show-question/${row.id}`);
+                    }}
+                    color="primary"
+                  >
+                    <VisibilityIcon />
+                  </IconButton>
                   <IconButton
                     onClick={() => {
                       nav(`edit-question/${row.id}`);
@@ -433,7 +469,7 @@ export default function Questions() {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={4}>
+              <TableCell colSpan={7}>
                 <NoData />
               </TableCell>
             </TableRow>
@@ -455,25 +491,36 @@ export default function Questions() {
             </Typography>
             <Box mt={1}>
               <Grid2 container spacing={1}>
-                <Grid2 size={6}>
-                  <Typography variant="body" fontWeight={"bold"}>
-                    {t("category")}:
+                <Grid2 size={12}>
+                  <Typography variant="body" fontWeight={"bold"} mb={0.5}>
+                    {t("categories")}:
                   </Typography>
-                </Grid2>
-                <Grid2 size={6}>
-                  <Typography variant="body">
-                    {row.category.parent?.title}
-                  </Typography>
+                  <Stack spacing={0.5}>
+                    {row.categories?.map((category, index) => (
+                      <Box key={index} display="flex" flexDirection="column">
+                        {category.parent && (
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ fontSize: "0.7rem" }}
+                          >
+                            {category.parent.title}
+                          </Typography>
+                        )}
+                        <Chip
+                          label={category.title}
+                          size="small"
+                          color="default"
+                          sx={{ 
+                            maxWidth: "fit-content",
+                            fontSize: "0.75rem"
+                          }}
+                        />
+                      </Box>
+                    ))}
+                  </Stack>
                 </Grid2>
 
-                <Grid2 size={6}>
-                  <Typography variant="body" fontWeight={"bold"}>
-                    {t("sub_category")}:
-                  </Typography>
-                </Grid2>
-                <Grid2 size={6}>
-                  <Typography variant="body">{row.category.title}</Typography>
-                </Grid2>
                 <Grid2 size={12} display={"flex"} gap={1} alignItems={"center"}>
                   <Typography variant="body">{t("updated_date")}:</Typography>
                   <Typography variant="body">
@@ -501,6 +548,14 @@ export default function Questions() {
               alignItems="center"
             >
               <Box>
+                <IconButton
+                  onClick={() => {
+                    nav(`show-question/${row.id}`);
+                  }}
+                  color="primary"
+                >
+                  <VisibilityIcon />
+                </IconButton>
                 <IconButton
                   onClick={() => {
                     nav(`edit-question/${row.id}`);
@@ -541,9 +596,9 @@ export default function Questions() {
         fullScreenOnMobile={false}
         setOpen={setOpen}
         title={popups[modal].title}
-        children={popups[modal].element}
-        maxWidth={popups[modal].size ?? "md"}
-      />
+      >
+        {popups[modal].element}
+      </Modal>
       <Box className="main-card-body">
         <Box className="main-card-body-inner">
           <Box className={"filter-area"}>

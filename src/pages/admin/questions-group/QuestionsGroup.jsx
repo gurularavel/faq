@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -19,7 +19,6 @@ import {
   Button,
   Skeleton,
   Grid2,
-  Chip,
   Stack,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -277,7 +276,8 @@ export default function QuestionGroup() {
         <TableHead>
           <TableRow>
             <TableCell></TableCell>
-            <TableCell sx={{ width: "60%" }}>{t("title")}</TableCell>
+            <TableCell>{t("icon")}</TableCell>
+            <TableCell sx={{ width: "50%" }}>{t("title")}</TableCell>
             <TableCell>{t("status")}</TableCell>
             <TableCell>{t("actions")}</TableCell>
           </TableRow>
@@ -289,7 +289,10 @@ export default function QuestionGroup() {
                 <TableCell>
                   <Skeleton width={20} />
                 </TableCell>
-                <TableCell width="60%">
+                <TableCell>
+                  <Skeleton variant="circular" width={40} height={40} />
+                </TableCell>
+                <TableCell width="50%">
                   <Skeleton />
                 </TableCell>
                 <TableCell>
@@ -313,6 +316,33 @@ export default function QuestionGroup() {
               >
                 <TableCell>
                   {filters.page * filters.limit - filters.limit + i + 1}
+                </TableCell>
+                <TableCell>
+                  {row.icon ? (
+                    <img
+                      src={row.icon}
+                      alt="category icon"
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        objectFit: "contain",
+                      }}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        width: "40px",
+                        height: "40px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "#f0f0f0",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      -
+                    </Box>
+                  )}
                 </TableCell>
                 <TableCell>{row.title}</TableCell>
                 <TableCell>
@@ -350,7 +380,7 @@ export default function QuestionGroup() {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={4}>
+              <TableCell colSpan={5}>
                 <NoData />
               </TableCell>
             </TableRow>
@@ -373,10 +403,38 @@ export default function QuestionGroup() {
             onClick={() => handleCardClick(row)}
             sx={{ cursor: "pointer" }}
           >
-            <Typography variant="body1" fontWeight="medium">
-              {filters.page * filters.limit - filters.limit + i + 1}.{" "}
-              {row.title}
-            </Typography>
+            <Box display="flex" alignItems="center" gap={2} mb={1}>
+              {row.icon ? (
+                <img
+                  src={row.icon}
+                  alt="category icon"
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    objectFit: "contain",
+                  }}
+                />
+              ) : (
+                <Box
+                  sx={{
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#f0f0f0",
+                    borderRadius: "4px",
+                    flexShrink: 0,
+                  }}
+                >
+                  -
+                </Box>
+              )}
+              <Typography variant="body1" fontWeight="medium">
+                {filters.page * filters.limit - filters.limit + i + 1}.{" "}
+                {row.title}
+              </Typography>
+            </Box>
             <Box
               sx={{ mt: 2 }}
               display="flex"
@@ -438,9 +496,9 @@ export default function QuestionGroup() {
         fullScreenOnMobile={false}
         setOpen={setOpen}
         title={popups[modal].title}
-        children={popups[modal].element}
-        maxWidth={popups[modal].size ?? "md"}
-      />
+      >
+        {popups[modal].element}
+      </Modal>
       <Box className="main-card-body">
         <Box className="main-card-body-inner">
           <Box className={"filter-area"}>

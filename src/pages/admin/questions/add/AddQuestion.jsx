@@ -7,6 +7,7 @@ import {
   Autocomplete,
   CircularProgress,
   Button,
+  Chip,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -19,6 +20,7 @@ import { useTranslate } from "@src/utils/translations/useTranslate";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { useNavigate } from "react-router-dom";
+import CloseIcon from "@mui/icons-material/Close";
 const editorConfiguration = {
   toolbar: {
     items: [
@@ -85,7 +87,8 @@ export default function AddQuestion() {
   const { langs } = useSelector((state) => state.lang);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
-  const [selectedParent, setSelectedParent] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [selectedParents, setSelectedParents] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
 
   const [loading, setLoading] = useState({
@@ -95,9 +98,8 @@ export default function AddQuestion() {
   });
 
   const schema = yup.object({
-    parent_category_id: yup.number().required(t("required_field")),
-
-    category_id: yup.number().required(t("required_field")),
+    parent_category_ids: yup.array().of(yup.number()).min(1, t("required_field")).required(t("required_field")),
+    category_ids: yup.array().of(yup.number()),
     translations: yup.array().of(
       yup.object({
         language_id: yup.number().required(),
@@ -117,9 +119,8 @@ export default function AddQuestion() {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      parent_category_id: null,
-
-      category_id: null,
+      parent_category_ids: [],
+      category_ids: [],
       translations: langs.map((lang) => ({
         language_id: lang.id,
         question: "",
@@ -131,7 +132,8 @@ export default function AddQuestion() {
   useEffect(() => {
     if (langs.length) {
       reset({
-        category_id: null,
+        parent_category_ids: [],
+        category_ids: [],
         translations: langs.map((lang) => ({
           language_id: lang.id,
           question: "",
@@ -140,25 +142,32 @@ export default function AddQuestion() {
         tags: [],
       });
     }
-  }, [langs]);
+  }, [langs, reset]);
 
   useEffect(() => {
     fetchCategories();
     fetchTags();
   }, []);
 
-  // Update subcategories when parent category changes
+  // Update subcategories when parent categories change
   useEffect(() => {
-    if (selectedParent) {
-      const parent = categories.find((cat) => cat.id === selectedParent.id);
-      setSubCategories(parent?.subs || []);
-      // Reset category_id when parent changes
-      setValue("category_id", null);
+    if (selectedParents.length > 0) {
+      // Collect all subcategories from selected parents
+      const allSubs = [];
+      selectedParents.forEach((selectedParent) => {
+        const parent = categories.find((cat) => cat.id === selectedParent.id);
+        if (parent?.subs && parent.subs.length > 0) {
+          allSubs.push(...parent.subs);
+        }
+      });
+      setSubCategories(allSubs);
+      // Reset category_ids when parents change
+      setValue("category_ids", []);
     } else {
       setSubCategories([]);
-      setValue("category_id", null);
+      setValue("category_ids", []);
     }
-  }, [selectedParent, categories]);
+  }, [selectedParents, categories, setValue]);
 
   const fetchCategories = async () => {
     setLoading((prev) => ({ ...prev, categories: true }));
@@ -189,16 +198,55 @@ export default function AddQuestion() {
 
   const [pending, setPending] = useState(false);
   const nav = useNavigate();
+  
+  const handleFileChange = (event) => {
+    const files = Array.from(event.target.files);
+    setSelectedFiles((prev) => [...prev, ...files]);
+  };
+
+  const handleRemoveFile = (index) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const onSubmit = async (data) => {
     setPending(true);
     try {
-      const res = await controlPrivateApi.post("/faqs/add", data);
+      const formData = new FormData();
+      
+      // Combine parent_category_ids and category_ids into categories array
+      const allCategories = [ ...data.category_ids];
+      allCategories.forEach((categoryId) => {
+        formData.append("categories[]", categoryId);
+      });
+      
+      // Append tags array
+      data.tags.forEach((tagId) => {
+        formData.append("tags[]", tagId);
+      });
+      
+      // Append translations
+      data.translations.forEach((translation, index) => {
+        formData.append(`translations[${index}][language_id]`, translation.language_id);
+        formData.append(`translations[${index}][question]`, translation.question);
+        formData.append(`translations[${index}][answer]`, translation.answer);
+      });
+      
+      // Append files
+      selectedFiles.forEach((file) => {
+        formData.append("files[]", file);
+      });
+      
+      const res = await controlPrivateApi.post("/faqs/add", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       notify(res.data.message, "success");
       nav(-1);
     } catch (error) {
       notify(error.response?.data?.message || "Error submitting form", "error");
     } finally {
-      setPending((prev) => ({ ...prev, submit: false }));
+      setPending(false);
     }
   };
 
@@ -213,23 +261,25 @@ export default function AddQuestion() {
             onSubmit={handleSubmit(onSubmit)}
           >
             <Grid2 container spacing={2}>
+              {/* Parent Categories - Multiple Selection */}
               <Grid2 size={{ xs: 12 }}>
                 <Grid2 container spacing={2} alignItems="center">
                   <Grid2 size={{ xs: 12, md: 3 }}>
                     <Typography variant="body1">
-                      {t("parent_category")}
+                      {t("parent_categories")}
                     </Typography>
                   </Grid2>
                   <Grid2 size={{ xs: 12, md: 9 }}>
                     <Controller
-                      name="parent_category_id"
+                      name="parent_category_ids"
                       control={control}
                       render={({ field }) => (
                         <Autocomplete
-                          value={selectedParent}
+                          multiple
+                          value={selectedParents}
                           onChange={(_, newValue) => {
-                            setSelectedParent(newValue);
-                            field.onChange(newValue?.id);
+                            setSelectedParents(newValue);
+                            field.onChange(newValue.map((item) => item.id));
                           }}
                           options={categories}
                           getOptionLabel={(option) => option.title}
@@ -237,9 +287,9 @@ export default function AddQuestion() {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              error={!!errors.parent_category_id}
-                              helperText={errors.parent_category_id?.message}
-                              placeholder={t("select_parent_category")}
+                              error={!!errors.parent_category_ids}
+                              helperText={errors.parent_category_ids?.message}
+                              placeholder={t("select_parent_categories")}
                               InputProps={{
                                 ...params.InputProps,
                                 endAdornment: (
@@ -260,37 +310,34 @@ export default function AddQuestion() {
                 </Grid2>
               </Grid2>
 
-              {/* Sub Category Selection */}
+              {/* Sub Categories - Multiple Selection */}
               <Grid2 size={{ xs: 12 }}>
                 <Grid2 container spacing={2} alignItems="center">
                   <Grid2 size={{ xs: 12, md: 3 }}>
-                    <Typography variant="body1">{t("sub_category")}</Typography>
+                    <Typography variant="body1">{t("sub_categories")}</Typography>
                   </Grid2>
                   <Grid2 size={{ xs: 12, md: 9 }}>
                     <Controller
-                      name="category_id"
+                      name="category_ids"
                       control={control}
                       render={({ field }) => (
                         <Autocomplete
-                          value={
-                            subCategories.find(
-                              (cat) => cat.id === field.value
-                            ) || null
-                          }
+                          multiple
+                          value={subCategories.filter((cat) =>
+                            field.value.includes(cat.id)
+                          )}
                           onChange={(_, newValue) =>
-                            field.onChange(newValue?.id)
+                            field.onChange(newValue.map((item) => item.id))
                           }
                           options={subCategories}
                           getOptionLabel={(option) => option.title}
-                          disabled={
-                            !selectedParent || subCategories.length === 0
-                          }
+                          disabled={selectedParents.length === 0 || subCategories.length === 0}
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              error={!!errors.category_id}
-                              helperText={errors.category_id?.message}
-                              placeholder={t("select_sub_category")}
+                              error={!!errors.category_ids}
+                              helperText={errors.category_ids?.message}
+                              placeholder={t("select_sub_categories")}
                             />
                           )}
                         />
@@ -343,6 +390,44 @@ export default function AddQuestion() {
                         />
                       )}
                     />
+                  </Grid2>
+                </Grid2>
+              </Grid2>
+
+              {/* Files Upload */}
+              <Grid2 size={{ xs: 12 }}>
+                <Grid2 container spacing={2} alignItems="center">
+                  <Grid2 size={{ xs: 12, md: 3 }}>
+                    <Typography variant="body1">{t("files")}</Typography>
+                  </Grid2>
+                  <Grid2 size={{ xs: 12, md: 9 }}>
+                    <Button
+                      variant="outlined"
+                      component="label"
+                      fullWidth
+                      sx={{ mb: 2 }}
+                    >
+                      {t("upload_files")}
+                      <input
+                        type="file"
+                        hidden
+                        multiple
+                        onChange={handleFileChange}
+                      />
+                    </Button>
+                    {selectedFiles.length > 0 && (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                        {selectedFiles.map((file, index) => (
+                          <Chip
+                            key={index}
+                            label={file.name}
+                            onDelete={() => handleRemoveFile(index)}
+                            deleteIcon={<CloseIcon />}
+                            variant="outlined"
+                          />
+                        ))}
+                      </Box>
+                    )}
                   </Grid2>
                 </Grid2>
               </Grid2>

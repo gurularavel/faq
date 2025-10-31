@@ -23,6 +23,7 @@ import UsersIcon from "@assets/icons/menu-icons/users.svg";
 import UserIcon from "@assets/icons/menu-icons/user.svg";
 import TagIcon from "@assets/icons/menu-icons/hashtag.svg";
 import QuizIcon from "@assets/icons/menu-icons/quiz.svg";
+import ReportsIcon from "@assets/icons/menu-icons/reports.svg";
 
 import OthersIcon from "@assets/icons/menu-icons/others.svg";
 import AdminIcon from "@assets/icons/menu-icons/admin.svg";
@@ -57,6 +58,22 @@ export default function Sidebar({
     },
     { path: "/control/tags", text: t("tags"), icon: TagIcon },
     { path: "/control/quiz", text: t("quiz"), icon: QuizIcon },
+    {
+      text: t("reports"),
+      icon: ReportsIcon,
+      children: [
+        {
+          path: "/control/reports/top-statistics",
+          text: t("top_statistics"),
+          icon: ReportsIcon,
+        },
+        {
+          path: "/control/reports/time-series",
+          text: t("time_series"),
+          icon: ReportsIcon,
+        },
+      ],
+    },
     {
       text: t("others"),
       icon: OthersIcon,

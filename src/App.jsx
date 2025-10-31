@@ -25,6 +25,9 @@ const AddQuestion = Loadable(
 const EditQuestion = Loadable(
   lazy(() => import("@pages/admin/questions/edit/EditQuestion"))
 );
+const ShowQuestion = Loadable(
+  lazy(() => import("@pages/admin/questions/show/ShowQuestion"))
+);
 const ImportQuestions = Loadable(
   lazy(() => import("@pages/admin/questions/import/ImportQuestions"))
 );
@@ -34,6 +37,9 @@ const QuestionsGroup = Loadable(
 );
 const QuestionsSubGroup = Loadable(
   lazy(() => import("@pages/admin/questions-group/subgroups/QuestionsSubGroup"))
+);
+const ShowSubGroup = Loadable(
+  lazy(() => import("@pages/admin/questions-group/subgroups/show/ShowSubGroup"))
 );
 
 const UsersGroup = Loadable(
@@ -81,6 +87,14 @@ const DifficultyLevels = Loadable(
   lazy(() => import("@pages/admin/difficulty-levels/DifficultyLevels"))
 );
 
+// reports pages
+const TopStatistics = Loadable(
+  lazy(() => import("@pages/admin/reports/TopStatistics"))
+);
+const TimeSeries = Loadable(
+  lazy(() => import("@pages/admin/reports/TimeSeries"))
+);
+
 // user's pages
 const Dashboard = Loadable(
   lazy(() => import("@pages/user/dashboard/Dashboard"))
@@ -103,9 +117,11 @@ export default function App() {
             <Route path="add-question" element={<AddQuestion />} />
             <Route path="import-question" element={<ImportQuestions />} />
             <Route path="edit-question/:id" element={<EditQuestion />} />
+            <Route path="show-question/:id" element={<ShowQuestion />} />
 
             <Route path="questions-group" element={<QuestionsGroup />} />
             <Route path="questions-group/:id" element={<QuestionsSubGroup />} />
+            <Route path="questions-group/:parentId/show/:id" element={<ShowSubGroup />} />
 
             <Route path="users-list" element={<Users />} />
             <Route path="users-list/add" element={<AddUser />} />
@@ -133,6 +149,9 @@ export default function App() {
             <Route path="languages" element={<Languages />} />
 
             <Route path="difficulty-levels" element={<DifficultyLevels />} />
+
+            <Route path="reports/top-statistics" element={<TopStatistics />} />
+            <Route path="reports/time-series" element={<TimeSeries />} />
           </Route>
         ) : isUser ? (
           <Route path="/user" element={<MainLayout />}>
