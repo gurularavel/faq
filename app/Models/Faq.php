@@ -24,6 +24,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property mixed $category_id
  * @property mixed $category
  * @property mixed $categories
+ * @property mixed|string $question
+ * @property mixed|string $answer
  */
 class Faq extends Model implements HasMedia
 {
@@ -41,7 +43,7 @@ class Faq extends Model implements HasMedia
         'files' => FilesCast::class,
     ];
 
-    protected array $cascadeDeletes = ['translatable', 'tagsRel', 'lists', 'categoriesRel', 'archives'];
+    protected array $cascadeDeletes = ['translatable', 'tagsRel', 'lists', 'categoriesRel', 'archives', 'media'];
 
     public function scopeActive(Builder $query): void
     {

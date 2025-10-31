@@ -13,6 +13,8 @@ use App\Http\Requests\App\Faqs\FaqBulkAddToListRequest;
 use App\Http\Requests\App\Faqs\FaqBulkSelectedAddToCategoryRequest;
 use App\Http\Requests\App\Faqs\FaqReportsTimeSeriesRequest;
 use App\Http\Requests\App\Faqs\FaqReportsTopStatisticsRequest;
+use App\Http\Requests\GeneralListRequest;
+use App\Http\Resources\Admin\FaqExports\FaqExportsResource;
 use App\Http\Resources\Admin\Faqs\FaqsListResource;
 use App\Http\Resources\Admin\Faqs\FaqsReportTimeSeriesResource;
 use App\Http\Resources\Admin\Faqs\FaqsReportTopStatisticsResource;
@@ -27,7 +29,6 @@ use App\Services\LangService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use OpenApi\Annotations as OA;
 
 class FaqController extends Controller
 {
@@ -93,6 +94,69 @@ class FaqController extends Controller
     public function list(): AnonymousResourceCollection
     {
         return FaqsListResource::collection($this->repo->list());
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/control/faqs/exports/generate-pdf",
+     *     summary="Generate PDF for FAQs",
+     *     tags={"Faq"},
+     *     security={
+     *         {
+     *             "ApiToken": {},
+     *             "SanctumBearerToken": {}
+     *         }
+     *     },
+     *     @OA\Response(
+     *         response=200,
+     *         description="PDF generation started successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The PDF generation process has started. You will be notified when it is complete."),
+     *             @OA\Property(property="path", type="string", example="pdfs/faqs_20240101.pdf")
+     *         )
+     *     )
+     * )
+     */
+    public function generatePdf(): JsonResponse
+    {
+        $export = $this->repo->generatePdf();
+
+        return response()->json([
+            'message' => LangService::instance()
+                ->setDefault('The PDF generation process has started. You will be notified when it is complete.')
+                ->getLang('faq_pdf_generation_started'),
+            'export' => FaqExportsResource::make($export)
+        ]);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/control/faqs/exports/load",
+     *     summary="Generate PDF for FAQs",
+     *     tags={"Faq"},
+     *     security={
+     *         {
+     *             "ApiToken": {},
+     *             "SanctumBearerToken": {}
+     *         }
+     *     },
+     *               @OA\Parameter(
+     *           name="parameters",
+     *           in="query",
+     *           description="List request parameters",
+     *           required=false,
+     *           @OA\Schema(ref="#/components/schemas/GeneralListRequest")
+     *       ),
+     *     @OA\Response(
+     * *         response=200,
+     * *         description="Successful operation",
+     * *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/FaqExportsResource"))
+     * *     )
+     * )
+     */
+    public function loadExports(GeneralListRequest $request): AnonymousResourceCollection
+    {
+        return FaqExportsResource::collection($this->repo->loadExports($request->validated()));
     }
 
     /**

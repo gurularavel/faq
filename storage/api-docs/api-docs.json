@@ -1597,6 +1597,84 @@
                 ]
             }
         },
+        "/api/control/faqs/exports/generate-pdf": {
+            "post": {
+                "tags": [
+                    "Faq"
+                ],
+                "summary": "Generate PDF for FAQs",
+                "operationId": "d6c58811aacc2326671a89c7a1b65247",
+                "responses": {
+                    "200": {
+                        "description": "PDF generation started successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The PDF generation process has started. You will be notified when it is complete."
+                                        },
+                                        "path": {
+                                            "type": "string",
+                                            "example": "pdfs/faqs_20240101.pdf"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/faqs/exports/load": {
+            "get": {
+                "tags": [
+                    "Faq"
+                ],
+                "summary": "Generate PDF for FAQs",
+                "operationId": "abbfe2f6e99a619f682417298e32db4a",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/GeneralListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FaqExportsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/faqs/show/{faq}": {
             "get": {
                 "tags": [
@@ -5646,6 +5724,17 @@
                     "rollback"
                 ]
             },
+            "FaqExportStatusEnum": {
+                "title": "Faq Export Status Enum",
+                "description": "Enumeration of Faq Export Statuses",
+                "type": "string",
+                "enum": [
+                    "queued",
+                    "processing",
+                    "done",
+                    "failed"
+                ]
+            },
             "FaqListTypeEnum": {
                 "title": "FAQ List Type Enum",
                 "description": "Enumeration of FAQ List Types",
@@ -7394,6 +7483,53 @@
                 "type": "object"
             },
             "FaqExcelsResource": {
+                "title": "Faq Excels Resource",
+                "description": "Faq Excels Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the FAQ Excel",
+                        "type": "integer"
+                    },
+                    "status_key": {
+                        "description": "Status key of the FAQ Excel",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "Status of the FAQ Excel",
+                        "type": "string"
+                    },
+                    "file": {
+                        "description": "File associated with the FAQ Excel",
+                        "type": "string"
+                    },
+                    "messages": {
+                        "description": "Messages related to the FAQ Excel",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "categories_count": {
+                        "description": "Count of categories",
+                        "type": "integer"
+                    },
+                    "faqs_count": {
+                        "description": "Count of FAQs",
+                        "type": "integer"
+                    },
+                    "created_user": {
+                        "description": "User who created the FAQ Excel",
+                        "type": "string"
+                    },
+                    "created_date": {
+                        "description": "Date when the FAQ Excel was created",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "FaqExportsResource": {
                 "title": "Faq Excels Resource",
                 "description": "Faq Excels Resource",
                 "properties": {

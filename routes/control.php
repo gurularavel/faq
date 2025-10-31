@@ -129,6 +129,11 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
                 Route::post('import', [FaqExcelController::class, 'import']);
                 Route::post('rollback/{faqExcel}', [FaqExcelController::class, 'rollback']);
             });
+
+            Route::group(['prefix' => 'exports'], static function () {
+                Route::post('generate-pdf', [FaqController::class, 'generatePdf']);
+                Route::get('load', [FaqController::class, 'loadExports']);
+            });
         });
 
         Route::group(['prefix' => 'departments'], static function () {

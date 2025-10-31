@@ -5,10 +5,12 @@ namespace App\Repositories;
 use App\Enum\FaqListTypeEnum;
 use App\Enum\NotificationTypeEnum;
 use App\Http\Resources\Admin\Categories\CategoriesListResource;
+use App\Jobs\GenerateFaqPdfJob;
 use App\Models\Admin;
 use App\Models\Category;
 use App\Models\Faq;
 use App\Models\FaqCategory;
+use App\Models\FaqExport;
 use App\Models\FaqList;
 use App\Models\User;
 use App\Services\FaqArchiveService;
@@ -25,7 +27,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use function Termwind\parse;
 
 class FaqRepository
 {
@@ -109,6 +113,42 @@ class FaqRepository
             ])
             ->orderByDesc('id')
             ->get();
+    }
+
+    public function generatePdf(): FaqExport
+    {
+        $export = FaqExport::query()
+            ->create([
+                'uuid' => Str::uuid(),
+                'language_id' => LangService::instance()->getCurrentLangId(),
+                'status' => 'queued',
+            ]);
+
+        GenerateFaqPdfJob::dispatch(
+            exportId: $export->id,
+            langId: LangService::instance()->getCurrentLangId(),
+            language: LangService::instance()->getCurrentLang(),
+            chunkSize: 1000,
+        );
+
+        $export->load([
+            'language',
+            'creatable',
+        ]);
+
+        return $export;
+    }
+
+    public function loadExports(array $validated = []): LengthAwarePaginator
+    {
+        return FaqExport::query()
+            ->with([
+                'creatable',
+                'language',
+                'media',
+            ])
+            ->orderByDesc('id')
+            ->paginate($validated['limit'] ?? 10);
     }
 
     public function loadRelations(Faq $faq): void
@@ -448,14 +488,14 @@ class FaqRepository
                         ],
                         [
                             'multi_match' => [
-                                'query'     => $validated['search'],
-                                'fields'    => [
+                                'query' => $validated['search'],
+                                'fields' => [
                                     "{$questionField}^3",
                                     "{$answerField}^2",
                                     "tags^4"
                                 ],
                                 'fuzziness' => 'AUTO',
-                                'operator'  => 'and',
+                                'operator' => 'and',
                             ]
                         ]
                     ],
@@ -478,11 +518,11 @@ class FaqRepository
                 ],
                 'highlight' => [
                     'pre_tags' => ['<span style="background: yellow;">'],
-                    'post_tags'=> ['</span>'],
+                    'post_tags' => ['</span>'],
                     'fields' => [
                         $questionField => new \stdClass(),
-                        $answerField   => new \stdClass(),
-                        'tags'         => new \stdClass(),
+                        $answerField => new \stdClass(),
+                        'tags' => new \stdClass(),
                     ]
                 ]
             ]
@@ -615,18 +655,18 @@ class FaqRepository
         $data = [
             'id' => $faq->id,
             'question_az' => $faq->getLang('question', LangService::instance()->getLangIdByKey('az')),
-            'answer_az'   => $faq->getLang('answer', LangService::instance()->getLangIdByKey('az')),
+            'answer_az' => $faq->getLang('answer', LangService::instance()->getLangIdByKey('az')),
             'question_ru' => $faq->getLang('question', LangService::instance()->getLangIdByKey('ru')),
-            'answer_ru'   => $faq->getLang('answer', LangService::instance()->getLangIdByKey('ru')),
-            'tags'        => $faq->tags->pluck('title')->implode(' '),
+            'answer_ru' => $faq->getLang('answer', LangService::instance()->getLangIdByKey('ru')),
+            'tags' => $faq->tags->pluck('title')->implode(' '),
             'category_ids' => $categoryIds,
             'parent_category_ids' => $parentCategoryIds,
         ];
 
         app(Client::class)->index([
             'index' => 'faq_index',
-            'id'    => $faq->id,
-            'body'  => $data
+            'id' => $faq->id,
+            'body' => $data
         ]);
     }
 
