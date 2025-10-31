@@ -73,6 +73,7 @@ class FaqsListResource extends JsonResource
             'tags' => TagsListResource::collection($this->whenLoaded('tags')),
             'categories' => CategoriesListResource::collection($this->whenLoaded('categories')),
             'updated_date' => $this->updated_at?->toDateTimeString(),
+            'archives_count' => $this->whenCounted('archives'),
             'files' => $this->whenLoaded('media', function () {
                 return $this->files['files'] ?? [];
             }),

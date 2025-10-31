@@ -5305,6 +5305,55 @@
                 ]
             }
         },
+        "/api/app/faqs/{faq}/archives/load": {
+            "get": {
+                "tags": [
+                    "AppFAQ"
+                ],
+                "summary": "Load FAQ archives",
+                "operationId": "c2bea962bc82c3730e2c87c321d960cb",
+                "parameters": [
+                    {
+                        "name": "faq",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "Search request parameters",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/GeneralListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FaqsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/app/notifications/list": {
             "get": {
                 "tags": [
@@ -8165,6 +8214,46 @@
                         "items": {
                             "$ref": "#/components/schemas/ExamAnswersListResource"
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "FaqArchivesListResource": {
+                "title": "FAQs List Resource",
+                "description": "FAQs List Resource",
+                "properties": {
+                    "id": {
+                        "description": "ID of the FAQ",
+                        "type": "integer"
+                    },
+                    "old_question": {
+                        "description": "Question text",
+                        "type": "string"
+                    },
+                    "old_answer": {
+                        "description": "Answer text",
+                        "type": "string"
+                    },
+                    "new_question": {
+                        "description": "Question text",
+                        "type": "string"
+                    },
+                    "new_answer": {
+                        "description": "Answer text",
+                        "type": "string"
+                    },
+                    "diff_question": {
+                        "description": "Question text",
+                        "type": "string"
+                    },
+                    "diff_answer": {
+                        "description": "Answer text",
+                        "type": "string"
+                    },
+                    "updated_date": {
+                        "description": "date",
+                        "type": "string",
+                        "example": "2024-01-01 12:00:00"
                     }
                 },
                 "type": "object"

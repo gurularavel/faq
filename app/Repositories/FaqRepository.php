@@ -11,6 +11,7 @@ use App\Models\Faq;
 use App\Models\FaqCategory;
 use App\Models\FaqList;
 use App\Models\User;
+use App\Services\FaqArchiveService;
 use App\Services\FileUpload;
 use App\Services\LangService;
 use App\Services\LoggerService;
@@ -211,6 +212,8 @@ class FaqRepository
 
             $categories = $validated['categories'];
 
+            FaqArchiveService::instance()->setOldFaq($faq);
+
             $faq->update([
                 'category_id' => $categories[0],
             ]);
@@ -227,6 +230,8 @@ class FaqRepository
             $faq->tags()->sync($tags);
 
             FileUpload::multipleUpload($request, 'files', 'faqs', $faq);
+
+            FaqArchiveService::instance()->setNewFaq($faq)->saveArchive();
 
             $userIds = User::query()->pluck('id')->toArray();
             NotificationService::instance()->sendToUsers($userIds, NotificationTypeEnum::FAQ, $faq);
@@ -340,6 +345,9 @@ class FaqRepository
                 'categories.parent',
                 'categories.parent.translatable',
                 'categories.parent.media',
+            ])
+            ->withCount([
+                'archives',
             ])
             ->when($validated['sub_category_id'] ?? null, function ($query) use ($validated) {
                 $subIds = $validated['sub_category_id'];
@@ -496,6 +504,9 @@ class FaqRepository
                 'categories.parent.translatable',
                 'categories.parent.media',
             ])
+            ->withCount([
+                'archives',
+            ])
             ->get();
 
         $results = $hits->map(function ($hit) use ($faqs, $lang) {
@@ -549,6 +560,7 @@ class FaqRepository
                 'tags' => $tags,
                 'score' => $hit['_score'] ?? null,
                 'categories' => CategoriesListResource::collection($faqModel->categories),
+                'archives_count' => $faqModel->archives_count ?? 0,
                 'updated_at' => $faqModel->updated_at,
                 'files' => $faqModel->files['files'] ?? [],
             ];
@@ -983,5 +995,10 @@ class FaqRepository
             ->orderByDesc('seen_count')
             ->orderBy('id')
             ->paginate($validated['limit'] ?? 10);
+    }
+
+    public function loadArchives(Faq $faq, array $validated): LengthAwarePaginator
+    {
+        return FaqArchiveService::instance()->loadArchives($faq, $validated);
     }
 }

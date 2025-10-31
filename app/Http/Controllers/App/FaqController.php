@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\App\Faqs\FaqSearchRequest;
 use App\Http\Requests\GeneralListRequest;
 use App\Http\Resources\Admin\Faqs\FaqsListResource;
+use App\Http\Resources\App\Faqs\FaqArchivesListResource;
 use App\Http\Resources\App\Faqs\FaqsSearchResource;
 use App\Http\Resources\GeneralResource;
 use App\Models\Category;
@@ -190,5 +191,41 @@ class FaqController extends Controller
     public function getSelectedFaqsByCategory(GeneralListRequest $request, Category $category): AnonymousResourceCollection
     {
         return FaqsListResource::collection($this->repo->getSelectedFaqsByCategory($category, $request->validated()));
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/app/faqs/{faq}/archives/load",
+     *     summary="Load FAQ archives",
+     *     tags={"AppFAQ"},
+     *          security={
+     *           {
+     *               "AppApiToken": {},
+     *               "AppSanctumBearerToken": {}
+     *           }
+     *       },
+     *          @OA\Parameter(
+     *          name="faq",
+     *          in="path",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *                    @OA\Parameter(
+     *            name="parameters",
+     *            in="query",
+     *            description="Search request parameters",
+     *            required=true,
+     *            @OA\Schema(ref="#/components/schemas/GeneralListRequest")
+     *        ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/FaqsListResource"))
+     *     )
+     * )
+     */
+    public function loadArchives(GeneralListRequest $request, Faq $faq): AnonymousResourceCollection
+    {
+        return FaqArchivesListResource::collection($this->repo->loadArchives($faq, $request->validated()));
     }
 }

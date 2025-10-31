@@ -41,7 +41,7 @@ class Faq extends Model implements HasMedia
         'files' => FilesCast::class,
     ];
 
-    protected array $cascadeDeletes = ['translatable', 'tagsRel', 'lists', 'categoriesRel'];
+    protected array $cascadeDeletes = ['translatable', 'tagsRel', 'lists', 'categoriesRel', 'archives'];
 
     public function scopeActive(Builder $query): void
     {
@@ -113,5 +113,10 @@ class Faq extends Model implements HasMedia
     public function categoriesRel(): HasMany
     {
         return $this->hasMany(FaqCategory::class);
+    }
+
+    public function archives(): HasMany
+    {
+        return $this->hasMany(FaqArchive::class);
     }
 }
