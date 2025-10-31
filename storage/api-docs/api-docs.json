@@ -5134,6 +5134,55 @@
                 ]
             }
         },
+        "/api/app/categories/{category}/selected-faqs": {
+            "get": {
+                "tags": [
+                    "AppCategory"
+                ],
+                "summary": "Most Searched FAQ",
+                "operationId": "f9eb2af3fa3e6727ca042aa38b42395c",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "Search request parameters",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/GeneralListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FaqsListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/app/notifications/list": {
             "get": {
                 "tags": [

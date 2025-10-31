@@ -53,6 +53,10 @@ Route::middleware(['general_access:app', RouteLogMiddleware::class])->prefix('ap
 
         Route::group(['prefix' => 'categories'], static function () {
             Route::get('list', [CategoryController::class, 'list']);
+
+            Route::group(['prefix' => '{category}'], static function () {
+                Route::get('selected-faqs', [FaqController::class, 'getSelectedFaqsByCategory']);
+            });
         });
     });
 });

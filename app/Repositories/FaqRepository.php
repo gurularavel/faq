@@ -956,4 +956,32 @@ class FaqRepository
             ->where('is_selected', false)
             ->update(['is_selected' => true]);
     }
+
+    public function getSelectedFaqsByCategory(Category $category, array $validated): LengthAwarePaginator
+    {
+        (new CategoryRepository())->checkIsSub($category);
+
+        return Faq::query()
+            ->active()
+            ->whereHas('categoriesRel', function (Builder $query) use ($category) {
+                $query->where('category_id', $category->id);
+                $query->where('is_selected', true);
+            })
+            ->with([
+                'media',
+                'translatable',
+                'tags' => function ($builder) {
+                    $builder->limit(config('settings.faq.tags_limit'));
+                },
+                'categories',
+                'categories.translatable',
+                'categories.media',
+                'categories.parent',
+                'categories.parent.translatable',
+                'categories.parent.media',
+            ])
+            ->orderByDesc('seen_count')
+            ->orderBy('id')
+            ->paginate($validated['limit'] ?? 10);
+    }
 }

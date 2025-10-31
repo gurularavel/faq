@@ -4,10 +4,13 @@ namespace App\Http\Controllers\App;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\App\Faqs\FaqSearchRequest;
+use App\Http\Requests\GeneralListRequest;
 use App\Http\Resources\Admin\Faqs\FaqsListResource;
 use App\Http\Resources\App\Faqs\FaqsSearchResource;
 use App\Http\Resources\GeneralResource;
+use App\Models\Category;
 use App\Models\Faq;
+use App\Repositories\CategoryRepository;
 use App\Repositories\FaqRepository;
 use App\Services\LangService;
 use Illuminate\Http\JsonResponse;
@@ -151,5 +154,41 @@ class FaqController extends Controller
                 ->setDefault('Seen count increased')
                 ->getLang('seen_count_increased'),
         ]));
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/app/categories/{category}/selected-faqs",
+     *     summary="Most Searched FAQ",
+     *     tags={"AppCategory"},
+     *          security={
+     *           {
+     *               "AppApiToken": {},
+     *               "AppSanctumBearerToken": {}
+     *           }
+     *       },
+     *               @OA\Parameter(
+     *           name="category",
+     *           in="path",
+     *           required=true,
+     *           @OA\Schema(type="integer")
+     *       ),
+     *                    @OA\Parameter(
+     *            name="parameters",
+     *            in="query",
+     *            description="Search request parameters",
+     *            required=true,
+     *            @OA\Schema(ref="#/components/schemas/GeneralListRequest")
+     *        ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/FaqsListResource"))
+     *     )
+     * )
+     */
+    public function getSelectedFaqsByCategory(GeneralListRequest $request, Category $category): AnonymousResourceCollection
+    {
+        return FaqsListResource::collection($this->repo->getSelectedFaqsByCategory($category, $request->validated()));
     }
 }
