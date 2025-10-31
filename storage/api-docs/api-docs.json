@@ -4836,6 +4836,17 @@
                 ],
                 "summary": "Most Searched FAQ",
                 "operationId": "bcecb428f2f8f9412a33765d7d79d905",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "Search request parameters",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/FaqSearchRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",

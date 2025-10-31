@@ -66,8 +66,8 @@ class FaqRepository
                     $query->whereHas('categories', function (Builder $q) use ($categoryId) {
                         $q->where('categories.id', $categoryId);
                     });
-                    $query->orWhereHas('categories.parent', function (Builder $q) use ($categoryId) {
-                        $q->where('categories.id', $categoryId);
+                    $query->orWhereHas('categories', function (Builder $q) use ($categoryId) {
+                        $q->where('categories.category_id', $categoryId);
                     });
                 });
             })
@@ -306,7 +306,7 @@ class FaqRepository
             ->get();
     }
 
-    public function getMostSearchedItems(int $limit = 10)
+    public function getMostSearchedItems(array $validated)
     {
         return Faq::query()
             ->active()
@@ -323,7 +323,25 @@ class FaqRepository
                 'categories.parent.translatable',
                 'categories.parent.media',
             ])
-            ->limit($limit)
+            ->when($validated['sub_category_id'] ?? null, function ($query) use ($validated) {
+                $subIds = $validated['sub_category_id'];
+
+                $query->where(function (Builder $q) use ($subIds) {
+                    $q->whereHas('categories', function (Builder $q2) use ($subIds) {
+                        $q2->whereIn('categories.id', $subIds);
+                    });
+                });
+            })
+            ->when($validated['category_id'] ?? null, function ($query) use ($validated) {
+                $parentIds = $validated['category_id'];
+
+                $query->where(function (Builder $q) use ($parentIds) {
+                    $q->whereHas('categories', function (Builder $q2) use ($parentIds) {
+                        $q2->whereIn('categories.category_id', $parentIds);
+                    });
+                });
+            })
+            ->limit($validated['limit'] ?? 10)
             ->orderByDesc('seen_count')
             ->orderBy('id')
             ->get();

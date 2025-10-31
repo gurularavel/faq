@@ -66,6 +66,13 @@ class FaqController extends Controller
      *               "AppSanctumBearerToken": {}
      *           }
      *       },
+     *                    @OA\Parameter(
+     *            name="parameters",
+     *            in="query",
+     *            description="Search request parameters",
+     *            required=true,
+     *            @OA\Schema(ref="#/components/schemas/FaqSearchRequest")
+     *        ),
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
@@ -73,9 +80,9 @@ class FaqController extends Controller
      *     )
      * )
      */
-    public function getMostSearchedItems(): AnonymousResourceCollection
+    public function getMostSearchedItems(FaqSearchRequest $request): AnonymousResourceCollection
     {
-        return FaqsListResource::collection($this->repo->getMostSearchedItems());
+        return FaqsListResource::collection($this->repo->getMostSearchedItems($request->validated()));
     }
 
     /**
