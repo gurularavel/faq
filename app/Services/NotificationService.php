@@ -31,8 +31,22 @@ class NotificationService
         return self::$instance;
     }
 
-    public function createNotification(NotificationTypeEnum $type, ?Model $typeableModel = null): Notification
+    public function createNotification(NotificationTypeEnum $type, ?Model $typeableModel = null): ?Notification
     {
+        $settings = SettingService::instance()->get();
+
+        if ($type === NotificationTypeEnum::EXAM && ((string )($settings->notification_exam_enable ?? 'true')) === 'false') {
+            return null;
+        }
+
+        if ($type === NotificationTypeEnum::FAQ_NEW && ((string )($settings->notification_faq_new_enable ?? 'true')) === 'false') {
+            return null;
+        }
+
+        if ($type === NotificationTypeEnum::FAQ && ((string )($settings->notification_faq_update_enable ?? 'true')) === 'false') {
+            return null;
+        }
+
         $notification = Notification::query()->create([
             'type' => $type->value === NotificationTypeEnum::FAQ_NEW->value ? NotificationTypeEnum::FAQ->value : $type->value,
             'typeable_type' => $typeableModel?->getMorphClass() ?? null,
@@ -58,13 +72,23 @@ class NotificationService
             } else if ($type == NotificationTypeEnum::FAQ) {
                 /** @var Faq $typeableModel */
 
+                $typeableModel->load(
+                    'categories',
+                    'categories.translatable',
+                    'categories.parent',
+                    'categories.parent.translatable'
+                );
+
                 $title = LangService::instance()
                     ->setDefault('FAQ updated!')
                     ->getLang('notification_faq_updated_title', [], $language['key']);
 
                 $message = LangService::instance()
-                    ->setDefault('This FAQ was updated: @faq')
-                    ->getLang('notification_faq_updated_message', ['@faq' => $typeableModel->getLang('question', $language['id'])], $language['key']);
+                    ->setDefault('This FAQ was updated: @faq. Categories: @categories')
+                    ->getLang('notification_faq_updated_message_with_category', [
+                        '@faq' => $typeableModel->getLang('question', $language['id']),
+                        '@categories' => $typeableModel->categories->map(fn($category) => $category->getLang('title', $language['id']) . ' - ' . $category->parent->getLang('title', $language['id']))->join(', '),
+                    ], $language['key']);
             } else if ($type == NotificationTypeEnum::FAQ_NEW) {
                 /** @var Faq $typeableModel */
 
@@ -106,6 +130,10 @@ class NotificationService
 
         if ($this->notification === null) {
             $this->createNotification($type, $typeableModel);
+        }
+
+        if ($this->notification === null) {
+            return;
         }
 
         $now = Carbon::now();
