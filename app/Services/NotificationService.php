@@ -68,13 +68,23 @@ class NotificationService
             } else if ($type == NotificationTypeEnum::FAQ_NEW) {
                 /** @var Faq $typeableModel */
 
+                $typeableModel->load(
+                    'categories',
+                    'categories.translatable',
+                    'categories.parent',
+                    'categories.parent.translatable'
+                );
+
                 $title = LangService::instance()
                     ->setDefault('FAQ created!')
                     ->getLang('notification_faq_created_title', [], $language['key']);
 
                 $message = LangService::instance()
-                    ->setDefault('This FAQ was created: @faq')
-                    ->getLang('notification_faq_created_message', ['@faq' => $typeableModel->getLang('question', $language['id'])], $language['key']);
+                    ->setDefault('This FAQ was created: @faq. Categories: @categories')
+                    ->getLang('notification_faq_created_message_with_category', [
+                        '@faq' => $typeableModel->getLang('question', $language['id']),
+                        '@categories' => $typeableModel->categories->map(fn($category) => $category->getLang('title', $language['id']) . ' - ' . $category->parent->getLang('title', $language['id']))->join(', '),
+                    ], $language['key']);
             }
 
             $notification->setLang('title', $title, $language['id']);
