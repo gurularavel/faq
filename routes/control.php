@@ -95,6 +95,8 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
                 Route::post('add', [FaqController::class, 'addSelectedToCategory']);
                 Route::post('remove', [FaqController::class, 'removeSelectedFromCategory']);
                 Route::post('bulk-add', [FaqController::class, 'bulkAddSelectedToCategory']);
+                Route::post('choose-pinned-faq/{faq}', [CategoryController::class, 'choosePinnedFaqForCategory']);
+                Route::post('remove-pinned-faq', [CategoryController::class, 'removePinnedFaqForCategory']);
             });
         });
 

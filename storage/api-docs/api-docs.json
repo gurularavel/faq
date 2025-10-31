@@ -849,6 +849,88 @@
                 ]
             }
         },
+        "/api/control/categories/{category}/selected-faqs/choose-pinned-faq/{faq}": {
+            "post": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Choose pinned FAQ for category",
+                "operationId": "0870e64fe41e9d7af2f907e19eb084a6",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "faq",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/categories/{category}/selected-faqs/remove-pinned-faq": {
+            "post": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Remove pinned FAQ for category",
+                "operationId": "3ae51a36e0a0a92bc620b69badfdc748",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/departments/load": {
             "get": {
                 "tags": [
@@ -4674,6 +4756,46 @@
                         "required": false,
                         "schema": {
                             "$ref": "#/components/schemas/CategoriesListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CategoriesListResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/app/categories/{category}/show": {
+            "get": {
+                "tags": [
+                    "AppCategory"
+                ],
+                "summary": "Show category for app with pinned FAQ",
+                "operationId": "1569deb36c58d4eb4985c7bf468b0083",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
                         }
                     }
                 ],

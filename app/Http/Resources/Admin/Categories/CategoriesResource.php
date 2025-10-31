@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Admin\Categories;
 
+use App\Http\Resources\Admin\Faqs\FaqsListResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Annotations as OA;
@@ -95,6 +96,7 @@ class CategoriesResource extends JsonResource
                 return $this->creatable?->username;
             }),
             'created_date' => $this->created_at?->toDateTimeString(),
+            'pinned_faq' => FaqsListResource::make($this->whenLoaded('pinnedFaq')),
         ];
     }
 }

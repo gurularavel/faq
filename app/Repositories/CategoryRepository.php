@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Category;
+use App\Models\Faq;
 use App\Services\FileUpload;
 use App\Services\LangService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -25,6 +26,8 @@ class CategoryRepository
                 'media',
                 //'parent',
                 //'parent.translatable',
+                //'pinnedFaq',
+                //'pinnedFaq.translatable',
             ])
             ->withCount([
                 'subs',
@@ -34,6 +37,8 @@ class CategoryRepository
                     'subs',
                     'subs.translatable',
                     'subs.media',
+                    'subs.pinnedFaq',
+                    'subs.pinnedFaq.translatable',
                 ]);
             })
             ->when($validated['search'] ?? null, function (Builder $builder) use ($validated) {
@@ -77,6 +82,8 @@ class CategoryRepository
                 'translatable',
                 'creatable',
                 'media',
+                'pinnedFaq',
+                'pinnedFaq.translatable',
             ])
             ->when($validated['search'] ?? null, function (Builder $builder) use ($validated) {
                 $builder->where(function (Builder $builder) use ($validated) {
@@ -90,6 +97,15 @@ class CategoryRepository
             })
             ->orderByDesc('id')
             ->paginate($validated['limit'] ?? 10);
+    }
+
+    public function show(Category $category): Category
+    {
+        return $category
+            ->load([
+                'pinnedFaq',
+                'pinnedFaq.translatable',
+            ]);
     }
 
     public function loadRelations(Category $category): void
@@ -177,7 +193,7 @@ class CategoryRepository
 
     public function changeActiveStatus(Category $category): void
     {
-        $category->is_active = ! $category->is_active;
+        $category->is_active = !$category->is_active;
         $category->save();
     }
 
@@ -190,5 +206,63 @@ class CategoryRepository
                     ->getLang('only_subcategories_allowed')
             );
         }
+    }
+
+    public function choosePinnedFaqForCategory(Category $category, Faq $faq): void
+    {
+        $this->checkIsSub($category);
+
+        if ($category->pinned_faq_id === $faq->id) {
+            throw new BadRequestHttpException(
+                LangService::instance()
+                    ->setDefault('This FAQ is already pinned for the selected category.')
+                    ->getLang('faq_already_pinned_for_category')
+            );
+        }
+
+        $category->pinned_faq_id = $faq->id;
+        $category->save();
+    }
+
+    public function removePinnedFaqForCategory(Category $category): void
+    {
+        $this->checkIsSub($category);
+
+        if ($category->pinned_faq_id === null) {
+            throw new BadRequestHttpException(
+                LangService::instance()
+                    ->setDefault('No FAQ is currently pinned for the selected category.')
+                    ->getLang('no_faq_pinned_for_category')
+            );
+        }
+
+        $category->pinned_faq_id = null;
+        $category->save();
+    }
+
+    public function showForApp(Category $category): Category
+    {
+        $this->checkIsSub($category);
+
+        return $category
+            ->load([
+                'translatable',
+                'media',
+                'parent',
+                'parent.translatable',
+                'parent.media',
+                'pinnedFaq',
+                'pinnedFaq.translatable',
+                'pinnedFaq.media',
+                'pinnedFaq.tags' => function ($builder) {
+                    $builder->limit(config('settings.faq.tags_limit'));
+                },
+                'pinnedFaq.categories',
+                'pinnedFaq.categories.translatable',
+                'pinnedFaq.categories.media',
+                'pinnedFaq.categories.parent',
+                'pinnedFaq.categories.parent.translatable',
+                'pinnedFaq.categories.parent.media',
+            ]);
     }
 }

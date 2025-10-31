@@ -12,6 +12,7 @@ use App\Http\Resources\Admin\Categories\CategoriesResource;
 use App\Http\Resources\Admin\Categories\CategoryResource;
 use App\Http\Resources\GeneralResource;
 use App\Models\Category;
+use App\Models\Faq;
 use App\Repositories\CategoryRepository;
 use App\Services\LangService;
 use Illuminate\Http\JsonResponse;
@@ -153,6 +154,8 @@ class CategoryController extends Controller
      */
     public function show(Category $category): CategoryResource
     {
+        $this->repo->show($category);
+
         return CategoryResource::make($category);
     }
 
@@ -311,6 +314,82 @@ class CategoryController extends Controller
             'message' => LangService::instance()
                 ->setDefault('Status changed successfully!')
                 ->getLang('admin_status_changed_successfully'),
+        ]));
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/control/categories/{category}/selected-faqs/choose-pinned-faq/{faq}",
+     *     summary="Choose pinned FAQ for category",
+     *               tags={"Category"},
+     *       security={
+     *              {
+     *                  "ApiToken": {},
+     *                  "SanctumBearerToken": {}
+     *              }
+     *         },
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *          @OA\Parameter(
+     *          name="faq",
+     *          in="path",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Status changed successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GeneralResource")
+     *     )
+     * )
+     */
+    public function choosePinnedFaqForCategory(Category $category, Faq $faq): JsonResponse
+    {
+        $this->repo->choosePinnedFaqForCategory($category, $faq);
+
+        return response()->json(GeneralResource::make([
+            'message' => LangService::instance()
+                ->setDefault('Pinned FAQ changed successfully!')
+                ->getLang('pinned_faq_changed_successfully'),
+        ]));
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/control/categories/{category}/selected-faqs/remove-pinned-faq",
+     *     summary="Remove pinned FAQ for category",
+     *               tags={"Category"},
+     *       security={
+     *              {
+     *                  "ApiToken": {},
+     *                  "SanctumBearerToken": {}
+     *              }
+     *         },
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Status changed successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GeneralResource")
+     *     )
+     * )
+     */
+    public function removePinnedFaqForCategory(Category $category): JsonResponse
+    {
+        $this->repo->removePinnedFaqForCategory($category);
+
+        return response()->json(GeneralResource::make([
+            'message' => LangService::instance()
+                ->setDefault('Pinned FAQ removed successfully!')
+                ->getLang('pinned_faq_removed_successfully'),
         ]));
     }
 }

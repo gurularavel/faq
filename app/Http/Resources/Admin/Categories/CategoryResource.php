@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Admin\Categories;
 
+use App\Http\Resources\Admin\Faqs\FaqsListResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Annotations as OA;
@@ -53,6 +54,7 @@ class CategoryResource extends JsonResource
             'icon' => $this->whenLoaded('media', function () {
                 return $this->icon;
             }),
+            'pinned_faq' => FaqsListResource::make($this->whenLoaded('pinnedFaq')),
         ];
     }
 }

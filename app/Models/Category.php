@@ -22,6 +22,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property bool|mixed $is_active
  * @property mixed $id
  * @property mixed $category_id
+ * @property mixed $pinned_faq_id
  * @method static active()
  */
 class Category extends Model implements HasMedia
@@ -86,5 +87,10 @@ class Category extends Model implements HasMedia
     public function faqsRel(): HasMany
     {
         return $this->hasMany(FaqCategory::class);
+    }
+
+    public function pinnedFaq(): BelongsTo
+    {
+        return $this->belongsTo(Faq::class, 'pinned_faq_id');
     }
 }
