@@ -20,6 +20,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 /**
  * @property array|mixed $translations
  * @property bool|mixed $is_active
+ * @property mixed $id
+ * @property mixed $category_id
  * @method static active()
  */
 class Category extends Model implements HasMedia

@@ -1946,6 +1946,196 @@
                 ]
             }
         },
+        "/api/control/categories/{category}/selected-faqs/available-list": {
+            "get": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Display a listing of the resource",
+                "operationId": "8a85e1d6780ef219b8c3025bf50ae959",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/FaqsLoadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FaqsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/categories/{category}/selected-faqs/add": {
+            "post": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Add selected to category",
+                "operationId": "0d28f7e80136a72338add3c8ea067bab",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FaqAddSelectedToCategoryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Resource updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/categories/{category}/selected-faqs/remove": {
+            "post": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Remove selected from category",
+                "operationId": "1b5a499def243f587cd01d0a47f97734",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FaqAddSelectedToCategoryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Resource updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/control/categories/{category}/selected-faqs/bulk-add": {
+            "post": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Bulk Add selected to category",
+                "operationId": "6a42e4a2573ad45dca662babd9338383",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FaqBulkSelectedAddToCategoryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Resource updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiToken": [],
+                        "SanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/control/faqs/excels/load": {
             "get": {
                 "tags": [
@@ -6396,6 +6586,18 @@
                 },
                 "type": "object"
             },
+            "FaqAddSelectedToCategoryRequest": {
+                "title": "FAQ Add selected To category Request",
+                "description": "Request body for adding FAQ selected to a category",
+                "properties": {
+                    "faq_id": {
+                        "description": "ID of the FAQ",
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
             "FaqAddToListRequest": {
                 "title": "FAQ Add To List Request",
                 "description": "Request body for adding FAQ to a list",
@@ -6435,6 +6637,21 @@
                             "search"
                         ],
                         "example": "search"
+                    }
+                },
+                "type": "object"
+            },
+            "FaqBulkSelectedAddToCategoryRequest": {
+                "title": "FAQ Bulk Add selected To category Request",
+                "description": "Request body for adding multiple FAQs selected to a category",
+                "properties": {
+                    "faq_ids": {
+                        "description": "Array of FAQ IDs",
+                        "type": "array",
+                        "items": {
+                            "type": "integer",
+                            "example": 1
+                        }
                     }
                 },
                 "type": "object"

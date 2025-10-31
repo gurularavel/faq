@@ -89,6 +89,13 @@ Route::middleware(['general_access:admin', RouteLogMiddleware::class])->prefix('
             Route::post('update/{category}', [CategoryController::class, 'update']);
             Route::post('change-active-status/{category}', [CategoryController::class, 'changeActiveStatus']);
             Route::delete('delete/{category}', [CategoryController::class, 'destroy']);
+
+            Route::group(['prefix' => '{category}/selected-faqs'], static function () {
+                Route::get('available-list', [FaqController::class, 'getAvailableFaqListForCategory']);
+                Route::post('add', [FaqController::class, 'addSelectedToCategory']);
+                Route::post('remove', [FaqController::class, 'removeSelectedFromCategory']);
+                Route::post('bulk-add', [FaqController::class, 'bulkAddSelectedToCategory']);
+            });
         });
 
         Route::group(['prefix' => 'tags'], static function () {

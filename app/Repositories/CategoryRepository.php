@@ -180,4 +180,15 @@ class CategoryRepository
         $category->is_active = ! $category->is_active;
         $category->save();
     }
+
+    public function checkIsSub(Category $category): void
+    {
+        if ($category->category_id === null) {
+            throw new BadRequestHttpException(
+                LangService::instance()
+                    ->setDefault('Only sub-categories are allowed for this operation.')
+                    ->getLang('only_subcategories_allowed')
+            );
+        }
+    }
 }

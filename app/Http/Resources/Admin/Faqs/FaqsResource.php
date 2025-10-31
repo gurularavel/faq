@@ -64,6 +64,7 @@ use OpenApi\Annotations as OA;
  * @property mixed $is_active
  * @property mixed $lists
  * @property mixed $in_most_searched
+ * @property mixed $selected_in_category
  * @property mixed $seen_count
  * @property mixed $updated_at
  * @property mixed $files
@@ -86,6 +87,7 @@ class FaqsResource extends JsonResource
             'is_active' => $this->is_active ?? true,
             'seen_count' => $this->seen_count,
             'in_most_searched' => $this->in_most_searched ?? false,
+            'selected_in_category' => $this->selected_in_category ?? false,
             'categories' => CategoriesListResource::collection($this->whenLoaded('categories')),
             'tags' => TagsListResource::collection($this->whenLoaded('tags')),
             'created_user' => $this->whenLoaded('creatable', function () {

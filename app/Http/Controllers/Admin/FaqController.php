@@ -7,8 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Faqs\FaqsLoadRequest;
 use App\Http\Requests\Admin\Faqs\FaqStoreRequest;
 use App\Http\Requests\Admin\Faqs\FaqUpdateRequest;
+use App\Http\Requests\App\Faqs\FaqAddSelectedToCategoryRequest;
 use App\Http\Requests\App\Faqs\FaqAddToListRequest;
 use App\Http\Requests\App\Faqs\FaqBulkAddToListRequest;
+use App\Http\Requests\App\Faqs\FaqBulkSelectedAddToCategoryRequest;
 use App\Http\Requests\App\Faqs\FaqReportsTimeSeriesRequest;
 use App\Http\Requests\App\Faqs\FaqReportsTopStatisticsRequest;
 use App\Http\Resources\Admin\Faqs\FaqsListResource;
@@ -17,7 +19,9 @@ use App\Http\Resources\Admin\Faqs\FaqsReportTopStatisticsResource;
 use App\Http\Resources\Admin\Faqs\FaqsResource;
 use App\Http\Resources\Admin\Faqs\FaqResource;
 use App\Http\Resources\GeneralResource;
+use App\Models\Category;
 use App\Models\Faq;
+use App\Repositories\CategoryRepository;
 use App\Repositories\FaqRepository;
 use App\Services\LangService;
 use Carbon\Carbon;
@@ -490,5 +494,178 @@ class FaqController extends Controller
         $validated = $request->validated();
 
         return FaqsReportTimeSeriesResource::collection($this->repo->timeSeries($validated['granularity'], $validated['from'] ? Carbon::parse($validated['from']) : null, $validated['to'] ? Carbon::parse($validated['to']) : null));
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/control/categories/{category}/selected-faqs/available-list",
+     *     summary="Display a listing of the resource",
+     *          tags={"Category"},
+     *      security={
+     *             {
+     *                 "ApiToken": {},
+     *                 "SanctumBearerToken": {}
+     *             }
+     *        },
+     *               @OA\Parameter(
+     *           name="category",
+     *           in="path",
+     *           required=true,
+     *           @OA\Schema(type="integer")
+     *       ),
+     *          @OA\Parameter(
+     *          name="parameters",
+     *          in="query",
+     *          description="List request parameters",
+     *          required=false,
+     *          @OA\Schema(ref="#/components/schemas/FaqsLoadRequest")
+     *      ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/FaqsResource"))
+     *     )
+     * )
+     * Display a listing of the resource.
+     *
+     * @param FaqsLoadRequest $request
+     * @param Category $category
+     * @return AnonymousResourceCollection
+     */
+    public function getAvailableFaqListForCategory(FaqsLoadRequest $request, Category $category): AnonymousResourceCollection
+    {
+        $validated = $request->validated();
+        $validated['category'] = $category->id;
+
+        (new CategoryRepository())->checkIsSub($category);
+
+        return FaqsResource::collection($this->repo->load($validated, true));
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/control/categories/{category}/selected-faqs/add",
+     *     summary="Add selected to category",
+     *               tags={"Category"},
+     *       security={
+     *              {
+     *                  "ApiToken": {},
+     *                  "SanctumBearerToken": {}
+     *              }
+     *         },
+     *          @OA\Parameter(
+     *          name="category",
+     *          in="path",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/FaqAddSelectedToCategoryRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Resource updated successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GeneralResource")
+     *     )
+     * )
+     */
+    public function addSelectedToCategory(FaqAddSelectedToCategoryRequest $request, Category $category): JsonResponse
+    {
+        $validated = $request->validated();
+
+        $faq = Faq::query()->findOrFail($validated['faq_id']);
+
+        $this->repo->addSelectedToCategory($faq, $category);
+
+        return response()->json([
+            'message' => LangService::instance()
+                ->setDefault('FAQ added selected to category successfully!')
+                ->getLang('faq_added_selected_to_category'),
+        ]);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/control/categories/{category}/selected-faqs/remove",
+     *     summary="Remove selected from category",
+     *               tags={"Category"},
+     *       security={
+     *              {
+     *                  "ApiToken": {},
+     *                  "SanctumBearerToken": {}
+     *              }
+     *         },
+     *          @OA\Parameter(
+     *          name="category",
+     *          in="path",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/FaqAddSelectedToCategoryRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Resource updated successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GeneralResource")
+     *     )
+     * )
+     */
+    public function removeSelectedFromCategory(FaqAddSelectedToCategoryRequest $request, Category $category): JsonResponse
+    {
+        $validated = $request->validated();
+
+        $faq = Faq::query()->findOrFail($validated['faq_id']);
+
+        $this->repo->removeSelectedFromCategory($faq, $category);
+
+        return response()->json([
+            'message' => LangService::instance()
+                ->setDefault('FAQ removed selected from category successfully!')
+                ->getLang('faq_removed_selected_from_category'),
+        ]);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/control/categories/{category}/selected-faqs/bulk-add",
+     *     summary="Bulk Add selected to category",
+     *               tags={"Category"},
+     *       security={
+     *              {
+     *                  "ApiToken": {},
+     *                  "SanctumBearerToken": {}
+     *              }
+     *         },
+     *          @OA\Parameter(
+     *          name="category",
+     *          in="path",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/FaqBulkSelectedAddToCategoryRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Resource updated successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/GeneralResource")
+     *     )
+     * )
+     */
+    public function bulkAddSelectedToCategory(FaqBulkSelectedAddToCategoryRequest $request, Category $category): JsonResponse
+    {
+        $validated = $request->validated();
+
+        $this->repo->bulkAddSelectedToCategory($validated['faq_ids'], $category);
+
+        return response()->json([
+            'message' => LangService::instance()
+                ->setDefault('FAQs added to list successfully!')
+                ->getLang('faqs_added_to_list'),
+        ]);
     }
 }
