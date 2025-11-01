@@ -31,24 +31,7 @@ const MostSearched = ({ faqItems, isLoading, title }) => {
         >
           {title || t("mostly_searched_faq")}
         </Typography>
-        <Box
-          sx={{
-            bgcolor: "#d32f2f",
-            color: "white",
-            px: 2,
-            py: 1,
-            borderRadius: 1,
-            fontSize: "0.875rem",
-            fontWeight: 500,
-            cursor: "pointer",
-            transition: "all 0.3s ease",
-            "&:hover": {
-              bgcolor: "#b71c1c",
-            },
-          }}
-        >
-          {t("export_pdf") || "PDF Çap Et"}
-        </Box>
+       
       </Box>
 
       {isLoading ? (
