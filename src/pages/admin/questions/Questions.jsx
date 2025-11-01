@@ -37,7 +37,7 @@ import DeleteModal from "@components/modal/DeleteModal";
 import SearchInput from "@components/filterOptions/SearchInput";
 import SearchDropdown from "@components/filterOptions/SearchDropdown";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { UploadFile } from "@mui/icons-material";
+import { DocumentScanner, UploadFile } from "@mui/icons-material";
 import ResetIcon from "@assets/icons/reset.svg";
 import OrderBtn from "@components/filterOptions/OrderBtn";
 import dayjs from "dayjs";
@@ -220,6 +220,24 @@ export default function Questions() {
         >
           <Box sx={{ display: { xs: "none", sm: "block" } }}>
             {t("new_question")}
+          </Box>
+        </Button>
+
+        <Button
+          variant="contained"
+          color="error"
+          startIcon={<DocumentScanner />}
+          size="small"
+          component={Link}
+          to={"pdf-export"}
+          sx={{
+            "& .MuiButton-startIcon": {
+              mr: { xs: 0, sm: 1 },
+            },
+          }}
+        >
+          <Box sx={{ display: { xs: "none", sm: "block" } }}>
+            {t("pdf_export")}
           </Box>
         </Button>
       </Box>

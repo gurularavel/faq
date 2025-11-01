@@ -9,6 +9,7 @@ import AuthLayout from "@layouts/AuthLayout";
 import MainLayout from "@layouts/MainLayout";
 import ControlLayout from "@layouts/ControlLayout";
 import DetectLayout from "./layouts/DetectLayout";
+import NotificationSettings from "./pages/admin/notifications/NotificationSettings";
 
 const Login = Loadable(lazy(() => import("@pages/auth/login/Login")));
 const ControlLogin = Loadable(
@@ -87,6 +88,10 @@ const DifficultyLevels = Loadable(
   lazy(() => import("@pages/admin/difficulty-levels/DifficultyLevels"))
 );
 
+const PdfExport = Loadable(
+  lazy(() => import("@pages/admin/pdf-export/PdfExport"))
+);
+
 // reports pages
 const TopStatistics = Loadable(
   lazy(() => import("@pages/admin/reports/TopStatistics"))
@@ -149,6 +154,8 @@ export default function App() {
             <Route path="languages" element={<Languages />} />
 
             <Route path="difficulty-levels" element={<DifficultyLevels />} />
+            <Route path="notifications" element={<NotificationSettings />} />
+            <Route path="pdf-export" element={<PdfExport />} />
 
             <Route path="reports/top-statistics" element={<TopStatistics />} />
             <Route path="reports/time-series" element={<TimeSeries />} />

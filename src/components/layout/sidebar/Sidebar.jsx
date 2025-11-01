@@ -30,6 +30,7 @@ import AdminIcon from "@assets/icons/menu-icons/admin.svg";
 import LangIcon from "@assets/icons/menu-icons/languages.svg";
 import TranslationIcon from "@assets/icons/menu-icons/translations.svg";
 import DiffIcon from "@assets/icons/menu-icons/difficulties.svg";
+import NotificationIcon from "@assets/icons/notification.svg";
 
 export default function Sidebar({
   drawerWidth,
@@ -89,6 +90,12 @@ export default function Sidebar({
           path: "/control/difficulty-levels",
           text: t("difficulty_levels"),
           icon: DiffIcon,
+        },
+
+        {
+          path: "/control/notifications",
+          text: t("notifications"),
+          icon: NotificationIcon,
         },
       ],
     },
