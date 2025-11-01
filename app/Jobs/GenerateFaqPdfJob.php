@@ -10,6 +10,7 @@ use App\Services\LoggerService;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -27,6 +28,7 @@ class GenerateFaqPdfJob implements ShouldQueue
         public int    $exportId,
         public int    $langId,
         public string $language,
+        public ?int   $categoryId = null,
         public int    $chunkSize = 1000,
     )
     {
@@ -49,8 +51,20 @@ class GenerateFaqPdfJob implements ShouldQueue
         $tmpDir = storage_path('app/reports/tmp_' . uniqid());
         if (!is_dir($tmpDir)) mkdir($tmpDir, 0775, true);
 
+        $categoryId = $this->categoryId;
+
         $query = Faq::query()
             ->active()
+            ->when($categoryId, function (Builder $builder) use ($categoryId) {
+                $builder->where(function (Builder $query) use ($categoryId) {
+                    $query->whereHas('categories', function (Builder $q) use ($categoryId) {
+                        $q->where('categories.id', $categoryId);
+                    });
+                    $query->orWhereHas('categories', function (Builder $q) use ($categoryId) {
+                        $q->where('categories.category_id', $categoryId);
+                    });
+                });
+            })
             ->with([
                 'translatable',
             ])

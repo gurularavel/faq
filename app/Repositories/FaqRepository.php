@@ -115,7 +115,7 @@ class FaqRepository
             ->get();
     }
 
-    public function generatePdf(): FaqExport
+    public function generatePdf(array $validated): FaqExport
     {
         $export = FaqExport::query()
             ->create([
@@ -128,6 +128,7 @@ class FaqRepository
             exportId: $export->id,
             langId: LangService::instance()->getCurrentLangId(),
             language: LangService::instance()->getCurrentLang(),
+            categoryId: $validated['category'] ?? null,
             chunkSize: 1000,
         );
 

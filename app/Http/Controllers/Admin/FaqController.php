@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enum\FaqListTypeEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Faqs\FaqExportRequest;
 use App\Http\Requests\Admin\Faqs\FaqsLoadRequest;
 use App\Http\Requests\Admin\Faqs\FaqStoreRequest;
 use App\Http\Requests\Admin\Faqs\FaqUpdateRequest;
@@ -107,6 +108,10 @@ class FaqController extends Controller
      *             "SanctumBearerToken": {}
      *         }
      *     },
+     *          @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(ref="#/components/schemas/FaqExportRequest")
+     *      ),
      *     @OA\Response(
      *         response=200,
      *         description="PDF generation started successfully",
@@ -117,9 +122,9 @@ class FaqController extends Controller
      *     )
      * )
      */
-    public function generatePdf(): JsonResponse
+    public function generatePdf(FaqExportRequest $request): JsonResponse
     {
-        $export = $this->repo->generatePdf();
+        $export = $this->repo->generatePdf($request->validated());
 
         return response()->json([
             'message' => LangService::instance()
