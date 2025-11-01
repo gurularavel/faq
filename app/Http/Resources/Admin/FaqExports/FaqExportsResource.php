@@ -7,9 +7,7 @@ use App\Http\Resources\Admin\Languages\LanguagesListResource;
 use App\Services\LangService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
-use OpenApi\Annotations as OA;
 
 /**
  * @OA\Schema(
@@ -72,6 +70,7 @@ use OpenApi\Annotations as OA;
  * @property mixed $status
  * @property mixed $file
  * @property mixed $messages
+ * @property mixed $filters
  */
 class FaqExportsResource extends JsonResource
 {
@@ -83,28 +82,6 @@ class FaqExportsResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-//        $downloadUrl = null;
-//
-//        if ($this->status === FaqExportStatusEnum::DONE->value) {
-//            $downloadUrl = URL::temporarySignedRoute(
-//                'faq-exports.download',
-//                now()->addMinutes(15),
-//                ['export' => $this->id]
-//            );
-//        }
-//
-//        return [
-//            'id' => $this->id,
-//            'status_key' => $this->status,
-//            'status' => LangService::instance()->setDefault(Str::title($this->status))->getLang('faq_exports_status_' . $this->status),
-//            'messages' => $this->messages ?? [],
-//            'file_download_url' => $downloadUrl,
-//            'created_user' => $this->whenLoaded('creatable', function () {
-//                return $this->creatable?->username;
-//            }),
-//            'created_date' => $this->created_at?->toDateTimeString(),
-//        ];
-
         $file = null;
 
         if ($this->status === FaqExportStatusEnum::DONE->value) {
@@ -118,6 +95,7 @@ class FaqExportsResource extends JsonResource
             'status_key' => $this->status,
             'status' => LangService::instance()->setDefault(Str::title($this->status))->getLang('faq_exports_status_' . $this->status),
             'messages' => $this->messages ?? [],
+            'filters' => $this->filters ?? [],
             'file' => $file,
             'language' => LanguagesListResource::make($this->whenLoaded('language')),
             'created_user' => $this->whenLoaded('creatable', function () {
