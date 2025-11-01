@@ -24,6 +24,7 @@ class FaqExport extends Model implements HasMedia
     protected $fillable = [
         'uuid',
         'language_id',
+        'filters',
         'status',
         'last_status_at',
         'messages',
@@ -35,6 +36,7 @@ class FaqExport extends Model implements HasMedia
         'messages' => 'array',
         'downloaded_at' => 'datetime',
         'file' => FileCast::class,
+        'filters' => 'array',
     ];
 
     protected array $cascadeDeletes = ['media'];

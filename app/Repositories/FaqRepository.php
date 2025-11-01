@@ -115,13 +115,14 @@ class FaqRepository
             ->get();
     }
 
-    public function generatePdf(array $validated): FaqExport
+    public function generatePdf(array $validated = []): FaqExport
     {
         $export = FaqExport::query()
             ->create([
                 'uuid' => Str::uuid(),
                 'language_id' => LangService::instance()->getCurrentLangId(),
                 'status' => 'queued',
+                'filters' => $validated,
             ]);
 
         GenerateFaqPdfJob::dispatch(
