@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -20,6 +20,7 @@ import {
   Skeleton,
   Grid2,
   Chip,
+  Alert,
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import AddIcon from "@mui/icons-material/Add";
@@ -29,6 +30,7 @@ import { isAxiosError } from "axios";
 import { useHeader } from "@hooks/useHeader";
 import { useTranslate } from "@src/utils/translations/useTranslate";
 import MainCard from "@components/card/MainCard";
+import Modal from "@components/modal";
 import dayjs from "dayjs";
 
 export default function PdfExport() {
@@ -47,6 +49,11 @@ export default function PdfExport() {
     page: 1,
     limit: 100,
   });
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [subCategories, setSubCategories] = useState([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -93,10 +100,55 @@ export default function PdfExport() {
     }));
   };
 
-  const generatePdf = async () => {
-    setIsGenerating(true);
+  const fetchSubCategories = useCallback(async () => {
+    setIsLoadingCategories(true);
     try {
-      const res = await controlPrivateApi.post("/faqs/exports/generate-pdf");
+      const res = await controlPrivateApi.get(
+        "/categories/list?limit=100&with_subs=yes"
+      );
+
+      // Extract all subcategories from all parent categories
+      const allSubs = [];
+      res.data.data.forEach((category) => {
+        if (category.subs && category.subs.length > 0) {
+          allSubs.push(...category.subs);
+        }
+      });
+
+      setSubCategories(allSubs);
+    } catch (error) {
+      if (isAxiosError(error)) {
+        notify(
+          error.response?.data?.message || "Failed to fetch categories",
+          "error"
+        );
+      }
+    } finally {
+      setIsLoadingCategories(false);
+    }
+  }, []);
+
+  const handleOpenModal = useCallback(() => {
+    setSelectedCategoryId("");
+    fetchSubCategories();
+    setModalOpen(true);
+  }, [fetchSubCategories]);
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedCategoryId("");
+  };
+
+  const generatePdf = async (categoryId = null) => {
+    setIsGenerating(true);
+    handleCloseModal();
+
+    try {
+      const url = categoryId
+        ? `/faqs/exports/generate-pdf?category=${categoryId}`
+        : "/faqs/exports/generate-pdf";
+
+      const res = await controlPrivateApi.post(url);
       notify(res.data.message || "PDF generation started", "success");
       getData(); // Refresh the list
     } catch (error) {
@@ -109,6 +161,11 @@ export default function PdfExport() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleGenerate = () => {
+    const categoryId = selectedCategoryId ? Number(selectedCategoryId) : null;
+    generatePdf(categoryId);
   };
 
   const getStatusColor = (statusKey) => {
@@ -133,7 +190,7 @@ export default function PdfExport() {
         color="error"
         startIcon={<AddIcon />}
         size="small"
-        onClick={generatePdf}
+        onClick={handleOpenModal}
         disabled={isGenerating}
         sx={{
           "& .MuiButton-startIcon": {
@@ -142,15 +199,15 @@ export default function PdfExport() {
         }}
       >
         <Box sx={{ display: { xs: "none", sm: "block" } }}>
-          {isGenerating ? t("generating") || "Generating..." : t("generate_pdf") || "Generate PDF"}
+          {isGenerating
+            ? t("generating") || "Generating..."
+            : t("generate_pdf") || "Generate PDF"}
         </Box>
       </Button>
     );
 
     return () => setContent(null);
-  }, [isGenerating]);
-
- 
+  }, [isGenerating, handleOpenModal, setContent, t]);
 
   const LoadingSkeleton = () => (
     <Stack spacing={2}>
@@ -304,7 +361,12 @@ export default function PdfExport() {
       ) : data.list.length > 0 ? (
         data.list.map((row) => (
           <Box key={row.id} padding={2} borderBottom={"1px solid #E6E9ED"}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={2}
+            >
               <Typography variant="body1" fontWeight="bold">
                 #{row.id}
               </Typography>
@@ -314,7 +376,7 @@ export default function PdfExport() {
                 size="small"
               />
             </Box>
-            
+
             <Grid2 container spacing={1}>
               <Grid2 size={12}>
                 <Typography variant="caption" color="text.secondary">
@@ -426,7 +488,58 @@ export default function PdfExport() {
           </Box>
         )}
       </Box>
+
+      <Modal
+        open={modalOpen}
+        setOpen={setModalOpen}
+        title={t("select_subcategory")}
+        maxWidth="sm"
+      >
+        <Stack spacing={3}>
+          <Alert severity="info">
+            {t("keep_the_field_empty_to_generate_pdf_for_all_faqs") ||
+              "Keep the field empty to generate PDF for all FAQs"}
+          </Alert>
+
+          <FormControl fullWidth>
+            <Typography variant="body2" gutterBottom>
+              {t("subcategory") || "Subcategory"}
+            </Typography>
+            <Select
+              value={selectedCategoryId}
+              onChange={(e) => setSelectedCategoryId(e.target.value)}
+              displayEmpty
+              disabled={isLoadingCategories}
+            >
+              {subCategories.map((sub) => (
+                <MenuItem key={sub.id} value={sub.id}>
+                  {sub.title}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Box display="flex" justifyContent="flex-end" gap={2}>
+            <Button
+              variant="outlined"
+              onClick={handleCloseModal}
+              disabled={isGenerating}
+            >
+              {t("cancel") || "Cancel"}
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleGenerate}
+              disabled={isGenerating || isLoadingCategories}
+            >
+              {isGenerating
+                ? t("generating") || "Generating..."
+                : t("generate") || "Generate"}
+            </Button>
+          </Box>
+        </Stack>
+      </Modal>
     </MainCard>
   );
 }
-

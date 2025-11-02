@@ -26,7 +26,7 @@ const FAQItem = ({
   tags,
   categories,
   updatedDate,
-  isMostSearched
+  isMostSearched,
 }) => {
   const t = useTranslate();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -139,6 +139,7 @@ const FAQItem = ({
             )}
             <Box
               className="faq-answer"
+              style={{ maxWidth: "100%", overflowX: "auto" }}
               dangerouslySetInnerHTML={{ __html: answer }}
             />
             <Box display="flex" justifyContent="flex-end" mt={2}>
@@ -165,7 +166,7 @@ const FAQItem = ({
           </Collapse>
         </Paper>
       </Box>
-      
+
       <HistoryModal
         open={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
