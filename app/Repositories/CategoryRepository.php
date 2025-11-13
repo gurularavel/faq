@@ -66,12 +66,17 @@ class CategoryRepository
             ])
             ->when(($validated['with_subs'] ?? 'no') === 'yes', function ($query) {
                 $query->with([
-                    'subs',
+                    'subs' => function ($builder) {
+                        $builder->active();
+                        $builder->orderByDesc('seen_count');
+                        $builder->orderBy('slug');
+                    },
                     'subs.translatable',
                     'subs.media',
                 ]);
             })
-            ->orderByDesc('id')
+            ->orderByDesc('seen_count')
+            ->orderBy('slug')
             ->get();
     }
 
@@ -242,15 +247,20 @@ class CategoryRepository
 
     public function showForApp(Category $category): Category
     {
-        $this->checkIsSub($category);
-
-        return $category
+        $category
             ->load([
                 'translatable',
                 'media',
                 'parent',
                 'parent.translatable',
                 'parent.media',
+                'subs' => function ($builder) {
+                    $builder->active();
+                    $builder->orderByDesc('seen_count');
+                    $builder->orderBy('slug');
+                },
+                'subs.translatable',
+                'subs.media',
                 'pinnedFaq',
                 'pinnedFaq.translatable',
                 'pinnedFaq.media',
@@ -264,5 +274,25 @@ class CategoryRepository
                 'pinnedFaq.categories.parent.translatable',
                 'pinnedFaq.categories.parent.media',
             ]);
+
+        $category->timestamps = false;
+
+        $category->update([
+            'seen_count' => $category->seen_count + 1,
+        ]);
+
+        if ($category->parent) {
+            $category->parent->timestamps = false;
+
+            $category->parent->update([
+                'seen_count' => $category->parent->seen_count + 1,
+            ]);
+
+            $category->parent->timestamps = true;
+        }
+
+        $category->timestamps = true;
+
+        return $category;
     }
 }

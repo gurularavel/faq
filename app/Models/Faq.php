@@ -26,6 +26,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property mixed $categories
  * @property mixed|string $question
  * @property mixed|string $answer
+ * @property mixed $mainCategory
  */
 class Faq extends Model implements HasMedia
 {
@@ -79,7 +80,7 @@ class Faq extends Model implements HasMedia
 
     public function mainCategory(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function tags(): BelongsToMany

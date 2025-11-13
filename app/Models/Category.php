@@ -23,6 +23,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property mixed $id
  * @property mixed $category_id
  * @property mixed $pinned_faq_id
+ * @property mixed $seen_count
+ * @property mixed $parent
  * @method static active()
  */
 class Category extends Model implements HasMedia
@@ -32,10 +34,12 @@ class Category extends Model implements HasMedia
     protected $fillable = [
         'slug',
         'category_id',
+        'seen_count',
         'is_active',
     ];
 
     protected $casts = [
+        'seen_count' => 'integer',
         'is_active' => 'boolean',
         'icon' => IconCast::class,
     ];
@@ -71,7 +75,7 @@ class Category extends Model implements HasMedia
 
     public function mainFaqs(): HasMany
     {
-        return $this->hasMany(Faq::class);
+        return $this->hasMany(Faq::class, 'category_id');
     }
 
     public function faqExcel(): BelongsTo

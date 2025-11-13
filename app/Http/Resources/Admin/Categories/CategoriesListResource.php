@@ -33,6 +33,7 @@ use OpenApi\Annotations as OA;
  *
  * @property mixed $id
  * @property mixed $icon
+ * @property mixed $seen_count
  * @method getLang(string $string)
  */
 class CategoriesListResource extends JsonResource
@@ -52,6 +53,7 @@ class CategoriesListResource extends JsonResource
             'icon' => $this->whenLoaded('media', function () {
                 return $this->icon;
             }),
+            'seen_count' => $this->seen_count,
             'subs' => CategoriesListResource::collection($this->whenLoaded('subs')),
             'parent' => CategoriesListResource::make($this->whenLoaded('parent')),
             'pinned_faq' => FaqsListResource::make($this->whenLoaded('pinnedFaq')),
