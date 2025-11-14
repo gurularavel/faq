@@ -10,12 +10,9 @@ import {
   CircularProgress,
   Divider,
   Paper,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  Button,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
 import { useTranslate } from "@src/utils/translations/useTranslate";
 import dayjs from "dayjs";
@@ -95,194 +92,83 @@ const HistoryModal = ({ open, onClose, faqId }) => {
         ) : (
           <Box display="flex" flexDirection="column" gap={2}>
             {archives.map((archive, index) => (
-              <Accordion
+              <Paper
                 key={archive.id}
-                defaultExpanded={index === 0}
+                elevation={0}
                 sx={{
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "8px !important",
-                  "&:before": { display: "none" },
-                  boxShadow: "none",
+                  p: 3,
+                  border: "2px solid",
+                  borderColor: index === 0 ? "#c44" : "#e0e0e0",
+                  borderRadius: 2,
+                  bgcolor: index === 0 ? "#fff5f5" : "#fafafa",
                 }}
               >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  sx={{
-                    backgroundColor: "#f5f5f5",
-                    borderRadius: "8px",
-                    "&.Mui-expanded": {
-                      borderBottomLeftRadius: 0,
-                      borderBottomRightRadius: 0,
-                    },
-                  }}
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={2}
                 >
-                  <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    width="100%"
-                    pr={2}
+                  <Typography
+                    variant="body1"
+                    fontWeight={700}
+                    color="#c44"
                   >
-                    <Typography fontWeight={600}>
-                      {t("change") || "Change"} #{archives.length - index}
-                    </Typography>
+                    {dayjs(archive.updated_date).format("DD.MM.YYYY - HH:mm")}
+                  </Typography>
+                  <Box display="flex" alignItems="center" gap={2}>
                     <Typography variant="body2" color="text.secondary">
-                      {dayjs(archive.updated_date).format("DD.MM.YYYY HH:mm")}
+                      {t("by") || "Tərəfindən"}: {archive.updated_by || "Admin"}
                     </Typography>
-                  </Box>
-                </AccordionSummary>
-                <AccordionDetails sx={{ pt: 2 }}>
-                  <Box display="flex" flexDirection="column" gap={3}>
-                    {/* Question Changes */}
-                    <Box>
-                      <Typography
-                        variant="subtitle2"
-                        fontWeight={600}
-                        mb={1}
-                        color="primary"
-                      >
-                        {t("question_changes") || "Question Changes:"}
-                      </Typography>
-                      <Paper
-                        elevation={0}
+                    {index === 0 && (
+                      <Button
+                        variant="contained"
+                        size="small"
                         sx={{
-                          p: 2,
-                          bgcolor: "#f9f9f9",
-                          border: "1px solid #e0e0e0",
+                          bgcolor: "#c44",
+                          color: "#fff",
+                          textTransform: "none",
+                          "&:hover": {
+                            bgcolor: "#a33",
+                          },
+                          fontWeight: 600,
+                          px: 2,
                         }}
                       >
-                        <Typography
-                          variant="body2"
-                          dangerouslySetInnerHTML={{
-                            __html: archive.diff_question,
-                          }}
-                        />
-                      </Paper>
-                    </Box>
-
-                    {/* Answer Changes */}
-                    <Box>
-                      <Typography
-                        variant="subtitle2"
-                        fontWeight={600}
-                        mb={1}
-                        color="primary"
-                      >
-                        {t("answer_changes") || "Answer Changes:"}
-                      </Typography>
-                      <Paper
-                        elevation={0}
-                        sx={{
-                          p: 2,
-                          bgcolor: "#f9f9f9",
-                          border: "1px solid #e0e0e0",
-                        }}
-                      >
-                        <Typography
-                          variant="body2"
-                          dangerouslySetInnerHTML={{
-                            __html: archive.diff_answer,
-                          }}
-                        />
-                      </Paper>
-                    </Box>
-
-                    <Divider />
-
-                    {/* Old vs New Comparison */}
-                    <Box display="flex" gap={2}>
-                      {/* Old Version */}
-                      <Box flex={1}>
-                        <Typography
-                          variant="subtitle2"
-                          fontWeight={600}
-                          mb={1}
-                          color="error"
-                        >
-                          {t("old_version") || "Old Version:"}
-                        </Typography>
-                        <Paper
-                          elevation={0}
-                          sx={{
-                            p: 2,
-                            bgcolor: "#fff5f5",
-                            border: "1px solid #ffcdd2",
-                          }}
-                        >
-                          <Typography
-                            variant="caption"
-                            fontWeight={600}
-                            color="text.secondary"
-                          >
-                            {t("question") || "Question:"}
-                          </Typography>
-                          <Typography variant="body2" mb={2}>
-                            {archive.old_question}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            fontWeight={600}
-                            color="text.secondary"
-                          >
-                            {t("answer") || "Answer:"}
-                          </Typography>
-                          <Box
-                            variant="body2"
-                            component="div"
-                            dangerouslySetInnerHTML={{
-                              __html: archive.old_answer,
-                            }}
-                          />
-                        </Paper>
-                      </Box>
-
-                      {/* New Version */}
-                      <Box flex={1}>
-                        <Typography
-                          variant="subtitle2"
-                          fontWeight={600}
-                          mb={1}
-                          color="success.main"
-                        >
-                          {t("new_version") || "New Version:"}
-                        </Typography>
-                        <Paper
-                          elevation={0}
-                          sx={{
-                            p: 2,
-                            bgcolor: "#f1f8e9",
-                            border: "1px solid #c5e1a5",
-                          }}
-                        >
-                          <Typography
-                            variant="caption"
-                            fontWeight={600}
-                            color="text.secondary"
-                          >
-                            {t("question") || "Question:"}
-                          </Typography>
-                          <Typography variant="body2" mb={2}>
-                            {archive.new_question}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            fontWeight={600}
-                            color="text.secondary"
-                          >
-                            {t("answer") || "Answer:"}
-                          </Typography>
-                          <Box
-                            variant="body2"
-                            component="div"
-                            dangerouslySetInnerHTML={{
-                              __html: archive.new_answer,
-                            }}
-                          />
-                        </Paper>
-                      </Box>
-                    </Box>
+                        {t("current_version") || "Cari versiya"}
+                      </Button>
+                    )}
                   </Box>
-                </AccordionDetails>
-              </Accordion>
+                </Box>
+                <Box>
+                  <Typography
+                    variant="body1"
+                    color="#c44"
+                    sx={{
+                      lineHeight: 1.6,
+                      "& p": {
+                        margin: 0,
+                      },
+                    }}
+                  >
+                    {archive.old_question || archive.new_question}
+                  </Typography>
+                  <Box
+                    component="div"
+                    sx={{
+                      mt: 1,
+                      color: "#c44",
+                      lineHeight: 1.6,
+                      "& p": {
+                        margin: 0,
+                      },
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: archive.old_answer || archive.new_answer,
+                    }}
+                  />
+                </Box>
+              </Paper>
             ))}
           </Box>
         )}

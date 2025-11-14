@@ -7,17 +7,25 @@ import {
   Grid2,
   Button,
   CircularProgress,
+  Breadcrumbs,
+  Link,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import SearchIcon from "@assets/icons/search.svg";
 import ResetIcon from "@assets/icons/reset.svg";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import ListAltIcon from "@mui/icons-material/ListAlt";
 import FAQItem from "@components/faq-item/FAQItem";
 import MostSearched from "@components/most-searched/MostSearched";
 import SubCategoriesList from "@components/subcategories-list/SubCategoriesList";
+import ExportPdfModal from "@components/modal/ExportPdfModal";
 import { useTranslate } from "@src/utils/translations/useTranslate";
 import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
+import { notify } from "@src/utils/toast/notify";
 
 const DashBoard = () => {
   const t = useTranslate();
+  const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -31,11 +39,19 @@ const DashBoard = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [isLoadingSubcategories, setIsLoadingSubcategories] = useState(false);
   
+  // Navigation state for category hierarchy
+  const [navigationStack, setNavigationStack] = useState([]);
+  const [currentCategoryData, setCurrentCategoryData] = useState(null);
+  
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
   const [pinnedFaq, setPinnedFaq] = useState(null);
   const [categoryFaqs, setCategoryFaqs] = useState([]);
   const [categoryPagination, setCategoryPagination] = useState(null);
   const [isLoadingCategoryFaqs, setIsLoadingCategoryFaqs] = useState(false);
+  
+  // Export PDF state
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
 
   // Fetch subcategories
   const fetchSubcategories = useCallback(async () => {
@@ -43,8 +59,7 @@ const DashBoard = () => {
     try {
       const { data } = await userPrivateApi.get("/categories/list?limit=100&with_subs=yes");
       // Flatten all subcategories (children only) from all categories
-      const allSubcategories = data.data.flatMap((cat) => cat.subs || []);
-      setSubcategories(allSubcategories);
+      setSubcategories(data.data);
     } catch (error) {
       console.error("Error fetching subcategories:", error);
     } finally {
@@ -62,17 +77,6 @@ const DashBoard = () => {
       console.error("Error fetching most searched FAQs:", error);
     } finally {
       setIsLoadingMostSearched(false);
-    }
-  }, []);
-
-  // Fetch subcategory details with pinned FAQ
-  const fetchSubcategoryDetails = useCallback(async (subcategoryId) => {
-    try {
-      const { data } = await userPrivateApi.get(`/categories/${subcategoryId}/show`);
-      setPinnedFaq(data.data.pinned_faq);
-    } catch (error) {
-      console.error("Error fetching subcategory details:", error);
-      setPinnedFaq(null);
     }
   }, []);
 
@@ -99,6 +103,34 @@ const DashBoard = () => {
       setCategoryPagination(null);
     } finally {
       setIsLoadingCategoryFaqs(false);
+    }
+  }, []);
+
+  // Fetch category details for breadcrumb navigation
+  const fetchCategoryDetails = useCallback(async (categoryId) => {
+    setIsLoadingSubcategories(true);
+    try {
+      const { data } = await userPrivateApi.get(`/categories/${categoryId}/show`);
+      const categoryData = data.data || data;
+      
+      setCurrentCategoryData(categoryData);
+      
+      // Show subcategories for breadcrumb navigation
+      if (categoryData.subs && categoryData.subs.length > 0) {
+        setSubcategories(categoryData.subs);
+      }
+      
+      // Clear selection
+      setSelectedSubCategoryId(null);
+      setPinnedFaq(null);
+      setCategoryFaqs([]);
+      setCategoryPagination(null);
+    } catch (error) {
+      console.error("Error fetching category details:", error);
+      setCurrentCategoryData(null);
+      setPinnedFaq(null);
+    } finally {
+      setIsLoadingSubcategories(false);
     }
   }, []);
 
@@ -178,15 +210,56 @@ const DashBoard = () => {
     return () => clearTimeout(timeoutId);
   }, [searchQuery, searchFaqs, selectedSubCategoryId]);
 
-  // Handle subcategory selection
-  const handleSubCategoryClick = (subcategoryId) => {
-    setSelectedSubCategoryId(subcategoryId);
-    fetchSubcategoryDetails(subcategoryId);
-    fetchCategoryFaqs(subcategoryId);
-  };
+  // Handle category/subcategory selection
+  const handleSubCategoryClick = useCallback(async (categoryId) => {
+    // First, fetch category details to check if it has subcategories
+    setIsLoadingSubcategories(true);
+    try {
+      const { data } = await userPrivateApi.get(`/categories/${categoryId}/show`);
+      const categoryData = data.data || data;
+      
+      setCurrentCategoryData(categoryData);
+      
+      // Check if category has subcategories
+      if (categoryData.subs && categoryData.subs.length > 0) {
+        // Has subcategories - navigate with breadcrumb
+        const categoryItem = subcategories.find(cat => cat.id === categoryId);
+        
+        if (categoryItem) {
+          // Add to navigation stack
+          setNavigationStack(prev => [
+            ...prev,
+            {
+              id: categoryItem.id,
+              title: categoryItem.title,
+              subcategories: [...subcategories],
+            }
+          ]);
+        }
+        
+        // Show subcategories as the new category list
+        setSubcategories(categoryData.subs);
+        setSelectedSubCategoryId(null);
+        setPinnedFaq(null);
+        setCategoryFaqs([]);
+        setCategoryPagination(null);
+      } else {
+        // No subcategories - just select and show FAQs (no breadcrumb navigation)
+        setSelectedSubCategoryId(categoryId);
+        setPinnedFaq(categoryData.pinned_faq);
+        fetchCategoryFaqs(categoryId);
+      }
+    } catch (error) {
+      console.error("Error fetching category details:", error);
+      setCurrentCategoryData(null);
+      setPinnedFaq(null);
+    } finally {
+      setIsLoadingSubcategories(false);
+    }
+  }, [subcategories, fetchCategoryFaqs]);
 
   // Reset to initial state
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setSearchQuery("");
     setSelectedSubCategoryId(null);
     setPinnedFaq(null);
@@ -194,7 +267,28 @@ const DashBoard = () => {
     setCategoryPagination(null);
     setSearchResults([]);
     setSearchPagination(null);
-  };
+    setNavigationStack([]);
+    setCurrentCategoryData(null);
+    // Reload initial categories
+    fetchSubcategories();
+  }, [fetchSubcategories]);
+
+  // Handle breadcrumb navigation
+  const handleBreadcrumbClick = useCallback(async (index) => {
+    if (index === -1) {
+      // Go back to root (initial categories)
+      handleReset();
+    } else {
+      // Navigate to a specific level in the stack
+      const targetLevel = navigationStack[index];
+      
+      // Remove all items after the selected index
+      setNavigationStack(prev => prev.slice(0, index));
+      
+      // Fetch the category details for that level to show its subcategories
+      await fetchCategoryDetails(targetLevel.id);
+    }
+  }, [navigationStack, fetchCategoryDetails, handleReset]);
 
   // Load more for search results
   const loadMoreSearch = async () => {
@@ -238,6 +332,46 @@ const DashBoard = () => {
     }
   };
 
+  // Export PDF handler
+  const handleExportPdf = async () => {
+    // Determine which category ID to use
+    let categoryId = null;
+    
+    if (selectedSubCategoryId) {
+      // If viewing a subcategory's FAQs
+      categoryId = selectedSubCategoryId;
+    } else if (currentCategoryData?.id) {
+      // If viewing a category with subcategories
+      categoryId = currentCategoryData.id;
+    } else if (navigationStack.length > 0) {
+      // Fallback to last item in navigation stack
+      categoryId = navigationStack[navigationStack.length - 1].id;
+    }
+    
+    if (!categoryId) {
+      notify(t("no_category_selected") || "Kateqoriya seçilməyib", "error");
+      return;
+    }
+
+    setIsExportingPdf(true);
+    try {
+      await userPrivateApi.post("/faqs/exports/generate-pdf", {
+        category: categoryId,
+      });
+      
+      // Show success modal
+      setIsExportModalOpen(true);
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      notify(
+        error?.response?.data?.message || t("export_failed") || "Export uğursuz oldu",
+        "error"
+      );
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
   const isSearchMode = searchQuery.trim().length >= 3;
   const showSearchResults = isSearchMode;
   const showCategoryView = selectedSubCategoryId && !isSearchMode;
@@ -270,7 +404,7 @@ const DashBoard = () => {
         />
         <Button
           onClick={handleReset}
-          disabled={!searchQuery && !selectedSubCategoryId}
+          disabled={!searchQuery && !selectedSubCategoryId && navigationStack.length === 0}
           className="filter-reset-btn dashboard-btn"
           sx={{
             minWidth: "fit-content",
@@ -350,15 +484,33 @@ const DashBoard = () => {
           ) : showCategoryView ? (
             // Category FAQs View
             <Box>
-              <Typography
-                variant="h6"
-                component="h2"
-                className="faq-title"
-                sx={{ mb: 3, color: "#d32f2f", fontWeight: 600 }}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 3,
+                }}
               >
-                {subcategories.find((sub) => sub.id === selectedSubCategoryId)
-                  ?.title || t("category_faqs")}
-              </Typography>
+                <Typography
+                  variant="h6"
+                  component="h2"
+                  className="faq-title"
+                  sx={{ color: "#d32f2f", fontWeight: 600 }}
+                >
+                  {currentCategoryData?.title || t("category_faqs")}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="error"
+                  startIcon={<PictureAsPdfIcon />}
+                  onClick={handleExportPdf}
+                  disabled={isExportingPdf}
+                  sx={{ minWidth: "fit-content" }}
+                >
+                  {isExportingPdf ? t("exporting") || "Yüklənir..." : t("export_pdf") || "PDF Export"}
+                </Button>
+              </Box>
               {pinnedFaq && (
                 <Box sx={{ mb: 4 }}>
                   <Typography
@@ -448,14 +600,93 @@ const DashBoard = () => {
         {/* Right Side - Subcategories List */}
         {!showSearchResults && !showCategoryView && (
           <Grid2 size={{ xs: 12, md: isMostSearched ? 8 : 5 }}>
-            <Typography
-              variant="h6"
-              component="h2"
-              className="faq-title"
-              sx={{ mb: 3, color: "#d32f2f", fontWeight: 600 }}
+            {/* Breadcrumb Navigation */}
+            {navigationStack.length > 0 && (
+              <Box sx={{ mb: 3 }}>
+                <Breadcrumbs aria-label="breadcrumb">
+                  <Link
+                    component="button"
+                    variant="body2"
+                    onClick={() => handleBreadcrumbClick(-1)}
+                    sx={{
+                      cursor: "pointer",
+                      color: "#d32f2f",
+                      textDecoration: "none",
+                      "&:hover": {
+                        textDecoration: "underline",
+                      },
+                    }}
+                  >
+                    {t("categories") || "Kateqoriyalar"}
+                  </Link>
+                  {navigationStack.map((item, index) => (
+                    <Link
+                      key={item.id}
+                      component="button"
+                      variant="body2"
+                      onClick={() => handleBreadcrumbClick(index)}
+                      sx={{
+                        cursor: "pointer",
+                        color: index === navigationStack.length - 1 ? "text.primary" : "#d32f2f",
+                        textDecoration: "none",
+                        "&:hover": {
+                          textDecoration: index === navigationStack.length - 1 ? "none" : "underline",
+                        },
+                      }}
+                    >
+                      {item.title}
+                    </Link>
+                  ))}
+                </Breadcrumbs>
+              </Box>
+            )}
+            
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+                gap: 2,
+              }}
             >
-              {t("categories") || "Kateqoriyalar"}
-            </Typography>
+              <Typography
+                variant="h6"
+                component="h2"
+                className="faq-title"
+                sx={{ color: "#d32f2f", fontWeight: 600 }}
+              >
+                {navigationStack.length > 0 
+                  ? (currentCategoryData?.title || t("subcategories"))
+                  : (t("categories") || "Kateqoriyalar")}
+              </Typography>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                {(navigationStack.length > 0 || currentCategoryData?.id) && (
+                  <Button
+                    variant="contained"
+                    color="error"
+                    startIcon={<PictureAsPdfIcon />}
+                    onClick={handleExportPdf}
+                    disabled={isExportingPdf}
+                    sx={{ minWidth: "fit-content" }}
+                  >
+                    {isExportingPdf ? t("exporting") || "Yüklənir..." : t("export_pdf") || "PDF Export"}
+                  </Button>
+                )}
+                <Button
+                  onClick={() => navigate("/user/exports")}
+                  variant="outlined"
+                  color="error"
+                  startIcon={<ListAltIcon />}
+                  sx={{
+                    minWidth: "fit-content",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {t("exports") || "Eksportlar"}
+                </Button>
+              </Box>
+            </Box>
             <SubCategoriesList
               subcategories={subcategories}
               isLoading={isLoadingSubcategories}
@@ -465,6 +696,9 @@ const DashBoard = () => {
           </Grid2>
         )}
       </Grid2>
+      
+      {/* Export PDF Success Modal */}
+      <ExportPdfModal open={isExportModalOpen} setOpen={setIsExportModalOpen} />
     </Box>
   );
 };

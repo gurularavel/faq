@@ -111,6 +111,9 @@ const StartExam = Loadable(
 const ExamFinished = Loadable(
   lazy(() => import("@pages/user/exam/finished/ExamFinished"))
 );
+const Exports = Loadable(
+  lazy(() => import("@pages/user/exports/Exports"))
+);
 export default function App() {
   const { isAdmin, isUser } = usePermissions();
   return (
@@ -166,6 +169,7 @@ export default function App() {
             <Route path="exams" element={<Exams />} />
             <Route path="exams/:id" element={<StartExam />} />
             <Route path="exams/:id/finished" element={<ExamFinished />} />
+            <Route path="exports" element={<Exports />} />
           </Route>
         ) : (
           <Route path="/" element={<></>} />

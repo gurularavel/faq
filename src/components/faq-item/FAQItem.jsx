@@ -10,6 +10,7 @@ import {
   Chip,
   Grid2,
   Button,
+  Modal,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import HistoryIcon from "@mui/icons-material/History";
@@ -30,6 +31,7 @@ const FAQItem = ({
 }) => {
   const t = useTranslate();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
   const postFaqId = async (id) => {
@@ -41,14 +43,23 @@ const FAQItem = ({
   };
 
   const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-    if (!isExpanded) {
+    if (isMostSearched) {
+      setIsModalOpen(true);
       postFaqId(id);
+    } else {
+      setIsExpanded(!isExpanded);
+      if (!isExpanded) {
+        postFaqId(id);
+      }
     }
   };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
-    <Grid2 size={{ xs: 12, md: isExpanded || isMostSearched ? 12 : 6 }} item>
+    <Grid2 size={{ xs: 12, md: (isExpanded && !isMostSearched) || isMostSearched ? 12 : 6 }} item>
       <Box position="relative">
         <Box position="absolute" top="-24px" left="20px">
           <Typography variant="caption" color="text.secondary">
@@ -78,9 +89,12 @@ const FAQItem = ({
         )}
 
         <Paper
-          className={`faq-item ${isExpanded ? "expanded" : ""}`}
+          className={`faq-item ${isExpanded && !isMostSearched ? "expanded" : ""}`}
           elevation={0}
-          onClick={!isExpanded ? toggleExpand : undefined}
+          onClick={isMostSearched || !isExpanded ? toggleExpand : undefined}
+          sx={{
+            cursor: isMostSearched || !isExpanded ? "pointer" : "default",
+          }}
         >
           <Box className="faq-header">
             <Box display="flex" flexDirection="column" gap="4px">
@@ -91,7 +105,7 @@ const FAQItem = ({
                 className="faq-question"
               />
             </Box>
-            {isExpanded && (
+            {isExpanded && !isMostSearched && (
               <IconButton
                 className="close-button"
                 onClick={(e) => {
@@ -105,9 +119,9 @@ const FAQItem = ({
             )}
           </Box>
 
-          {isExpanded && <Divider className="question-divider" />}
+          {isExpanded && !isMostSearched && <Divider className="question-divider" />}
 
-          <Collapse in={isExpanded}>
+          <Collapse in={isExpanded && !isMostSearched}>
             {categories && categories.length > 0 && (
               <Box display="flex" gap="4px" flexWrap="wrap" mb={2}>
                 {categories.map((category) => (
@@ -172,6 +186,190 @@ const FAQItem = ({
         onClose={() => setIsHistoryModalOpen(false)}
         faqId={id}
       />
+
+      {/* Modal for Most Searched FAQs */}
+      <Modal
+        open={isModalOpen}
+        onClose={handleCloseModal}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 2,
+        }}
+      >
+        <Box
+          sx={{
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            boxShadow: 24,
+            maxWidth: "1200px",
+            width: "95%",
+            maxHeight: "95vh",
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
+          }}
+        >
+          {/* Modal Header - Fixed */}
+          <Box
+            sx={{
+              p: 4,
+              pb: 2,
+              borderBottom: "1px solid #e0e0e0",
+              flexShrink: 0,
+            }}
+          >
+            <IconButton
+              onClick={handleCloseModal}
+              sx={{
+                position: "absolute",
+                right: 16,
+                top: 16,
+                color: "#d32f2f",
+                zIndex: 1,
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+
+            <Box mb={2}>
+              <Typography variant="caption" color="text.secondary">
+                {dayjs(updatedDate).format("DD.MM.YYYY  HH:mm")}
+              </Typography>
+            </Box>
+
+            {tags && tags.length > 0 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: "4px",
+                  flexWrap: "wrap",
+                  mb: 2,
+                }}
+              >
+                {tags.map((tag) => (
+                  <Chip
+                    key={tag.id}
+                    label={<span dangerouslySetInnerHTML={{ __html: tag.title }} />}
+                    size="small"
+                    sx={{ fontSize: "0.7rem" }}
+                  />
+                ))}
+              </Box>
+            )}
+
+            <Box
+              dangerouslySetInnerHTML={{
+                __html: question,
+              }}
+              sx={{
+                fontSize: "1.5rem",
+                fontWeight: 600,
+                color: "#d32f2f",
+                pr: 5,
+              }}
+            />
+          </Box>
+
+          {/* Modal Body - Scrollable */}
+          <Box
+            sx={{
+              flex: 1,
+              overflowY: "auto",
+              overflowX: "hidden",
+              p: 4,
+              pt: 3,
+            }}
+          >
+            {categories && categories.length > 0 && (
+              <Box display="flex" gap="4px" flexWrap="wrap" mb={3}>
+                {categories.map((category) => (
+                  <React.Fragment key={category.id}>
+                    {category?.parent && (
+                      <Chip
+                        label={category?.parent?.title}
+                        size="small"
+                        sx={{ fontSize: "0.7rem" }}
+                        color="error"
+                      />
+                    )}
+                    {category?.title && (
+                      <Chip
+                        label={
+                          <Box alignItems="center" display="flex" gap="4px">
+                            <SubdirectoryArrowRightIcon />
+                            {category?.title}
+                          </Box>
+                        }
+                        size="small"
+                        sx={{ fontSize: "0.7rem" }}
+                        color="secondary"
+                      />
+                    )}
+                  </React.Fragment>
+                ))}
+              </Box>
+            )}
+
+            <Box
+              dangerouslySetInnerHTML={{ __html: answer }}
+              sx={{
+                fontSize: "1rem",
+                lineHeight: 1.8,
+                "& img": {
+                  maxWidth: "100%",
+                  height: "auto",
+                },
+                "& table": {
+                  maxWidth: "100%",
+                  overflowX: "auto",
+                  display: "block",
+                },
+                "& p": {
+                  marginBottom: "1rem",
+                },
+                "& ul, & ol": {
+                  marginBottom: "1rem",
+                  paddingLeft: "2rem",
+                },
+              }}
+            />
+          </Box>
+
+          {/* Modal Footer - Fixed */}
+          <Box
+            sx={{
+              p: 4,
+              pt: 2,
+              borderTop: "1px solid #e0e0e0",
+              display: "flex",
+              justifyContent: "flex-end",
+              flexShrink: 0,
+            }}
+          >
+            <Button
+              variant="outlined"
+              size="medium"
+              startIcon={<HistoryIcon />}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsHistoryModalOpen(true);
+              }}
+              sx={{
+                borderColor: "#d32f2f",
+                color: "#d32f2f",
+                "&:hover": {
+                  borderColor: "#b71c1c",
+                  bgcolor: "#ffebee",
+                },
+              }}
+            >
+              {t("view_history") || "View History"}
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </Grid2>
   );
 };
