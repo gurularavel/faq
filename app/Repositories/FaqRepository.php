@@ -141,7 +141,7 @@ class FaqRepository
         return $export;
     }
 
-    public function loadExports(array $validated = []): LengthAwarePaginator
+    public function loadExports(array $validated = [], User|Admin|null $user = null): LengthAwarePaginator
     {
         return FaqExport::query()
             ->with([
@@ -149,6 +149,12 @@ class FaqRepository
                 'language',
                 'media',
             ])
+            ->when($user, function (Builder $builder) use ($user) {
+                $builder->where('creatable_id', $user->id);
+                $builder->where('creatable_type', $user->getMorphClass());
+            }, function (Builder $builder) {
+                $builder->where('creatable_type', Admin::class);
+            })
             ->orderByDesc('id')
             ->paginate($validated['limit'] ?? 10);
     }

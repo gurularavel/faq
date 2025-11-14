@@ -1604,6 +1604,16 @@
                 ],
                 "summary": "Generate PDF for FAQs",
                 "operationId": "d6c58811aacc2326671a89c7a1b65247",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FaqExportRequest"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "PDF generation started successfully",
@@ -5432,6 +5442,94 @@
                 ]
             }
         },
+        "/api/app/faqs/exports/generate-pdf": {
+            "post": {
+                "tags": [
+                    "AppFAQ"
+                ],
+                "summary": "Generate PDF for FAQs",
+                "operationId": "ccc845bf254fadc82072372623ac08f0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FaqExportRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "PDF generation started successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The PDF generation process has started. You will be notified when it is complete."
+                                        },
+                                        "path": {
+                                            "type": "string",
+                                            "example": "pdfs/faqs_20240101.pdf"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
+        "/api/app/faqs/exports/load": {
+            "get": {
+                "tags": [
+                    "AppFAQ"
+                ],
+                "summary": "Generate PDF for FAQs",
+                "operationId": "5cb40e49a732b02535cc92c0bd430e04",
+                "parameters": [
+                    {
+                        "name": "parameters",
+                        "in": "query",
+                        "description": "List request parameters",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/GeneralListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FaqExportsResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "AppApiToken": [],
+                        "AppSanctumBearerToken": []
+                    }
+                ]
+            }
+        },
         "/api/app/notifications/list": {
             "get": {
                 "tags": [
@@ -6102,6 +6200,18 @@
                             },
                             "type": "object"
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "FaqExportRequest": {
+                "title": "FAQ Export Request",
+                "description": "Request schema for exporting FAQs with optional category filter",
+                "properties": {
+                    "category": {
+                        "description": "ID of the category",
+                        "type": "integer",
+                        "example": 1
                     }
                 },
                 "type": "object"

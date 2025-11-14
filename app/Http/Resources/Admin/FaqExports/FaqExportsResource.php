@@ -99,7 +99,7 @@ class FaqExportsResource extends JsonResource
             'file' => $file,
             'language' => LanguagesListResource::make($this->whenLoaded('language')),
             'created_user' => $this->whenLoaded('creatable', function () {
-                return $this->creatable?->username;
+                return $this->creatable?->name . ' ' . $this->creatable?->surname;
             }),
             'created_date' => $this->created_at?->toDateTimeString(),
         ];

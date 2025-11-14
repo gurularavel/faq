@@ -49,8 +49,14 @@ Route::middleware(['general_access:app', RouteLogMiddleware::class])->prefix('ap
             Route::get('most-searched', [FaqController::class, 'getMostSearchedItems']);
             Route::get('find/{faq}', [FaqController::class, 'findById']);
             Route::post('open/{faq}', [FaqController::class, 'open']);
+
             Route::group(['prefix' => '{faq}/archives'], static function () {
                 Route::get('load', [FaqController::class, 'loadArchives']);
+            });
+
+            Route::group(['prefix' => 'exports'], static function () {
+                Route::post('generate-pdf', [FaqController::class, 'generatePdf']);
+                Route::get('load', [FaqController::class, 'loadExports']);
             });
         });
 
