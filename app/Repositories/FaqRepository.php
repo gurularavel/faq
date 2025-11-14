@@ -8,6 +8,7 @@ use App\Http\Resources\Admin\Categories\CategoriesListResource;
 use App\Jobs\GenerateFaqPdfJob;
 use App\Models\Admin;
 use App\Models\Category;
+use App\Models\CategorySelectedFaq;
 use App\Models\Faq;
 use App\Models\FaqCategory;
 use App\Models\FaqExport;
@@ -61,9 +62,9 @@ class FaqRepository
 
                 if ($categoryId) {
                     $builder->withExists([
-                        'categoriesRel as selected_in_category' => function (Builder $query) use ($categoryId) {
-                            $query->where('faq_categories.category_id', $categoryId);
-                            $query->where('faq_categories.is_selected', true);
+                        'selectedInCategories as selected_in_category' => function (Builder $query) use ($categoryId) {
+                            $query->where('category_selected_faqs.category_id', $categoryId);
+                            $query->whereNull('category_selected_faqs.deleted_at');
                         },
                     ]);
                 }
@@ -940,14 +941,22 @@ class FaqRepository
 
     public function addSelectedToCategory(Faq $faq, Category $category): void
     {
-        (new CategoryRepository())->checkIsSub($category);
+        $categoryId = $category->id;
 
-        $rel = FaqCategory::query()
-            ->where('faq_id', $faq->id)
-            ->where('category_id', $category->id)
+        $faqCheck = Faq::query()
+            ->where('id', $faq->id)
+            ->active()
+            ->where(function (Builder $query) use ($categoryId) {
+                $query->whereHas('categories', function (Builder $q) use ($categoryId) {
+                    $q->where('categories.id', $categoryId);
+                });
+                $query->orWhereHas('categories', function (Builder $q) use ($categoryId) {
+                    $q->where('categories.category_id', $categoryId);
+                });
+            })
             ->first();
 
-        if (!$rel) {
+        if (!$faqCheck) {
             throw new BadRequestHttpException(
                 LangService::instance()
                     ->setDefault('The FAQ is not assigned to the category')
@@ -955,7 +964,12 @@ class FaqRepository
             );
         }
 
-        if ($rel->isSelected()) {
+        $relIsSelected = CategorySelectedFaq::query()
+            ->where('faq_id', $faq->id)
+            ->where('category_id', $category->id)
+            ->first();
+
+        if ($relIsSelected) {
             throw new BadRequestHttpException(
                 LangService::instance()
                     ->setDefault('The FAQ is already selected in the category')
@@ -963,28 +977,21 @@ class FaqRepository
             );
         }
 
-        $rel->is_selected = true;
-        $rel->save();
+        CategorySelectedFaq::query()
+            ->create([
+                'faq_id' => $faq->id,
+                'category_id' => $category->id,
+            ]);
     }
 
     public function removeSelectedFromCategory(Faq $faq, Category $category): void
     {
-        (new CategoryRepository())->checkIsSub($category);
-
-        $rel = FaqCategory::query()
+        $relIsSelected = CategorySelectedFaq::query()
             ->where('faq_id', $faq->id)
             ->where('category_id', $category->id)
             ->first();
 
-        if (!$rel) {
-            throw new BadRequestHttpException(
-                LangService::instance()
-                    ->setDefault('The FAQ is not assigned to the category')
-                    ->getLang('faq_not_assigned_to_category')
-            );
-        }
-
-        if (!$rel->isSelected()) {
+        if (!$relIsSelected) {
             throw new BadRequestHttpException(
                 LangService::instance()
                     ->setDefault('The FAQ is not selected in the category')
@@ -992,40 +999,36 @@ class FaqRepository
             );
         }
 
-        $rel->is_selected = false;
-        $rel->save();
+        $relIsSelected->delete();
     }
 
     public function bulkAddSelectedToCategory(array $faqIds, Category $category): void
     {
-        (new CategoryRepository())->checkIsSub($category);
-
-        $exists = FaqCategory::query()
+        $exists = CategorySelectedFaq::query()
             ->whereIn('faq_id', $faqIds)
             ->where('category_id', $category->id)
-            ->selected()
             ->get()
             ->pluck('faq_id')
             ->toArray();
 
         $faqIds = array_diff($faqIds, $exists);
 
-        FaqCategory::query()
-            ->whereIn('faq_id', $faqIds)
-            ->where('category_id', $category->id)
-            ->where('is_selected', false)
-            ->update(['is_selected' => true]);
+        foreach ($faqIds as $faqId) {
+            CategorySelectedFaq::query()
+                ->create([
+                    'faq_id' => $faqId,
+                    'category_id' => $category->id,
+                ]);
+        }
     }
 
     public function getSelectedFaqsByCategory(Category $category, array $validated): LengthAwarePaginator
     {
-        (new CategoryRepository())->checkIsSub($category);
-
         return Faq::query()
             ->active()
-            ->whereHas('categoriesRel', function (Builder $query) use ($category) {
-                $query->where('category_id', $category->id);
-                $query->where('is_selected', true);
+            ->whereHas('selectedInCategories', function (Builder $query) use ($category) {
+                $query->where('category_selected_faqs.category_id', $category->id);
+                $query->whereNull('category_selected_faqs.deleted_at');
             })
             ->with([
                 'media',

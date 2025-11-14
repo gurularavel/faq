@@ -24,7 +24,6 @@ use App\Http\Resources\Admin\Faqs\FaqResource;
 use App\Http\Resources\GeneralResource;
 use App\Models\Category;
 use App\Models\Faq;
-use App\Repositories\CategoryRepository;
 use App\Repositories\FaqRepository;
 use App\Services\LangService;
 use Carbon\Carbon;
@@ -605,8 +604,6 @@ class FaqController extends Controller
     {
         $validated = $request->validated();
         $validated['category'] = $category->id;
-
-        (new CategoryRepository())->checkIsSub($category);
 
         return FaqsResource::collection($this->repo->load($validated, true));
     }

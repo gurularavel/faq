@@ -215,8 +215,6 @@ class CategoryRepository
 
     public function choosePinnedFaqForCategory(Category $category, Faq $faq): void
     {
-        $this->checkIsSub($category);
-
         if ($category->pinned_faq_id === $faq->id) {
             throw new BadRequestHttpException(
                 LangService::instance()
@@ -231,8 +229,6 @@ class CategoryRepository
 
     public function removePinnedFaqForCategory(Category $category): void
     {
-        $this->checkIsSub($category);
-
         if ($category->pinned_faq_id === null) {
             throw new BadRequestHttpException(
                 LangService::instance()

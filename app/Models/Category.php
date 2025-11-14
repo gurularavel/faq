@@ -97,4 +97,9 @@ class Category extends Model implements HasMedia
     {
         return $this->belongsTo(Faq::class, 'pinned_faq_id');
     }
+
+    public function selectedFaqs(): BelongsToMany
+    {
+        return $this->belongsToMany(Faq::class, FaqCategory::class, 'category_id', 'faq_id');
+    }
 }

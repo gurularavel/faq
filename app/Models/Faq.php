@@ -122,4 +122,9 @@ class Faq extends Model implements HasMedia
     {
         return $this->hasMany(FaqArchive::class);
     }
+
+    public function selectedInCategories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, CategorySelectedFaq::class, 'faq_id', 'category_id');
+    }
 }
