@@ -25,7 +25,7 @@ class TagRepository
 
     public function list(): Collection
     {
-        return Tag::query()->orderBy('title')->get();
+        return Tag::query()->active()->orderBy('title')->get();
     }
 
     public function loadRelations(Tag $tag): void
