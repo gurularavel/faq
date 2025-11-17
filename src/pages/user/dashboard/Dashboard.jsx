@@ -462,6 +462,7 @@ const DashBoard = () => {
                         seen_count={item.seen_count}
                         categories={item.categories}
                         updatedDate={item.updated_date}
+                        files={item.files}
                       />
                     ))}
                   </Grid2>
@@ -530,6 +531,7 @@ const DashBoard = () => {
                       seen_count={pinnedFaq.seen_count}
                       categories={pinnedFaq.categories}
                       updatedDate={pinnedFaq.updated_date}
+                      files={pinnedFaq.files}
                     />
                   </Grid2>
                 </Box>
@@ -568,6 +570,7 @@ const DashBoard = () => {
                         seen_count={item.seen_count}
                         categories={item.categories}
                         updatedDate={item.updated_date}
+                        files={item.files}
                       />
                     ))}
                   </Grid2>

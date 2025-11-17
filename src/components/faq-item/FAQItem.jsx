@@ -11,9 +11,17 @@ import {
   Grid2,
   Button,
   Modal,
+  Card,
+  CardMedia,
+  CardContent,
+  CardActionArea,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import HistoryIcon from "@mui/icons-material/History";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import ImageIcon from "@mui/icons-material/Image";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
 import { useTranslate } from "@src/utils/translations/useTranslate";
 import SubdirectoryArrowRightIcon from "@mui/icons-material/SubdirectoryArrowRight";
@@ -28,11 +36,47 @@ const FAQItem = ({
   categories,
   updatedDate,
   isMostSearched,
+  files = [],
 }) => {
   const t = useTranslate();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  // Helper function to check if a file is an image
+  const isImageFile = (mimeType) => {
+    return mimeType?.startsWith("image/");
+  };
+
+  // Helper function to get file icon
+  const getFileIcon = (mimeType) => {
+    if (mimeType?.startsWith("image/")) return <ImageIcon />;
+    if (mimeType === "application/pdf") return <PictureAsPdfIcon />;
+    return <InsertDriveFileIcon />;
+  };
+
+  // Helper function to get filename from URL
+  const getFilename = (url) => {
+    const parts = url.split("/");
+    return parts[parts.length - 1];
+  };
+
+  // Handle file click
+  const handleFileClick = (file) => {
+    if (isImageFile(file.mime_type)) {
+      setSelectedImage(file.url);
+      setImageModalOpen(true);
+    } else {
+      window.open(file.url, "_blank");
+    }
+  };
+
+  const handleCloseImageModal = () => {
+    setImageModalOpen(false);
+    setSelectedImage(null);
+  };
 
   const postFaqId = async (id) => {
     try {
@@ -156,6 +200,74 @@ const FAQItem = ({
               style={{ maxWidth: "100%", overflowX: "auto" }}
               dangerouslySetInnerHTML={{ __html: answer }}
             />
+            
+            {/* Files Section */}
+            {files && files.length > 0 && (
+              <Box mt={3}>
+                <Box display="flex" alignItems="center" gap={1} mb={2}>
+                  <AttachFileIcon sx={{ color: "#d32f2f" }} />
+                  <Typography variant="subtitle2" fontWeight={600} color="#d32f2f">
+                    {t("attachments") || "Attachments"} ({files.length})
+                  </Typography>
+                </Box>
+                <Grid2 container spacing={2}>
+                  {files.map((file, index) => (
+                    <Grid2 size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+                      <Card
+                        sx={{
+                          height: "100%",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          "&:hover": {
+                            boxShadow: 4,
+                            transform: "translateY(-2px)",
+                          },
+                        }}
+                      >
+                        <CardActionArea
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleFileClick(file);
+                          }}
+                        >
+                          {isImageFile(file.mime_type) ? (
+                            <CardMedia
+                              component="img"
+                              height="140"
+                              image={file.url}
+                              alt={getFilename(file.url)}
+                              sx={{ objectFit: "cover" }}
+                            />
+                          ) : (
+                            <Box
+                              sx={{
+                                height: 140,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                bgcolor: "#f5f5f5",
+                              }}
+                            >
+                              {getFileIcon(file.mime_type)}
+                            </Box>
+                          )}
+                          <CardContent>
+                            <Typography
+                              variant="body2"
+                              noWrap
+                              title={getFilename(file.url)}
+                            >
+                              {getFilename(file.url)}
+                            </Typography>
+                          </CardContent>
+                        </CardActionArea>
+                      </Card>
+                    </Grid2>
+                  ))}
+                </Grid2>
+              </Box>
+            )}
+            
             <Box display="flex" justifyContent="flex-end" mt={2}>
               <Button
                 variant="outlined"
@@ -335,6 +447,73 @@ const FAQItem = ({
                 },
               }}
             />
+            
+            {/* Files Section in Modal */}
+            {files && files.length > 0 && (
+              <Box mt={4}>
+                <Box display="flex" alignItems="center" gap={1} mb={2}>
+                  <AttachFileIcon sx={{ color: "#d32f2f" }} />
+                  <Typography variant="subtitle2" fontWeight={600} color="#d32f2f">
+                    {t("attachments") || "Attachments"} ({files.length})
+                  </Typography>
+                </Box>
+                <Grid2 container spacing={2}>
+                  {files.map((file, index) => (
+                    <Grid2 size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+                      <Card
+                        sx={{
+                          height: "100%",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          "&:hover": {
+                            boxShadow: 4,
+                            transform: "translateY(-2px)",
+                          },
+                        }}
+                      >
+                        <CardActionArea
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleFileClick(file);
+                          }}
+                        >
+                          {isImageFile(file.mime_type) ? (
+                            <CardMedia
+                              component="img"
+                              height="140"
+                              image={file.url}
+                              alt={getFilename(file.url)}
+                              sx={{ objectFit: "cover" }}
+                            />
+                          ) : (
+                            <Box
+                              sx={{
+                                height: 140,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                bgcolor: "#f5f5f5",
+                              }}
+                            >
+                              {getFileIcon(file.mime_type)}
+                            </Box>
+                          )}
+                          <CardContent>
+                            <Typography
+                              variant="body2"
+                              noWrap
+                              title={getFilename(file.url)}
+                            >
+                              {getFilename(file.url)}
+                            </Typography>
+                          </CardContent>
+                        </CardActionArea>
+                      </Card>
+                    </Grid2>
+                  ))}
+                </Grid2>
+              </Box>
+            )}
           </Box>
 
           {/* Modal Footer - Fixed */}
@@ -370,6 +549,62 @@ const FAQItem = ({
           </Box>
         </Box>
       </Modal>
+
+      {/* Image Viewer Modal */}
+      <Modal
+        open={imageModalOpen}
+        onClose={handleCloseImageModal}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 2,
+        }}
+      >
+        <Box
+          sx={{
+            position: "relative",
+            maxWidth: "90vw",
+            maxHeight: "90vh",
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            boxShadow: 24,
+            p: 2,
+          }}
+        >
+          <IconButton
+            onClick={handleCloseImageModal}
+            sx={{
+              position: "absolute",
+              right: 8,
+              top: 8,
+              bgcolor: "rgba(255, 255, 255, 0.9)",
+              "&:hover": {
+                bgcolor: "rgba(255, 255, 255, 1)",
+              },
+              zIndex: 1,
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          {selectedImage && (
+            <Box
+              component="img"
+              src={selectedImage}
+              alt="Full size"
+              sx={{
+                maxWidth: "100%",
+                maxHeight: "85vh",
+                minWidth: "100px",
+                minHeight: "100px",
+                width: "auto",
+                height: "auto",
+                display: "block",
+              }}
+            />
+          )}
+        </Box>
+      </Modal>
     </Grid2>
   );
 };
@@ -395,6 +630,12 @@ FAQItem.propTypes = {
   ),
   updatedDate: PropTypes.string.isRequired,
   isMostSearched: PropTypes.bool,
+  files: PropTypes.arrayOf(
+    PropTypes.shape({
+      url: PropTypes.string.isRequired,
+      mime_type: PropTypes.string.isRequired,
+    })
+  ),
 };
 
 export default FAQItem;

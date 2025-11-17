@@ -8,6 +8,12 @@ import {
   CircularProgress,
   Button,
   Chip,
+  Paper,
+  IconButton,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogActions,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -21,6 +27,9 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { useNavigate, useParams } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@assets/icons/delete.svg";
+import DeleteModal from "@components/modal/DeleteModal";
+import Modal from "@components/modal";
 
 const editorConfiguration = {
   toolbar: {
@@ -91,8 +100,14 @@ export default function EditQuestion() {
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [existingFiles, setExistingFiles] = useState([]);
+  const [existingMediaIds, setExistingMediaIds] = useState([]);
   const [selectedParents, setSelectedParents] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
+  const [mediaViewerOpen, setMediaViewerOpen] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [mediaToDelete, setMediaToDelete] = useState(null);
   const [loading, setLoading] = useState({
     categories: false,
     tags: false,
@@ -133,25 +148,26 @@ export default function EditQuestion() {
     },
   });
 
-  // Update subcategories when parent categories change
-  useEffect(() => {
-    if (selectedParents.length > 0) {
-      // Collect all subcategories from selected parents
+  // Function to update subcategories based on selected parents
+  const updateSubCategories = useCallback((parents, shouldClearSelection = true) => {
+    if (parents.length > 0) {
       const allSubs = [];
-      selectedParents.forEach((selectedParent) => {
-        const parent = categories.find((cat) => cat.id === selectedParent.id);
+      parents.forEach((parent) => {
         if (parent?.subs && parent.subs.length > 0) {
           allSubs.push(...parent.subs);
         }
       });
       setSubCategories(allSubs);
-      // Reset category_ids when parents change
-      setValue("category_ids", []);
+      if (shouldClearSelection) {
+        setValue("category_ids", []);
+      }
     } else {
       setSubCategories([]);
-      setValue("category_ids", []);
+      if (shouldClearSelection) {
+        setValue("category_ids", []);
+      }
     }
-  }, [selectedParents, categories, setValue]);
+  }, [setValue]);
 
   const fetchQuestionData = useCallback(async () => {
     setLoading((prev) => ({ ...prev, fetchingData: true }));
@@ -214,17 +230,19 @@ export default function EditQuestion() {
         }
       }
 
+      // Set selected parents and update subcategories without clearing selection
       setSelectedParents(parentCategories);
+      updateSubCategories(parentCategories, false);
 
-      // Collect all subcategories
-      const allSubs = [];
-      parentCategories.forEach((parent) => {
-        if (parent?.subs && parent.subs.length > 0) {
-          allSubs.push(...parent.subs);
-        }
-      });
-      setSubCategories(allSubs);
+      // Store existing files
+      if (questionData.files?.files) {
+        setExistingFiles(questionData.files.files);
+      }
+      if (questionData.files?.media_ids) {
+        setExistingMediaIds(questionData.files.media_ids);
+      }
 
+      // Reset form with all data
       reset({
         parent_category_ids: parentCategoryIds,
         category_ids: categoryIds,
@@ -239,7 +257,7 @@ export default function EditQuestion() {
     } finally {
       setLoading((prev) => ({ ...prev, fetchingData: false }));
     }
-  }, [id, langs, categories, reset]);
+  }, [id, langs, categories, reset, updateSubCategories]);
 
   useEffect(() => {
     if (id && langs.length && categories.length > 0) {
@@ -289,6 +307,43 @@ export default function EditQuestion() {
 
   const handleRemoveFile = (index) => {
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Open media viewer
+  const handleMediaClick = (media) => {
+    setSelectedMedia(media);
+    setMediaViewerOpen(true);
+  };
+
+  // Close media viewer
+  const handleCloseMediaViewer = () => {
+    setMediaViewerOpen(false);
+    setSelectedMedia(null);
+  };
+
+  // Open delete modal
+  const handleDeleteMedia = (mediaId) => {
+    setMediaToDelete(mediaId);
+    setDeleteModalOpen(true);
+  };
+
+  // Delete existing media from server
+  const deleteMedia = async () => {
+    try {
+      const res = await controlPrivateApi.delete(
+        `/faqs/images/delete/${id}/${mediaToDelete}`
+      );
+      notify(res.data.message || "Media deleted successfully", "success");
+      setDeleteModalOpen(false);
+      setMediaToDelete(null);
+      // Refresh files list
+      fetchQuestionData();
+    } catch (error) {
+      notify(
+        error.response?.data?.message || "Error deleting media",
+        "error"
+      );
+    }
   };
 
   const onSubmit = async (data) => {
@@ -344,6 +399,7 @@ export default function EditQuestion() {
   }
 
   return (
+    <>
     <MainCard title={t("edit_question")} hasBackBtn={true}>
       <Box className="main-card-body">
         <Box className="main-card-body-inner">
@@ -372,10 +428,12 @@ export default function EditQuestion() {
                           value={selectedParents}
                           onChange={(_, newValue) => {
                             setSelectedParents(newValue);
+                            updateSubCategories(newValue, true);
                             field.onChange(newValue.map((item) => item.id));
                           }}
                           options={categories}
                           getOptionLabel={(option) => option.title}
+                          isOptionEqualToValue={(option, value) => option.id === value.id}
                           loading={loading.categories}
                           renderInput={(params) => (
                             <TextField
@@ -424,6 +482,7 @@ export default function EditQuestion() {
                           }
                           options={subCategories}
                           getOptionLabel={(option) => option.title}
+                          isOptionEqualToValue={(option, value) => option.id === value.id}
                           disabled={selectedParents.length === 0 || subCategories.length === 0}
                           renderInput={(params) => (
                             <TextField
@@ -460,6 +519,7 @@ export default function EditQuestion() {
                           }
                           options={tags}
                           getOptionLabel={(option) => option.title}
+                          isOptionEqualToValue={(option, value) => option.id === value.id}
                           loading={loading.tags}
                           renderInput={(params) => (
                             <TextField
@@ -489,7 +549,7 @@ export default function EditQuestion() {
 
               {/* Files Upload */}
               <Grid2 size={{ xs: 12 }}>
-                <Grid2 container spacing={2} alignItems="center">
+                <Grid2 container spacing={2}>
                   <Grid2 size={{ xs: 12, md: 3 }}>
                     <Typography variant="body1">{t("files")}</Typography>
                   </Grid2>
@@ -508,17 +568,126 @@ export default function EditQuestion() {
                         onChange={handleFileChange}
                       />
                     </Button>
+
+                    {/* Existing Files from Database */}
+                    {existingFiles.length > 0 && (
+                      <Box sx={{ mb: 3 }}>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                          {t("existing_files") || "Existing Files"}
+                        </Typography>
+                        <Grid2 container spacing={2}>
+                          {existingFiles.map((file, index) => (
+                            <Grid2 key={index} size={{ xs: 12, sm: 6, md: 4 }}>
+                              <Paper
+                                variant="outlined"
+                                sx={{
+                                  p: 2,
+                                  position: "relative",
+                                  cursor: "pointer",
+                                  transition: "all 0.2s",
+                                  "&:hover": {
+                                    boxShadow: 2,
+                                    transform: "translateY(-2px)",
+                                  },
+                                }}
+                              >
+                                <Box
+                                  onClick={() => handleMediaClick(file)}
+                                  sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    gap: 1,
+                                  }}
+                                >
+                                  {file.mime_type?.startsWith("image/") ? (
+                                    <Box
+                                      component="img"
+                                      src={file.url}
+                                      alt="media"
+                                      sx={{
+                                        width: "100%",
+                                        height: 150,
+                                        objectFit: "cover",
+                                        borderRadius: 1,
+                                      }}
+                                    />
+                                  ) : (
+                                    <Box
+                                      sx={{
+                                        width: "100%",
+                                        height: 150,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        bgcolor: "grey.100",
+                                        borderRadius: 1,
+                                      }}
+                                    >
+                                      <Typography variant="body2" color="text.secondary">
+                                        {file.mime_type}
+                                      </Typography>
+                                    </Box>
+                                  )}
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{
+                                      textAlign: "center",
+                                      wordBreak: "break-all",
+                                    }}
+                                  >
+                                    {file.mime_type}
+                                  </Typography>
+                                </Box>
+                                <IconButton
+                                  color="error"
+                                  size="small"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteMedia(existingMediaIds[index]);
+                                  }}
+                                  sx={{
+                                    position: "absolute",
+                                    top: 8,
+                                    right: 8,
+                                    bgcolor: "white",
+                                    "&:hover": {
+                                      bgcolor: "grey.100",
+                                    },
+                                  }}
+                                >
+                                  <img
+                                    src={DeleteIcon}
+                                    alt="delete"
+                                    style={{ width: 20, height: 20 }}
+                                  />
+                                </IconButton>
+                              </Paper>
+                            </Grid2>
+                          ))}
+                        </Grid2>
+                      </Box>
+                    )}
+
+                    {/* New Files to Upload */}
                     {selectedFiles.length > 0 && (
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                        {selectedFiles.map((file, index) => (
-                          <Chip
-                            key={index}
-                            label={file.name}
-                            onDelete={() => handleRemoveFile(index)}
-                            deleteIcon={<CloseIcon />}
-                            variant="outlined"
-                          />
-                        ))}
+                      <Box>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                          {t("new_files") || "New Files to Upload"}
+                        </Typography>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                          {selectedFiles.map((file, index) => (
+                            <Chip
+                              key={index}
+                              label={file.name}
+                              onDelete={() => handleRemoveFile(index)}
+                              deleteIcon={<CloseIcon />}
+                              variant="outlined"
+                              color="primary"
+                            />
+                          ))}
+                        </Box>
                       </Box>
                     )}
                   </Grid2>
@@ -646,5 +815,96 @@ export default function EditQuestion() {
         </Box>
       </Box>
     </MainCard>
+
+    {/* Media Viewer Dialog */}
+    <Dialog
+      open={mediaViewerOpen}
+      onClose={handleCloseMediaViewer}
+      maxWidth="lg"
+      fullWidth
+    >
+      <DialogTitle>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6">
+            {t("media_viewer") || "Media Viewer"}
+          </Typography>
+          <IconButton onClick={handleCloseMediaViewer}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        {selectedMedia && (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            {selectedMedia.mime_type?.startsWith("image/") ? (
+              <Box
+                component="img"
+                src={selectedMedia.url}
+                alt="media"
+                sx={{
+                  maxWidth: "100%",
+                  maxHeight: "70vh",
+                  objectFit: "contain",
+                }}
+              />
+            ) : (
+              <Box
+                sx={{
+                  width: "100%",
+                  minHeight: 300,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  bgcolor: "grey.100",
+                  borderRadius: 1,
+                  gap: 2,
+                }}
+              >
+                <Typography variant="h6" color="text.secondary">
+                  {selectedMedia.mime_type}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="error"
+                  href={selectedMedia.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t("open_in_new_tab") || "Open in New Tab"}
+                </Button>
+              </Box>
+            )}
+            <Typography variant="body2" color="text.secondary">
+              {selectedMedia.url}
+            </Typography>
+          </Box>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleCloseMediaViewer}>{t("close") || "Close"}</Button>
+      </DialogActions>
+    </Dialog>
+
+    {/* Delete Media Modal */}
+    <Modal
+      open={deleteModalOpen}
+      setOpen={setDeleteModalOpen}
+      fullScreenOnMobile={false}
+      title=""
+    >
+      <DeleteModal
+        onSuccess={deleteMedia}
+        close={() => setDeleteModalOpen(false)}
+      />
+    </Modal>
+  </>
   );
 }

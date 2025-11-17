@@ -57,6 +57,7 @@ const MostSearched = ({ faqItems, isLoading, title }) => {
               categories={item.categories}
               updatedDate={item.updated_date}
               isMostSearched={true}
+              files={item.files}
             />
           ))}
         </Grid2>
