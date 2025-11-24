@@ -73,6 +73,8 @@ class User extends Authenticatable implements HasMedia
 
     public function isExpired(): bool
     {
+        return false;
+
         // Check for "never expires" values:
         if ($this->accountexpires === null || $this->accountexpires == 0 || $this->accountexpires == 9223372036854775807) {
             return false;
