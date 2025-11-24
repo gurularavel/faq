@@ -15,6 +15,7 @@ import {
   CardMedia,
   CardContent,
   CardActionArea,
+  Popover,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import HistoryIcon from "@mui/icons-material/History";
@@ -22,6 +23,7 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import ImageIcon from "@mui/icons-material/Image";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
 import { useTranslate } from "@src/utils/translations/useTranslate";
 import SubdirectoryArrowRightIcon from "@mui/icons-material/SubdirectoryArrowRight";
@@ -44,6 +46,8 @@ const FAQItem = ({
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [tagsAnchorEl, setTagsAnchorEl] = useState(null);
+  const [modalTagsAnchorEl, setModalTagsAnchorEl] = useState(null);
 
   // Helper function to check if a file is an image
   const isImageFile = (mimeType) => {
@@ -78,6 +82,25 @@ const FAQItem = ({
     setSelectedImage(null);
   };
 
+  const handleTagsClick = (event) => {
+    setTagsAnchorEl(event.currentTarget);
+  };
+
+  const handleTagsClose = () => {
+    setTagsAnchorEl(null);
+  };
+
+  const handleModalTagsClick = (event) => {
+    setModalTagsAnchorEl(event.currentTarget);
+  };
+
+  const handleModalTagsClose = () => {
+    setModalTagsAnchorEl(null);
+  };
+
+  const tagsOpen = Boolean(tagsAnchorEl);
+  const modalTagsOpen = Boolean(modalTagsAnchorEl);
+
   const postFaqId = async (id) => {
     try {
       await userPrivateApi.post(`/faqs/open/${id}`);
@@ -103,7 +126,13 @@ const FAQItem = ({
   };
 
   return (
-    <Grid2 size={{ xs: 12, md: (isExpanded && !isMostSearched) || isMostSearched ? 12 : 6 }} item>
+    <Grid2
+      size={{
+        xs: 12,
+        md: (isExpanded && !isMostSearched) || isMostSearched ? 12 : 6,
+      }}
+      item
+    >
       <Box position="relative">
         <Box position="absolute" top="-24px" left="20px">
           <Typography variant="caption" color="text.secondary">
@@ -119,9 +148,10 @@ const FAQItem = ({
               zIndex: 1,
               display: "flex",
               gap: "4px",
+              alignItems: "center",
             }}
           >
-            {tags.map((tag) => (
+            {tags.slice(0, 2).map((tag) => (
               <Chip
                 key={tag.id}
                 label={<span dangerouslySetInnerHTML={{ __html: tag.title }} />}
@@ -129,11 +159,76 @@ const FAQItem = ({
                 sx={{ fontSize: "0.7rem" }}
               />
             ))}
+            {tags.length > 2 && (
+              <>
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleTagsClick(e);
+                  }}
+                  sx={{
+                    width: "24px",
+                    height: "24px",
+                    padding: "2px",
+                    bgcolor: "rgba(0, 0, 0, 0.08)",
+                    "&:hover": {
+                      bgcolor: "rgba(0, 0, 0, 0.12)",
+                    },
+                  }}
+                >
+                  <MoreHorizIcon sx={{ fontSize: "1rem" }} />
+                </IconButton>
+                <Popover
+                  open={tagsOpen}
+                  anchorEl={tagsAnchorEl}
+                  onClose={handleTagsClose}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                  }}
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      p: 2,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 1,
+                      maxWidth: "300px",
+                    }}
+                  >
+                    <Typography variant="subtitle2" fontWeight={600} mb={1}>
+                      {t("all_tags") || "All Tags"}
+                    </Typography>
+                    <Box display="flex" flexWrap="wrap" gap="4px">
+                      {tags.map((tag) => (
+                        <Chip
+                          key={tag.id}
+                          label={
+                            <span
+                              dangerouslySetInnerHTML={{ __html: tag.title }}
+                            />
+                          }
+                          size="small"
+                          sx={{ fontSize: "0.7rem" }}
+                        />
+                      ))}
+                    </Box>
+                  </Box>
+                </Popover>
+              </>
+            )}
           </Box>
         )}
 
         <Paper
-          className={`faq-item ${isExpanded && !isMostSearched ? "expanded" : ""}`}
+          className={`faq-item ${
+            isExpanded && !isMostSearched ? "expanded" : ""
+          }`}
           elevation={0}
           onClick={isMostSearched || !isExpanded ? toggleExpand : undefined}
           sx={{
@@ -163,7 +258,9 @@ const FAQItem = ({
             )}
           </Box>
 
-          {isExpanded && !isMostSearched && <Divider className="question-divider" />}
+          {isExpanded && !isMostSearched && (
+            <Divider className="question-divider" />
+          )}
 
           <Collapse in={isExpanded && !isMostSearched}>
             {categories && categories.length > 0 && (
@@ -200,13 +297,17 @@ const FAQItem = ({
               style={{ maxWidth: "100%", overflowX: "auto" }}
               dangerouslySetInnerHTML={{ __html: answer }}
             />
-            
+
             {/* Files Section */}
             {files && files.length > 0 && (
               <Box mt={3}>
                 <Box display="flex" alignItems="center" gap={1} mb={2}>
                   <AttachFileIcon sx={{ color: "#d32f2f" }} />
-                  <Typography variant="subtitle2" fontWeight={600} color="#d32f2f">
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={600}
+                    color="#d32f2f"
+                  >
                     {t("attachments") || "Attachments"} ({files.length})
                   </Typography>
                 </Box>
@@ -267,7 +368,7 @@ const FAQItem = ({
                 </Grid2>
               </Box>
             )}
-            
+
             <Box display="flex" justifyContent="flex-end" mt={2}>
               <Button
                 variant="outlined"
@@ -358,16 +459,84 @@ const FAQItem = ({
                   gap: "4px",
                   flexWrap: "wrap",
                   mb: 2,
+                  alignItems: "center",
                 }}
               >
-                {tags.map((tag) => (
+                {tags.slice(0, 2).map((tag) => (
                   <Chip
                     key={tag.id}
-                    label={<span dangerouslySetInnerHTML={{ __html: tag.title }} />}
+                    label={
+                      <span dangerouslySetInnerHTML={{ __html: tag.title }} />
+                    }
                     size="small"
                     sx={{ fontSize: "0.7rem" }}
                   />
                 ))}
+                {tags.length > 2 && (
+                  <>
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleModalTagsClick(e);
+                      }}
+                      sx={{
+                        width: "24px",
+                        height: "24px",
+                        padding: "2px",
+                        bgcolor: "rgba(0, 0, 0, 0.08)",
+                        "&:hover": {
+                          bgcolor: "rgba(0, 0, 0, 0.12)",
+                        },
+                      }}
+                    >
+                      <MoreHorizIcon sx={{ fontSize: "1rem" }} />
+                    </IconButton>
+                    <Popover
+                      open={modalTagsOpen}
+                      anchorEl={modalTagsAnchorEl}
+                      onClose={handleModalTagsClose}
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "left",
+                      }}
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "left",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          p: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1,
+                          maxWidth: "300px",
+                        }}
+                      >
+                        <Typography variant="subtitle2" fontWeight={600} mb={1}>
+                          {t("all_tags") || "All Tags"}
+                        </Typography>
+                        <Box display="flex" flexWrap="wrap" gap="4px">
+                          {tags.map((tag) => (
+                            <Chip
+                              key={tag.id}
+                              label={
+                                <span
+                                  dangerouslySetInnerHTML={{
+                                    __html: tag.title,
+                                  }}
+                                />
+                              }
+                              size="small"
+                              sx={{ fontSize: "0.7rem" }}
+                            />
+                          ))}
+                        </Box>
+                      </Box>
+                    </Popover>
+                  </>
+                )}
               </Box>
             )}
 
@@ -447,13 +616,17 @@ const FAQItem = ({
                 },
               }}
             />
-            
+
             {/* Files Section in Modal */}
             {files && files.length > 0 && (
               <Box mt={4}>
                 <Box display="flex" alignItems="center" gap={1} mb={2}>
                   <AttachFileIcon sx={{ color: "#d32f2f" }} />
-                  <Typography variant="subtitle2" fontWeight={600} color="#d32f2f">
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={600}
+                    color="#d32f2f"
+                  >
                     {t("attachments") || "Attachments"} ({files.length})
                   </Typography>
                 </Box>
