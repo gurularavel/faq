@@ -1024,7 +1024,7 @@ class FaqRepository
 
     public function getSelectedFaqsByCategory(Category $category, array $validated): LengthAwarePaginator
     {
-        return Faq::query()
+        return $category->faqs()
             ->active()
             /*->whereHas('selectedInCategories', function (Builder $query) use ($category) {
                 $query->where('category_selected_faqs.category_id', $category->id);
