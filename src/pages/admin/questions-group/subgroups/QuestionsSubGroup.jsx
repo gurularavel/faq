@@ -647,7 +647,7 @@ export default function QuestionsSubGroup() {
                       <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
                         {info.pinned_faq.question}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" paragraph>
+                      <Typography variant="body2" color="text.secondary" paragraph sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                         {stripHtmlTags(info.pinned_faq.answer)}
                       </Typography>
                     </Box>
