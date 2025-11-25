@@ -1026,10 +1026,10 @@ class FaqRepository
     {
         return Faq::query()
             ->active()
-            ->whereHas('selectedInCategories', function (Builder $query) use ($category) {
+            /*->whereHas('selectedInCategories', function (Builder $query) use ($category) {
                 $query->where('category_selected_faqs.category_id', $category->id);
                 $query->whereNull('category_selected_faqs.deleted_at');
-            })
+            })*/
             ->with([
                 'media',
                 'translatable',
