@@ -22,6 +22,7 @@ import ExportPdfModal from "@components/modal/ExportPdfModal";
 import { useTranslate } from "@src/utils/translations/useTranslate";
 import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
 import { notify } from "@src/utils/toast/notify";
+import {  PushPin } from "@mui/icons-material";
 
 const DashBoard = () => {
   const t = useTranslate();
@@ -57,7 +58,7 @@ const DashBoard = () => {
   const fetchSubcategories = useCallback(async () => {
     setIsLoadingSubcategories(true);
     try {
-      const { data } = await userPrivateApi.get("/categories/list?limit=100&with_subs=yes");
+      const { data } = await userPrivateApi.get("/categories/list?limit=100");
       // Flatten all subcategories (children only) from all categories
       setSubcategories(data.data);
     } catch (error) {
@@ -81,7 +82,7 @@ const DashBoard = () => {
   }, []);
 
   // Fetch FAQs for selected subcategory
-  const fetchCategoryFaqs = useCallback(async (subcategoryId, page = 1, limit = 100) => {
+  const fetchCategoryFaqs = useCallback(async (subcategoryId, page = 1, limit = 20) => {
     setIsLoadingCategoryFaqs(true);
     try {
       const { data } = await userPrivateApi.get(
@@ -212,6 +213,11 @@ const DashBoard = () => {
 
   // Handle category/subcategory selection
   const handleSubCategoryClick = useCallback(async (categoryId) => {
+    // Clear previous category data immediately to prevent showing stale data
+    setCategoryFaqs([]);
+    setCategoryPagination(null);
+    setPinnedFaq(null);
+    
     // First, fetch category details to check if it has subcategories
     setIsLoadingSubcategories(true);
     try {
@@ -222,7 +228,7 @@ const DashBoard = () => {
       
       // Check if category has subcategories
       if (categoryData.subs && categoryData.subs.length > 0) {
-        // Has subcategories - navigate with breadcrumb
+        // Has subcategories - navigate with breadcrumb and show subcategories
         const categoryItem = subcategories.find(cat => cat.id === categoryId);
         
         if (categoryItem) {
@@ -239,12 +245,13 @@ const DashBoard = () => {
         
         // Show subcategories as the new category list
         setSubcategories(categoryData.subs);
-        setSelectedSubCategoryId(null);
-        setPinnedFaq(null);
-        setCategoryFaqs([]);
-        setCategoryPagination(null);
+        
+        // Set the category and fetch FAQs for the parent category
+        setSelectedSubCategoryId(categoryId);
+        setPinnedFaq(categoryData.pinned_faq);
+        fetchCategoryFaqs(categoryId);
       } else {
-        // No subcategories - just select and show FAQs (no breadcrumb navigation)
+        // No subcategories - just select and show FAQs
         setSelectedSubCategoryId(categoryId);
         setPinnedFaq(categoryData.pinned_faq);
         fetchCategoryFaqs(categoryId);
@@ -253,6 +260,10 @@ const DashBoard = () => {
       console.error("Error fetching category details:", error);
       setCurrentCategoryData(null);
       setPinnedFaq(null);
+      // Clear category data on error
+      setSelectedSubCategoryId(null);
+      setCategoryFaqs([]);
+      setCategoryPagination(null);
     } finally {
       setIsLoadingSubcategories(false);
     }
@@ -324,7 +335,7 @@ const DashBoard = () => {
     setIsLoadingMore(true);
     try {
       const nextPage = categoryPagination.currentPage + 1;
-      await fetchCategoryFaqs(selectedSubCategoryId, nextPage);
+      await fetchCategoryFaqs(selectedSubCategoryId, nextPage, 20);
     } catch (error) {
       console.error("Error loading more category FAQs:", error);
     } finally {
@@ -418,7 +429,7 @@ const DashBoard = () => {
       {/* Main Content Area */}
       <Grid2 container spacing={3}>
         {/* Left Side - Most Searched or Search Results or Category FAQs */}
-        <Grid2 size={{ xs: 12, md: showSearchResults || showCategoryView  ? 12 : isMostSearched ? 4 : 7 }}>
+        <Grid2 size={{ xs: 12, md: showSearchResults || showCategoryView ? 12 : isMostSearched ? 4 : 7 }}>
           {showSearchResults ? (
             // Search Results View
             <Box>
@@ -513,27 +524,103 @@ const DashBoard = () => {
                 </Button>
               </Box>
               {pinnedFaq && (
+                <Box 
+                  sx={{ 
+                    mb: 6,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: '100%',
+                      maxWidth: '900px',
+                      border: '3px solid #d32f2f',
+                      borderRadius: '16px',
+                      padding: 4,
+                      background: 'linear-gradient(135deg, #fff5f5 0%, #ffffff 100%)',
+                      boxShadow: '0 8px 24px rgba(211, 47, 47, 0.15)',
+                      position: 'relative',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: -2,
+                        left: -2,
+                        right: -2,
+                        bottom: -2,
+                        background: 'linear-gradient(135deg, #d32f2f 0%, #f44336 100%)',
+                        borderRadius: '16px',
+                        zIndex: -1,
+                        opacity: 0.1,
+                      }
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 1,
+                        mb: 4,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 1,
+                          backgroundColor: '#d32f2f',
+                          color: 'white',
+                          padding: '8px 20px',
+                          borderRadius: '20px',
+                          fontWeight: 700,
+                          fontSize: '0.95rem',
+                          letterSpacing: '0.5px',
+                          boxShadow: '0 4px 12px rgba(211, 47, 47, 0.3)',
+                        }}
+                      >
+                        <PushPin /> {t("pinned_faq") || "Pinned FAQ"}
+                      </Box>
+                    </Box>
+                    <Box sx={{ mt: 3 }}>
+                      <Grid2 container spacing={2} rowSpacing={5}>
+                        <Grid2 size={12}>
+                          <FAQItem
+                            id={pinnedFaq.id}
+                            question={pinnedFaq.question}
+                            answer={pinnedFaq.answer}
+                            searchQuery=""
+                            showHighLight={false}
+                            tags={pinnedFaq.tags}
+                            seen_count={pinnedFaq.seen_count}
+                            categories={pinnedFaq.categories}
+                            updatedDate={pinnedFaq.updated_date}
+                            files={pinnedFaq.files}
+                            isMostSearched={true}
+                          />
+                        </Grid2>
+                      </Grid2>
+                    </Box>
+                  </Box>
+                </Box>
+              )}
+              
+              {/* Subcategories of Main Category */}
+              {currentCategoryData?.subs && currentCategoryData.subs.length > 0 && (
                 <Box sx={{ mb: 4 }}>
                   <Typography
                     variant="subtitle2"
                     sx={{ mb: 2, color: "#d32f2f", fontWeight: 600 }}
                   >
-                    {t("pinned_faq") || "Pinned FAQ"}
+                    {t("subcategories") || "Alt Kateqoriyalar"}
                   </Typography>
-                  <Grid2 container spacing={2} rowSpacing={5}>
-                    <FAQItem
-                      id={pinnedFaq.id}
-                      question={pinnedFaq.question}
-                      answer={pinnedFaq.answer}
-                      searchQuery=""
-                      showHighLight={false}
-                      tags={pinnedFaq.tags}
-                      seen_count={pinnedFaq.seen_count}
-                      categories={pinnedFaq.categories}
-                      updatedDate={pinnedFaq.updated_date}
-                      files={pinnedFaq.files}
-                    />
-                  </Grid2>
+                  <SubCategoriesList
+                    subcategories={subcategories}
+                    isLoading={isLoadingSubcategories}
+                    onSubCategoryClick={handleSubCategoryClick}
+                    selectedSubCategoryId={null}
+                  />
                 </Box>
               )}
               
