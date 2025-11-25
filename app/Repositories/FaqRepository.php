@@ -10,7 +10,6 @@ use App\Models\Admin;
 use App\Models\Category;
 use App\Models\CategorySelectedFaq;
 use App\Models\Faq;
-use App\Models\FaqCategory;
 use App\Models\FaqExport;
 use App\Models\FaqList;
 use App\Models\User;
@@ -1024,7 +1023,17 @@ class FaqRepository
 
     public function getSelectedFaqsByCategory(Category $category, array $validated): LengthAwarePaginator
     {
-        return $category->faqs()
+        $categoryId = $category->id;
+
+        return Faq::query()
+            ->where(function (Builder $query) use ($categoryId) {
+                $query->whereHas('categories', function (Builder $q) use ($categoryId) {
+                    $q->where('categories.id', $categoryId);
+                });
+                $query->orWhereHas('categories', function (Builder $q) use ($categoryId) {
+                    $q->where('categories.category_id', $categoryId);
+                });
+            })
             ->active()
             /*->whereHas('selectedInCategories', function (Builder $query) use ($category) {
                 $query->where('category_selected_faqs.category_id', $category->id);
