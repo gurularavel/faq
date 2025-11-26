@@ -52,6 +52,7 @@ use OpenApi\Annotations as OA;
  * @property mixed $seen_count
  * @property mixed $updated_at
  * @property mixed $files
+ * @property mixed $created_at
  * @method getLang(string $string)
  */
 class FaqsListResource extends JsonResource
@@ -72,6 +73,7 @@ class FaqsListResource extends JsonResource
             'seen_count' => $this->seen_count,
             'tags' => TagsListResource::collection($this->whenLoaded('tags')),
             'categories' => CategoriesListResource::collection($this->whenLoaded('categories')),
+            'created_date' => $this->created_at?->toDateTimeString(),
             'updated_date' => $this->updated_at?->toDateTimeString(),
             'archives_count' => $this->whenCounted('archives'),
             'files' => $this->whenLoaded('media', function () {

@@ -609,6 +609,7 @@ class FaqRepository
                 'score' => $hit['_score'] ?? null,
                 'categories' => CategoriesListResource::collection($faqModel->categories),
                 'archives_count' => $faqModel->archives_count ?? 0,
+                'created_at' => $faqModel->created_at,
                 'updated_at' => $faqModel->updated_at,
                 'files' => $faqModel->files['files'] ?? [],
             ];
