@@ -37,6 +37,7 @@ const FAQItem = ({
   tags,
   categories,
   updatedDate,
+  createdDate,
   isMostSearched,
   files = [],
 }) => {
@@ -398,6 +399,11 @@ const FAQItem = ({
         open={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
         faqId={id}
+        faqDetails={{
+          question,
+          answer,
+          createdDate,
+        }}
       />
 
       {/* Modal for Most Searched FAQs */}
@@ -802,6 +808,7 @@ FAQItem.propTypes = {
     })
   ),
   updatedDate: PropTypes.string.isRequired,
+  createdDate: PropTypes.string,
   isMostSearched: PropTypes.bool,
   files: PropTypes.arrayOf(
     PropTypes.shape({

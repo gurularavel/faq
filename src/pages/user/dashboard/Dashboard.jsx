@@ -13,6 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "@assets/icons/search.svg";
 import ResetIcon from "@assets/icons/reset.svg";
+import ArrowLeftIcon from "@assets/icons/arrow-left.svg";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import FAQItem from "@components/faq-item/FAQItem";
@@ -43,6 +44,7 @@ const DashBoard = () => {
   // Navigation state for category hierarchy
   const [navigationStack, setNavigationStack] = useState([]);
   const [currentCategoryData, setCurrentCategoryData] = useState(null);
+  const [parentCategoryData, setParentCategoryData] = useState(null);
   
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
   const [pinnedFaq, setPinnedFaq] = useState(null);
@@ -121,11 +123,12 @@ const DashBoard = () => {
         setSubcategories(categoryData.subs);
       }
       
-      // Clear selection
+      // Clear selection and parent data
       setSelectedSubCategoryId(null);
       setPinnedFaq(null);
       setCategoryFaqs([]);
       setCategoryPagination(null);
+      setParentCategoryData(null);
     } catch (error) {
       console.error("Error fetching category details:", error);
       setCurrentCategoryData(null);
@@ -228,7 +231,7 @@ const DashBoard = () => {
       
       // Check if category has subcategories
       if (categoryData.subs && categoryData.subs.length > 0) {
-        // Has subcategories - navigate with breadcrumb and show subcategories
+        // Has subcategories - this is a parent category
         const categoryItem = subcategories.find(cat => cat.id === categoryId);
         
         if (categoryItem) {
@@ -243,6 +246,9 @@ const DashBoard = () => {
           ]);
         }
         
+        // Store as parent category (but don't show back button yet)
+        setParentCategoryData(categoryData);
+        
         // Show subcategories as the new category list
         setSubcategories(categoryData.subs);
         
@@ -251,7 +257,8 @@ const DashBoard = () => {
         setPinnedFaq(categoryData.pinned_faq);
         fetchCategoryFaqs(categoryId);
       } else {
-        // No subcategories - just select and show FAQs
+        // No subcategories - this is a leaf category (subcategory)
+        // Don't change parentCategoryData here, keep it if it exists
         setSelectedSubCategoryId(categoryId);
         setPinnedFaq(categoryData.pinned_faq);
         fetchCategoryFaqs(categoryId);
@@ -280,9 +287,27 @@ const DashBoard = () => {
     setSearchPagination(null);
     setNavigationStack([]);
     setCurrentCategoryData(null);
+    setParentCategoryData(null);
     // Reload initial categories
     fetchSubcategories();
   }, [fetchSubcategories]);
+
+  // Handle back button to return to parent category
+  const handleBackToParent = useCallback(() => {
+    if (parentCategoryData) {
+      // Restore parent category view
+      setCurrentCategoryData(parentCategoryData);
+      setSelectedSubCategoryId(parentCategoryData.id);
+      setPinnedFaq(parentCategoryData.pinned_faq);
+      setSubcategories(parentCategoryData.subs || []);
+      
+      // Fetch parent category FAQs
+      fetchCategoryFaqs(parentCategoryData.id);
+      
+      // Keep parent data so back button can show again when clicking subcategory
+      // Don't clear parentCategoryData here
+    }
+  }, [parentCategoryData, fetchCategoryFaqs]);
 
   // Handle breadcrumb navigation
   const handleBreadcrumbClick = useCallback(async (index) => {
@@ -473,6 +498,7 @@ const DashBoard = () => {
                         seen_count={item.seen_count}
                         categories={item.categories}
                         updatedDate={item.updated_date}
+                        createdDate={item.created_date}
                         files={item.files}
                       />
                     ))}
@@ -496,6 +522,25 @@ const DashBoard = () => {
           ) : showCategoryView ? (
             // Category FAQs View
             <Box>
+              {/* Back Button - Show only when viewing a subcategory (has parent but current has no subs) */}
+              {parentCategoryData && (!currentCategoryData?.subs || currentCategoryData.subs.length === 0) && (
+                <Box sx={{ mb: 3 }}>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={<img src={ArrowLeftIcon} alt="back" style={{ width: 20, height: 20 }} />}
+                    onClick={handleBackToParent}
+                    sx={{
+                      borderWidth: 2,
+                      "&:hover": {
+                        borderWidth: 2,
+                      },
+                    }}
+                  >
+                    {t("back") || "Geri"}
+                  </Button>
+                </Box>
+              )}
               <Box
                 sx={{
                   display: "flex",
@@ -596,6 +641,7 @@ const DashBoard = () => {
                             seen_count={pinnedFaq.seen_count}
                             categories={pinnedFaq.categories}
                             updatedDate={pinnedFaq.updated_date}
+                            createdDate={pinnedFaq.created_date}
                             files={pinnedFaq.files}
                             isMostSearched={true}
                           />
@@ -657,6 +703,7 @@ const DashBoard = () => {
                         seen_count={item.seen_count}
                         categories={item.categories}
                         updatedDate={item.updated_date}
+                        createdDate={item.created_date}
                         files={item.files}
                       />
                     ))}

@@ -56,6 +56,7 @@ const MostSearched = ({ faqItems, isLoading, title }) => {
               seen_count={item.seen_count}
               categories={item.categories}
               updatedDate={item.updated_date}
+              createdDate={item.created_date}
               isMostSearched={true}
               files={item.files}
             />
