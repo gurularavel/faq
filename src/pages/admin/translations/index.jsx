@@ -184,7 +184,7 @@ export default function Translations() {
             <Grid2 container spacing={1}>
               <Grid2 size={{ xs: 12, lg: 5 }}>
                 <SearchInput
-                  name="key"
+                  name="keyword"
                   data={filters}
                   setData={setFilters}
                   placeholder={t("key")}
