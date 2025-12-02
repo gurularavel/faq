@@ -16,4 +16,14 @@ export default defineConfig({
       "@hooks": path.resolve(__dirname, "src/hooks/"),
     },
   },
+  build: {
+    // Add timestamp to filenames for cache busting
+    rollupOptions: {
+      output: {
+        entryFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
+        chunkFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
+        assetFileNames: `assets/[name]-[hash]-${Date.now()}[extname]`,
+      },
+    },
+  },
 });
