@@ -78,6 +78,9 @@ export default function QuestionsSubGroup() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoadingDialog, setIsLoadingDialog] = useState(false);
   const [isRemovingPin, setIsRemovingPin] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [dialogPage, setDialogPage] = useState(1);
+  const [hasMoreFaqs, setHasMoreFaqs] = useState(false);
 
   // reset filter
   const resetFilter = () =>
@@ -173,13 +176,22 @@ export default function QuestionsSubGroup() {
   };
 
   // Fetch available FAQs for pinning
-  const getAvailableFaqs = async () => {
-    setIsLoadingDialog(true);
+  const getAvailableFaqs = async (page = 1, loadMore = false) => {
+    if (loadMore) {
+      setIsLoadingMore(true);
+    } else {
+      setIsLoadingDialog(true);
+    }
     try {
       const res = await controlPrivateApi.get(
-        `/categories/${id}/selected-faqs/available-list`
+        `/categories/${id}/selected-faqs/available-list?page=${page}&limit=10`
       );
-      setAvailableFaqs(res.data.data);
+      if (loadMore) {
+        setAvailableFaqs(prev => [...prev, ...res.data.data]);
+      } else {
+        setAvailableFaqs(res.data.data);
+      }
+      setHasMoreFaqs(res.data.data.length === 10);
     } catch (error) {
       if (isAxiosError(error)) {
         notify(
@@ -188,7 +200,11 @@ export default function QuestionsSubGroup() {
         );
       }
     } finally {
-      setIsLoadingDialog(false);
+      if (loadMore) {
+        setIsLoadingMore(false);
+      } else {
+        setIsLoadingDialog(false);
+      }
     }
   };
 
@@ -231,11 +247,21 @@ export default function QuestionsSubGroup() {
 
   const handleOpenDialog = () => {
     setIsDialogOpen(true);
-    getAvailableFaqs();
+    setDialogPage(1);
+    setAvailableFaqs([]);
+    getAvailableFaqs(1, false);
   };
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
+    setDialogPage(1);
+    setAvailableFaqs([]);
+  };
+
+  const handleLoadMore = () => {
+    const nextPage = dialogPage + 1;
+    setDialogPage(nextPage);
+    getAvailableFaqs(nextPage, true);
   };
 
   // Strip HTML tags for display
@@ -787,66 +813,88 @@ export default function QuestionsSubGroup() {
               ))}
             </Stack>
           ) : availableFaqs.length > 0 ? (
-            <List>
-              {availableFaqs.map((faq) => (
-                <ListItem key={faq.id} disablePadding>
-                  <ListItemButton
-                    onClick={() => addPinnedFaq(faq.id)}
-                    sx={{
-                      border: "1px solid #E6E9ED",
-                      borderRadius: 1,
-                      mb: 1,
-                      "&:hover": {
-                        backgroundColor: "rgba(0, 0, 0, 0.04)",
-                      },
-                    }}
-                  >
-                    <ListItemText
-                      primary={
-                        <Typography variant="subtitle1" fontWeight="medium">
-                          {faq.question}
-                        </Typography>
-                      }
-                      secondary={
-                        <Box mt={1}>
-                          <Grid2 container spacing={1}>
-                            <Grid2 size={{ xs: 6, sm: 4 }}>
-                              <Typography variant="caption" color="text.secondary">
-                                {t("id") || "ID"}: {faq.id}
-                              </Typography>
-                            </Grid2>
-                            <Grid2 size={{ xs: 6, sm: 4 }}>
-                              <Typography variant="caption" color="text.secondary">
-                                {t("seen_count") || "Seen"}: {faq.seen_count}
-                              </Typography>
-                            </Grid2>
-                            <Grid2 size={{ xs: 12, sm: 4 }}>
-                              <Chip
-                                label={faq.is_active ? t("active") : t("inactive")}
-                                size="small"
-                                color={faq.is_active ? "success" : "default"}
-                              />
-                            </Grid2>
-                          </Grid2>
-                          {faq.tags?.length > 0 && (
-                            <Box mt={1} display="flex" gap={0.5} flexWrap="wrap">
-                              {faq.tags.map((tag) => (
+            <>
+              <List>
+                {availableFaqs.map((faq) => (
+                  <ListItem key={faq.id} disablePadding>
+                    <ListItemButton
+                      onClick={() => addPinnedFaq(faq.id)}
+                      sx={{
+                        border: "1px solid #E6E9ED",
+                        borderRadius: 1,
+                        mb: 1,
+                        "&:hover": {
+                          backgroundColor: "rgba(0, 0, 0, 0.04)",
+                        },
+                      }}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography variant="subtitle1" fontWeight="medium">
+                            {faq.question}
+                          </Typography>
+                        }
+                        secondary={
+                          <Box mt={1}>
+                            <Grid2 container spacing={1}>
+                              <Grid2 size={{ xs: 6, sm: 4 }}>
+                                <Typography variant="caption" color="text.secondary">
+                                  {t("id") || "ID"}: {faq.id}
+                                </Typography>
+                              </Grid2>
+                              <Grid2 size={{ xs: 6, sm: 4 }}>
+                                <Typography variant="caption" color="text.secondary">
+                                  {t("seen_count") || "Seen"}: {faq.seen_count}
+                                </Typography>
+                              </Grid2>
+                              <Grid2 size={{ xs: 12, sm: 4 }}>
                                 <Chip
-                                  key={tag.id}
-                                  label={tag.title}
+                                  label={faq.is_active ? t("active") : t("inactive")}
                                   size="small"
-                                  variant="outlined"
+                                  color={faq.is_active ? "success" : "default"}
                                 />
-                              ))}
-                            </Box>
-                          )}
-                        </Box>
-                      }
-                    />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
+                              </Grid2>
+                            </Grid2>
+                            {faq.tags?.length > 0 && (
+                              <Box mt={1} display="flex" gap={0.5} flexWrap="wrap">
+                                {faq.tags.map((tag) => (
+                                  <Chip
+                                    key={tag.id}
+                                    label={tag.title}
+                                    size="small"
+                                    variant="outlined"
+                                  />
+                                ))}
+                              </Box>
+                            )}
+                          </Box>
+                        }
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+              {hasMoreFaqs && (
+                <Box display="flex" justifyContent="center" mt={2}>
+                  <Button 
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    variant="outlined"
+                    color="error"
+                    fullWidth
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <CircularProgress size={16} sx={{ mr: 1 }} />
+                        {t("loading") || "Loading..."}
+                      </>
+                    ) : (
+                      t("load_more") || "Load More"
+                    )}
+                  </Button>
+                </Box>
+              )}
+            </>
           ) : (
             <Box
               display="flex"
