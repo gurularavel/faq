@@ -228,7 +228,10 @@ class FaqController extends Controller
      */
     public function loadArchives(GeneralListRequest $request, Faq $faq): AnonymousResourceCollection
     {
-        return FaqArchivesListResource::collection($this->repo->loadArchives($faq, $request->validated()));
+        return FaqArchivesListResource::collection($this->repo->loadArchives($faq, $request->validated()))
+            ->additional([
+                'current_version' => $this->findById($faq),
+            ]);
     }
 
     /**
