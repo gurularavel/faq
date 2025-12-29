@@ -17,9 +17,10 @@ import { userPrivateApi } from "@src/utils/axios/userPrivateApi";
 import { useTranslate } from "@src/utils/translations/useTranslate";
 import dayjs from "dayjs";
 
-const HistoryModal = ({ open, onClose, faqId, faqDetails }) => {
+const HistoryModal = ({ open, onClose, faqId }) => {
   const t = useTranslate();
   const [archives, setArchives] = useState([]);
+  const [currentVersion, setCurrentVersion] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -31,6 +32,7 @@ const HistoryModal = ({ open, onClose, faqId, faqDetails }) => {
         `/faqs/${faqId}/archives/load?limit=100`
       );
       setArchives(data.data || []);
+      setCurrentVersion(data.current_version || null);
     } catch (err) {
       console.error("Error fetching archives:", err);
       setError(t("failed_to_load_history") || "Failed to load history");
@@ -85,103 +87,22 @@ const HistoryModal = ({ open, onClose, faqId, faqDetails }) => {
           <Typography align="center" color="error" py={4}>
             {error}
           </Typography>
-        ) : archives.length === 0 && faqDetails ? (
-          <Box display="flex" flexDirection="column" gap={2}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 3,
-                border: "2px solid",
-                borderColor: "#c44",
-                borderRadius: 2,
-                bgcolor: "#fff5f5",
-              }}
-            >
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                mb={2}
-              >
-                <Box display="flex" alignItems="center" gap={1}>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                  >
-                    {t("created_date") || "Yaradılma tarixi"}:
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    fontWeight={700}
-                    color="#c44"
-                  >
-                    {faqDetails.createdDate && dayjs(faqDetails.createdDate).format("DD.MM.YYYY - HH:mm")}
-                  </Typography>
-                </Box>
-                <Button
-                  variant="contained"
-                  size="small"
-                  sx={{
-                    bgcolor: "#c44",
-                    color: "#fff",
-                    textTransform: "none",
-                    "&:hover": {
-                      bgcolor: "#a33",
-                    },
-                    fontWeight: 600,
-                    px: 2,
-                  }}
-                >
-                  {t("current_version") || "Cari versiya"}
-                </Button>
-              </Box>
-              <Box>
-                <Typography
-                  variant="body1"
-                  color="#c44"
-                  sx={{
-                    lineHeight: 1.6,
-                    "& p": {
-                      margin: 0,
-                    },
-                  }}
-                  dangerouslySetInnerHTML={{
-                    __html: faqDetails.question,
-                  }}
-                />
-                <Box
-                  component="div"
-                  sx={{
-                    mt: 1,
-                    color: "#c44",
-                    lineHeight: 1.6,
-                    "& p": {
-                      margin: 0,
-                    },
-                  }}
-                  dangerouslySetInnerHTML={{
-                    __html: faqDetails.answer,
-                  }}
-                />
-              </Box>
-            </Paper>
-          </Box>
-        ) : archives.length === 0 ? (
+        ) : !currentVersion && archives.length === 0 ? (
           <Typography align="center" color="text.secondary" py={4}>
             {t("no_history_available") || "No history available"}
           </Typography>
         ) : (
           <Box display="flex" flexDirection="column" gap={2}>
-            {archives.map((archive, index) => (
+            {/* Current Version */}
+            {currentVersion && (
               <Paper
-                key={archive.id}
                 elevation={0}
                 sx={{
                   p: 3,
                   border: "2px solid",
-                  borderColor: index === 0 ? "#c44" : "#e0e0e0",
+                  borderColor: "#c44",
                   borderRadius: 2,
-                  bgcolor: index === 0 ? "#fff5f5" : "#fafafa",
+                  bgcolor: "#fff5f5",
                 }}
               >
                 <Box
@@ -190,55 +111,37 @@ const HistoryModal = ({ open, onClose, faqId, faqDetails }) => {
                   alignItems="center"
                   mb={2}
                 >
-                  <Box display="flex" flexDirection="column" gap={0.5}>
-                    {index === 0 && faqDetails?.createdDate && (
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                        >
-                          {t("created_date") || "Yaradılma tarixi"}:
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          fontWeight={600}
-                          color="#c44"
-                        >
-                          {dayjs(faqDetails.createdDate).format("DD.MM.YYYY - HH:mm")}
-                        </Typography>
-                      </Box>
-                    )}
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      {t("created_date") || "Yaradılma tarixi"}:
+                    </Typography>
                     <Typography
                       variant="body1"
                       fontWeight={700}
                       color="#c44"
                     >
-                      {dayjs(archive.updated_date).format("DD.MM.YYYY - HH:mm")}
+                      {dayjs(currentVersion.created_date).format("DD.MM.YYYY - HH:mm")}
                     </Typography>
                   </Box>
-                  <Box display="flex" alignItems="center" gap={2}>
-                    <Typography variant="body2" color="text.secondary">
-                      {t("by") || "Tərəfindən"}: {archive.updated_by || "Admin"}
-                    </Typography>
-                    {index === 0 && (
-                      <Button
-                        variant="contained"
-                        size="small"
-                        sx={{
-                          bgcolor: "#c44",
-                          color: "#fff",
-                          textTransform: "none",
-                          "&:hover": {
-                            bgcolor: "#a33",
-                          },
-                          fontWeight: 600,
-                          px: 2,
-                        }}
-                      >
-                        {t("current_version") || "Cari versiya"}
-                      </Button>
-                    )}
-                  </Box>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={{
+                      bgcolor: "#c44",
+                      color: "#fff",
+                      textTransform: "none",
+                      "&:hover": {
+                        bgcolor: "#a33",
+                      },
+                      fontWeight: 600,
+                      px: 2,
+                    }}
+                  >
+                    {t("current_version") || "Cari versiya"}
+                  </Button>
                 </Box>
                 <Box>
                   <Typography
@@ -250,9 +153,10 @@ const HistoryModal = ({ open, onClose, faqId, faqDetails }) => {
                         margin: 0,
                       },
                     }}
-                  >
-                    {archive.old_question || archive.new_question}
-                  </Typography>
+                    dangerouslySetInnerHTML={{
+                      __html: currentVersion.question,
+                    }}
+                  />
                   <Box
                     component="div"
                     sx={{
@@ -262,9 +166,81 @@ const HistoryModal = ({ open, onClose, faqId, faqDetails }) => {
                       "& p": {
                         margin: 0,
                       },
+                      wordBreak: "break-word",
                     }}
                     dangerouslySetInnerHTML={{
-                      __html: archive.old_answer || archive.new_answer,
+                      __html: currentVersion.answer,
+                    }}
+                  />
+                </Box>
+              </Paper>
+            )}
+
+            {/* Archive History */}
+            {archives.map((archive) => (
+              <Paper
+                key={archive.id}
+                elevation={0}
+                sx={{
+                  p: 3,
+                  border: "2px solid",
+                  borderColor: "#e0e0e0",
+                  borderRadius: 2,
+                  bgcolor: "#fafafa",
+                }}
+              >
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={2}
+                >
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      {t("updated_date") || "Yenilənmə tarixi"}:
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      fontWeight={600}
+                      color="text.primary"
+                    >
+                      {dayjs(archive.updated_date).format("DD.MM.YYYY - HH:mm")}
+                    </Typography>
+                  </Box>
+                  {archive.updated_by && (
+                    <Typography variant="body2" color="text.secondary">
+                      {t("by") || "Tərəfindən"}: {archive.updated_by}
+                    </Typography>
+                  )}
+                </Box>
+                <Box>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      lineHeight: 1.6,
+                      "& p": {
+                        margin: 0,
+                      },
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: archive.new_question,
+                    }}
+                  />
+                  <Box
+                    component="div"
+                    sx={{
+                      mt: 1,
+                      lineHeight: 1.6,
+                      "& p": {
+                        margin: 0,
+                      },
+                      wordBreak: "break-word",
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: archive.new_answer,
                     }}
                   />
                 </Box>
@@ -281,11 +257,6 @@ HistoryModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   faqId: PropTypes.number.isRequired,
-  faqDetails: PropTypes.shape({
-    question: PropTypes.string,
-    answer: PropTypes.string,
-    createdDate: PropTypes.string,
-  }),
 };
 
 export default HistoryModal;
