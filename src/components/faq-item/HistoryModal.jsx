@@ -68,9 +68,14 @@ const HistoryModal = ({ open, onClose, faqId }) => {
           pb: 2,
         }}
       >
-        <Typography variant="h6" component="div" fontWeight={600}>
-          {t("faq_history") || "FAQ History"}
+       <Box display="flex" alignItems="center" gap={1}>
+       <Typography variant="h6" component="div" fontWeight={600}>
+          {t("created_date") || "Yaradılma tarixi"}:
         </Typography>
+        <Typography variant="body2" component="div" color="text.secondary">
+          {dayjs(currentVersion?.created_date).format("DD.MM.YYYY - HH:mm")}
+        </Typography>
+       </Box>
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
@@ -116,14 +121,14 @@ const HistoryModal = ({ open, onClose, faqId }) => {
                       variant="body2"
                       color="text.secondary"
                     >
-                      {t("created_date") || "Yaradılma tarixi"}:
+                      {t("updated_date") }:
                     </Typography>
                     <Typography
                       variant="body1"
                       fontWeight={700}
                       color="#c44"
                     >
-                      {dayjs(currentVersion.created_date).format("DD.MM.YYYY - HH:mm")}
+                      {dayjs(currentVersion.updated_date).format("DD.MM.YYYY - HH:mm")}
                     </Typography>
                   </Box>
                   <Button
